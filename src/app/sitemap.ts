@@ -50,6 +50,24 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: 'monthly',
       priority: 0.5,
     },
+    {
+      url: 'https://opceo.ai/agents',
+      lastModified: new Date(),
+      changeFrequency: 'daily',
+      priority: 0.8,
+    },
+    {
+      url: 'https://opceo.ai/teams',
+      lastModified: new Date(),
+      changeFrequency: 'daily',
+      priority: 0.8,
+    },
+    {
+      url: 'https://opceo.ai/docs/agent-api',
+      lastModified: new Date(),
+      changeFrequency: 'monthly',
+      priority: 0.6,
+    },
   ];
 
   const builderPages: MetadataRoute.Sitemap = (builders || []).map((b) => ({
@@ -76,5 +94,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.6,
   }));
 
-  return [...staticPages, ...builderPages, ...logPages, ...questPages];
+  const { data: teams } = await supabase
+    .from('teams')
+    .select('slug, updated_at');
+
+  const teamPages: MetadataRoute.Sitemap = (teams || []).map((t) => ({
+    url: `https://opceo.ai/teams/${t.slug}`,
+    lastModified: new Date(t.updated_at),
+    changeFrequency: 'weekly',
+    priority: 0.7,
+  }));
+
+  return [...staticPages, ...builderPages, ...logPages, ...questPages, ...teamPages];
 }

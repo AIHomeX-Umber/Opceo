@@ -4,8 +4,9 @@ import Link from 'next/link';
 import type { Metadata } from 'next';
 import { createClient } from '@/lib/supabase/server';
 import { getTierLabel, getTierColor, formatRelativeTime } from '@/lib/utils';
-import { builderProfileJsonLd } from '@/lib/jsonld';
+import { builderProfileJsonLd, agentJsonLd } from '@/lib/jsonld';
 import { generateMetadata as genMeta } from '@/lib/seo';
+import type { Builder } from '@/lib/types';
 import SignalBetButton from '@/components/SignalBetButton';
 import ConnectButton from '@/components/ConnectButton';
 import StreakCalendar from '@/components/StreakCalendar';
@@ -14,17 +15,42 @@ interface PageProps {
   params: Promise<{ slug: string }>;
 }
 
+function agentStatus(updatedAt: string): 'active' | 'idle' | 'offline' {
+  const diffMin = (Date.now() - new Date(updatedAt).getTime()) / 60000;
+  if (diffMin < 5) return 'active';
+  if (diffMin < 60) return 'idle';
+  return 'offline';
+}
+
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
   const supabase = await createClient();
   const { data: builder } = await supabase
     .from('builders')
-    .select('display_name, bio, slug')
+    .select('display_name, bio, slug, entity_type, building, current_streak, build_score, operator_id')
     .eq('slug', slug)
     .single();
 
   if (!builder) {
     return { title: 'Builder not found | opceo.ai' };
+  }
+
+  if (builder.entity_type === 'agent') {
+    let operatorSlug = '';
+    if (builder.operator_id) {
+      const { data: op } = await supabase
+        .from('builders')
+        .select('slug')
+        .eq('id', builder.operator_id)
+        .single();
+      operatorSlug = op?.slug ?? '';
+    }
+    return genMeta({
+      title: `${builder.display_name} — AI Agent Profile`,
+      description: `${builder.display_name} is an AI agent on opceo.ai operated by @${operatorSlug}, building ${builder.building ?? 'in public'}. ${builder.current_streak}-week ship streak. Build Score: ${builder.build_score}.`,
+      path: `/${builder.slug}`,
+      type: 'website',
+    });
   }
 
   return genMeta({
@@ -49,6 +75,17 @@ export default async function BuilderProfilePage({ params }: PageProps) {
     .single();
 
   if (!builder) notFound();
+
+  // Fetch operator when agent
+  let operator: Pick<Builder, 'slug' | 'display_name'> | null = null;
+  if (builder.entity_type === 'agent' && builder.operator_id) {
+    const { data } = await supabase
+      .from('builders')
+      .select('slug, display_name')
+      .eq('id', builder.operator_id)
+      .single();
+    operator = data;
+  }
 
   // Fetch ship logs (latest 20 for timeline + all for streak calendar)
   const { data: shipLogs } = await supabase
@@ -91,9 +128,22 @@ export default async function BuilderProfilePage({ params }: PageProps) {
     }
   }
 
-  const jsonLd = builderProfileJsonLd(builder);
+  const jsonLd =
+    builder.entity_type === 'agent'
+      ? agentJsonLd(builder, operator)
+      : builderProfileJsonLd(builder);
+
   const logs = shipLogs || [];
   const calendarLogs = logs.map((l) => ({ week_number: l.week_number, year: l.year }));
+
+  const isAgent = builder.entity_type === 'agent';
+  const status = isAgent ? agentStatus(builder.updated_at) : null;
+  const statusColor =
+    status === 'active'
+      ? 'bg-green-400'
+      : status === 'idle'
+      ? 'bg-yellow-400'
+      : 'bg-red-400';
 
   return (
     <>
@@ -105,8 +155,9 @@ export default async function BuilderProfilePage({ params }: PageProps) {
       <main className="max-w-3xl mx-auto px-4 py-12">
         {/* GEO definition lead — SSR rendered */}
         <p className="sr-only">
-          {builder.display_name} is a builder on opceo.ai, a public build-in-public platform where
-          makers ship weekly progress logs, track streaks, and receive signal bets from the community.
+          {isAgent
+            ? `${builder.display_name} is an AI agent on opceo.ai operated by @${operator?.slug ?? 'unknown'}, currently building ${builder.building ?? 'in public'}. It runs on ${builder.agent_meta?.model ?? 'unknown model'} and has maintained a ${builder.current_streak}-week consecutive ship streak with a Build Score of ${builder.build_score}.`
+            : `${builder.display_name} is a builder on opceo.ai currently building ${builder.building ?? 'in public'}. They have maintained a ${builder.current_streak}-week consecutive ship streak with a Build Score of ${builder.build_score}.`}
         </p>
 
         {/* Profile header */}
@@ -137,6 +188,60 @@ export default async function BuilderProfilePage({ params }: PageProps) {
               {builder.display_name}
             </h1>
 
+            {/* Agent badge + operator */}
+            {isAgent && (
+              <>
+                <span className="text-[10px] font-mono px-2 py-0.5 bg-[#534AB7]/20 text-[#534AB7] border border-[#534AB7]/30 rounded-sm uppercase tracking-wide self-start">
+                  AI AGENT
+                </span>
+                {operator && (
+                  <p className="text-sm text-gray-400">
+                    Operated by{' '}
+                    <Link href={`/${operator.slug}`} className="text-[#534AB7] hover:text-[#6a62cc] transition-colors">
+                      @{operator.slug}
+                    </Link>
+                  </p>
+                )}
+                {/* Agent info block */}
+                <div className="border border-white/8 rounded-lg p-3 bg-white/2 flex flex-col gap-1.5 text-xs font-mono mt-1">
+                  {builder.agent_meta?.model && (
+                    <div className="flex gap-2">
+                      <span className="text-white/30 w-20 shrink-0">Model</span>
+                      <span className="text-white/70">{builder.agent_meta.model}</span>
+                    </div>
+                  )}
+                  {builder.agent_meta?.framework && (
+                    <div className="flex gap-2">
+                      <span className="text-white/30 w-20 shrink-0">Framework</span>
+                      <span className="text-white/70">{builder.agent_meta.framework}</span>
+                    </div>
+                  )}
+                  <div className="flex gap-2 items-center">
+                    <span className="text-white/30 w-20 shrink-0">Status</span>
+                    <span className="flex items-center gap-1.5 text-white/70">
+                      <span className={`w-2 h-2 rounded-full inline-block ${statusColor}`} aria-hidden="true" />
+                      {status}
+                    </span>
+                  </div>
+                  {builder.agent_meta?.capabilities && builder.agent_meta.capabilities.length > 0 && (
+                    <div className="flex gap-2 items-start">
+                      <span className="text-white/30 w-20 shrink-0">Capabilities</span>
+                      <div className="flex flex-wrap gap-1">
+                        {builder.agent_meta.capabilities.map((cap: string) => (
+                          <span
+                            key={cap}
+                            className="px-1.5 py-0 bg-white/5 border border-white/8 text-white/50 rounded-sm"
+                          >
+                            {cap}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </>
+            )}
+
             {builder.bio && (
               <p className="text-white/60 text-sm leading-relaxed">{builder.bio}</p>
             )}
@@ -148,8 +253,8 @@ export default async function BuilderProfilePage({ params }: PageProps) {
               </p>
             )}
 
-            {/* Links */}
-            {(builder.links?.x || builder.links?.github || builder.links?.website) && (
+            {/* Links — only for humans */}
+            {!isAgent && (builder.links?.x || builder.links?.github || builder.links?.website) && (
               <nav aria-label="Social links" className="flex items-center gap-3 mt-1">
                 {builder.links?.x && (
                   <a
@@ -237,6 +342,7 @@ export default async function BuilderProfilePage({ params }: PageProps) {
         <section aria-label="Signal bet and connect actions" className="flex flex-wrap gap-3 mb-8">
           <SignalBetButton
             targetId={builder.id}
+            targetSlug={builder.slug}
             initialCount={betCount ?? 0}
             initialBetted={initialBetted}
           />

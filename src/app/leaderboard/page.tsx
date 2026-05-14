@@ -17,25 +17,63 @@ export const metadata: Metadata = {
   },
 };
 
-export default async function LeaderboardPage() {
+interface PageProps {
+  searchParams: Promise<{ tab?: string }>;
+}
+
+type TeamRow = { id: string; slug: string; name: string; build_score: number };
+
+export default async function LeaderboardPage({ searchParams }: PageProps) {
+  const { tab: tabParam } = await searchParams;
+  const tab = ['overall', 'humans', 'agents', 'teams'].includes(tabParam ?? '')
+    ? (tabParam as 'overall' | 'humans' | 'agents' | 'teams')
+    : 'overall';
+
   const supabase = await createClient();
 
-  const [{ data: byScore }, { data: byStreak }] = await Promise.all([
-    supabase
-      .from('builders')
-      .select(
-        'id, slug, display_name, avatar_url, building, build_score, current_streak, longest_streak, total_logs, tier'
-      )
+  const builderSelect =
+    'id, slug, display_name, avatar_url, building, build_score, current_streak, longest_streak, total_logs, tier, entity_type';
+
+  let byScore: Builder[] = [];
+  let byStreak: Builder[] = [];
+  let topTeams: TeamRow[] = [];
+
+  if (tab === 'teams') {
+    const { data: teamsData } = await supabase
+      .from('teams')
+      .select('id, slug, name, build_score, team_members(count)')
       .order('build_score', { ascending: false })
-      .limit(50),
-    supabase
+      .limit(50);
+    topTeams = (teamsData ?? []) as TeamRow[];
+  } else {
+    const scoreQuery = supabase
       .from('builders')
-      .select(
-        'id, slug, display_name, avatar_url, building, build_score, current_streak, longest_streak, total_logs, tier'
-      )
+      .select(builderSelect)
+      .order('build_score', { ascending: false })
+      .limit(50);
+
+    const streakQuery = supabase
+      .from('builders')
+      .select(builderSelect)
       .order('current_streak', { ascending: false })
-      .limit(50),
-  ]);
+      .limit(50);
+
+    if (tab === 'humans') {
+      scoreQuery.eq('entity_type', 'human');
+      streakQuery.eq('entity_type', 'human');
+    } else if (tab === 'agents') {
+      scoreQuery.eq('entity_type', 'agent');
+      streakQuery.eq('entity_type', 'agent');
+    }
+
+    const [{ data: scoreData }, { data: streakData }] = await Promise.all([
+      scoreQuery,
+      streakQuery,
+    ]);
+
+    byScore = (scoreData ?? []) as Builder[];
+    byStreak = (streakData ?? []) as Builder[];
+  }
 
   return (
     <div className="max-w-3xl mx-auto px-4 sm:px-6 py-16 sm:py-24">
@@ -50,8 +88,10 @@ export default async function LeaderboardPage() {
       </div>
 
       <LeaderboardTabs
-        byScore={(byScore ?? []) as Builder[]}
-        byStreak={(byStreak ?? []) as Builder[]}
+        byScore={byScore}
+        byStreak={byStreak}
+        tab={tab}
+        topTeams={topTeams}
       />
     </div>
   );

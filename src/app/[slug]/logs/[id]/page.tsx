@@ -6,6 +6,7 @@ import { generateMetadata as buildMetadata } from '@/lib/seo';
 import { shipLogJsonLd } from '@/lib/jsonld';
 import JsonLd from '@/components/JsonLd';
 import UpvoteButton from '@/components/UpvoteButton';
+import { ToolStackPill } from '@/components/ToolStackPill';
 import { formatRelativeTime } from '@/lib/utils';
 import type { Builder, ShipLog } from '@/lib/types';
 
@@ -59,7 +60,7 @@ export default async function ShipLogPage({
   const { data: logData } = await supabase
     .from('ship_logs')
     .select(
-      'id, builder_id, week_number, year, shipped, learned, next_week, tags, upvote_count, created_at, builders(id, slug, display_name, avatar_url, bio, building, build_score, links, skills, tier, is_investor, current_streak, longest_streak, total_logs, created_at, updated_at, user_id)'
+      'id, builder_id, week_number, year, shipped, learned, next_week, tool_stack, upvote_count, created_at, builders(id, slug, display_name, avatar_url, bio, building, build_score, links, skills, tier, is_investor, current_streak, longest_streak, total_logs, created_at, updated_at, user_id)'
     )
     .eq('id', id)
     .single();
@@ -77,7 +78,7 @@ export default async function ShipLogPage({
     shipped: logData.shipped,
     learned: logData.learned,
     next_week: logData.next_week,
-    tags: logData.tags ?? [],
+    tool_stack: logData.tool_stack ?? [],
     upvote_count: logData.upvote_count ?? 0,
     created_at: logData.created_at,
   };
@@ -154,19 +155,7 @@ export default async function ShipLogPage({
               </p>
             </section>
 
-            {/* Learned */}
-            {log.learned && (
-              <section className="mb-8">
-                <h2 className="text-xs font-mono font-semibold text-white/40 uppercase tracking-widest mb-3">
-                  Learned
-                </h2>
-                <p className="text-base text-white/90 leading-relaxed whitespace-pre-wrap">
-                  {log.learned}
-                </p>
-              </section>
-            )}
-
-            {/* Next week */}
+            {/* Next week — now second, always present */}
             {log.next_week && (
               <section className="mb-8">
                 <h2 className="text-xs font-mono font-semibold text-white/40 uppercase tracking-widest mb-3">
@@ -178,18 +167,30 @@ export default async function ShipLogPage({
               </section>
             )}
 
-            {/* Tags */}
-            {log.tags.length > 0 && (
-              <div className="flex flex-wrap gap-1.5 mb-8">
-                {log.tags.map((tag) => (
-                  <span
-                    key={tag}
-                    className="px-2.5 py-1 text-xs bg-white/5 border border-white/10 text-white/50 rounded-full"
-                  >
-                    {tag}
-                  </span>
-                ))}
-              </div>
+            {/* Learned — optional, third */}
+            {log.learned && (
+              <section className="mb-8">
+                <h2 className="text-xs font-mono font-semibold text-white/40 uppercase tracking-widest mb-3">
+                  Blockers &amp; lessons
+                </h2>
+                <p className="text-base text-white/90 leading-relaxed whitespace-pre-wrap">
+                  {log.learned}
+                </p>
+              </section>
+            )}
+
+            {/* Tool stack */}
+            {log.tool_stack.length > 0 && (
+              <section className="mb-8">
+                <h2 className="text-xs font-mono font-semibold text-white/40 uppercase tracking-widest mb-3">
+                  Tool stack
+                </h2>
+                <div className="flex flex-wrap gap-1.5">
+                  {log.tool_stack.map((tool) => (
+                    <ToolStackPill key={tool} name={tool} size="md" />
+                  ))}
+                </div>
+              </section>
             )}
 
             {/* Actions: upvote + share */}

@@ -1,5 +1,13 @@
 // lib/types.ts — opceo.ai core TypeScript types
 
+export interface AgentMeta {
+  model: string;
+  framework?: string;
+  repo?: string;
+  capabilities: string[];
+  status: 'active' | 'idle' | 'offline';
+}
+
 export interface Builder {
   id: string;
   user_id: string;
@@ -16,6 +24,9 @@ export interface Builder {
   total_logs: number;
   tier: 'explorer' | 'builder' | 'veteran' | 'founding';
   is_investor: boolean;
+  entity_type: 'human' | 'agent';
+  operator_id: string | null;
+  agent_meta: AgentMeta | null;
   created_at: string;
   updated_at: string;
 }
@@ -27,12 +38,12 @@ export interface ShipLog {
   year: number;
   shipped: string;
   learned: string | null;
-  next_week: string | null;
-  tags: string[];
+  next_week: string;
+  tool_stack: string[];
   upvote_count: number;
   created_at: string;
   // joined
-  builder?: Pick<Builder, 'slug' | 'display_name' | 'avatar_url'>;
+  builder?: Pick<Builder, 'slug' | 'display_name' | 'avatar_url' | 'entity_type'>;
 }
 
 export interface Quest {
@@ -95,6 +106,47 @@ export interface Spotlight {
   reason: string | null;
   created_at: string;
   builder?: Builder;
+}
+
+export interface AgentApiKey {
+  id: string;
+  builder_id: string;
+  key_prefix: string;
+  name: string;
+  last_used_at: string | null;
+  created_at: string;
+}
+
+export interface Team {
+  id: string;
+  name: string;
+  slug: string;
+  description: string | null;
+  avatar_url: string | null;
+  lead_id: string;
+  build_score: number;
+  created_at: string;
+  updated_at: string;
+  members?: TeamMember[];
+}
+
+export interface TeamMember {
+  id: string;
+  team_id: string;
+  builder_id: string;
+  role: 'lead' | 'member';
+  joined_at: string;
+  builder?: Builder;
+}
+
+export interface ActivityItem {
+  id: string;
+  actor_id: string;
+  action: string;
+  target_id: string | null;
+  summary: string;
+  created_at: string;
+  actor?: Pick<Builder, 'slug' | 'display_name' | 'avatar_url' | 'entity_type'>;
 }
 
 export interface SEOProps {

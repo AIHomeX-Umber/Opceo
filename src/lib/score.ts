@@ -1,6 +1,7 @@
 // lib/score.ts — Build Score algorithm
 
 export function calculateBuildScore(builder: {
+  entity_type?: 'human' | 'agent';
   current_streak: number;
   total_logs: number;
   bets_received: number;
@@ -14,6 +15,20 @@ export function calculateBuildScore(builder: {
   const upvoteScore = Math.min(builder.upvotes_received * 2, 100);
 
   return streakScore + logScore + betScore + questScore + upvoteScore;
+}
+
+// Human score includes 30% bonus from operated agents
+export function calculateHumanTotalScore(
+  humanScore: number,
+  operatedAgentScores: number[]
+): number {
+  const agentBonus = operatedAgentScores.reduce((sum, s) => sum + s, 0) * 0.3;
+  return Math.round(humanScore + agentBonus);
+}
+
+// Team score = sum of members × 0.8
+export function calculateTeamScore(memberScores: number[]): number {
+  return Math.round(memberScores.reduce((sum, s) => sum + s, 0) * 0.8);
 }
 
 export function calculateTier(

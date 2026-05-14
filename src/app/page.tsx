@@ -13,7 +13,8 @@ import {
   getTierColor,
   truncate,
 } from '@/lib/utils';
-import type { Builder, ShipLog, Quest, Spotlight } from '@/lib/types';
+import type { Builder, ShipLog, Quest, Spotlight, ActivityItem } from '@/lib/types';
+import LivePulse from '@/components/LivePulse';
 
 export const metadata: Metadata = gm({
   title: 'opceo.ai — The Infinite Build',
@@ -70,14 +71,14 @@ function ShipLogCard({ log }: { log: ShipLog }) {
           <p className="text-sm text-gray-300 leading-relaxed line-clamp-2">
             {log.shipped}
           </p>
-          {log.tags.length > 0 && (
+          {log.tool_stack.length > 0 && (
             <div className="flex flex-wrap gap-1 mt-2">
-              {log.tags.slice(0, 4).map((tag) => (
+              {log.tool_stack.slice(0, 4).map((tool) => (
                 <span
-                  key={tag}
+                  key={tool}
                   className="text-[10px] font-mono px-1.5 py-0.5 border border-white/5 text-gray-500 rounded-sm"
                 >
-                  {tag}
+                  {tool}
                 </span>
               ))}
             </div>
@@ -158,22 +159,25 @@ export default async function HomePage() {
   // Parallel data fetching
   const [
     { data: shipLogsRaw },
-    { count: builderCount },
+    { count: humanCount },
+    { count: agentCount },
     { count: weekShips },
     { data: spotlightsRaw },
     { data: questsRaw },
     { data: topBuildersRaw },
+    { data: activityRaw },
   ] = await Promise.all([
     supabase
       .from('ship_logs')
       .select(`
         id, builder_id, week_number, year, shipped, learned, next_week,
-        tags, upvote_count, created_at,
+        tool_stack, upvote_count, created_at,
         builder:builders!ship_logs_builder_id_fkey(slug, display_name, avatar_url)
       `)
       .order('created_at', { ascending: false })
       .limit(10),
-    supabase.from('builders').select('*', { count: 'exact', head: true }),
+    supabase.from('builders').select('*', { count: 'exact', head: true }).eq('entity_type', 'human'),
+    supabase.from('builders').select('*', { count: 'exact', head: true }).eq('entity_type', 'agent'),
     supabase
       .from('ship_logs')
       .select('*', { count: 'exact', head: true })
@@ -211,6 +215,11 @@ export default async function HomePage() {
       )
       .order('build_score', { ascending: false })
       .limit(5),
+    supabase
+      .from('activity_feed')
+      .select('id, action, summary, target_id, created_at, actor:builders!activity_feed_actor_id_fkey(slug, display_name, avatar_url, entity_type)')
+      .order('created_at', { ascending: false })
+      .limit(10),
   ]);
 
   // Normalize joined arrays from Supabase
@@ -240,6 +249,14 @@ export default async function HomePage() {
 
   const topBuilders = (topBuildersRaw ?? []) as Builder[];
 
+  const activityItems: ActivityItem[] = (activityRaw ?? []).map((row: Record<string, unknown>) => {
+    const actorRaw = row.actor as ActivityItem['actor'] | ActivityItem['actor'][] | null;
+    return {
+      ...(row as unknown as ActivityItem),
+      actor: Array.isArray(actorRaw) ? actorRaw[0] : actorRaw ?? undefined,
+    };
+  });
+
   return (
     <>
       <JsonLd data={[websiteJsonLd(), organizationJsonLd()]} />
@@ -248,7 +265,7 @@ export default async function HomePage() {
       <section className="max-w-4xl mx-auto px-4 sm:px-6 pt-24 pb-20">
         {/* Eyebrow */}
         <p className="text-xs font-mono text-gray-500 mb-6">
-          {builderCount ?? 0} builders &middot; {weekShips ?? 0} ships this week
+          {humanCount ?? 0} builders &middot; {agentCount ?? 0} agents &middot; {weekShips ?? 0} ships this week
         </p>
 
         <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-tight tracking-tight mb-6">
@@ -288,6 +305,16 @@ export default async function HomePage() {
           ))}
         </div>
       </section>
+
+      {/* ── LIVE PULSE ────────────────────────────────────────────── */}
+      {activityItems.length > 0 && (
+        <section className="max-w-4xl mx-auto px-4 sm:px-6 py-10 border-t border-white/5">
+          <h2 className="text-sm font-mono text-gray-500 uppercase tracking-widest mb-4">
+            Live pulse
+          </h2>
+          <LivePulse initialItems={activityItems} />
+        </section>
+      )}
 
       {/* ── SPOTLIGHT ─────────────────────────────────────────────── */}
       {spotlights.length > 0 && (

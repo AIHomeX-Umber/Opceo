@@ -9,6 +9,7 @@ import type { User } from '@supabase/supabase-js';
 const navLinks = [
   { href: '/', label: 'Live' },
   { href: '/explore', label: 'Explore' },
+  { href: '/agents', label: 'Agents' },
   { href: '/quests', label: 'Quests' },
   { href: '/leaderboard', label: 'Leaderboard' },
   { href: '/about', label: 'About' },

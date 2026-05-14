@@ -1,4 +1,4 @@
-import type { Builder, ShipLog, Quest } from './types';
+import type { Builder, ShipLog, Quest, Team, TeamMember } from './types';
 
 export function websiteJsonLd() {
   return {
@@ -93,6 +93,49 @@ export function itemListJsonLd(
       name: item.name,
     })),
   };
+}
+
+export function agentJsonLd(builder: Builder, operator: { slug: string; display_name: string } | null) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'SoftwareApplication',
+    name: builder.display_name,
+    url: `https://opceo.ai/${builder.slug}`,
+    description: builder.bio,
+    applicationCategory: 'AI Agent',
+    operatingSystem: builder.agent_meta?.framework ?? 'API',
+    author: operator
+      ? {
+          '@type': 'Person',
+          name: operator.display_name,
+          url: `https://opceo.ai/${operator.slug}`,
+        }
+      : undefined,
+    dateModified: builder.updated_at,
+  };
+}
+
+export function teamProfileJsonLd(team: Team, members: (TeamMember & { builder: Builder })[]) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    name: team.name,
+    url: `https://opceo.ai/teams/${team.slug}`,
+    description: team.description,
+    member: members.map((m) => ({
+      '@type': m.builder.entity_type === 'agent' ? 'SoftwareApplication' : 'Person',
+      name: m.builder.display_name,
+      url: `https://opceo.ai/${m.builder.slug}`,
+    })),
+    dateModified: team.updated_at,
+  };
+}
+
+export function teamListJsonLd(teams: { slug: string; name: string }[]) {
+  return itemListJsonLd(
+    teams.map((t) => ({ url: `https://opceo.ai/teams/${t.slug}`, name: t.name })),
+    'Teams — opceo.ai'
+  );
 }
 
 export function aboutPageJsonLd() {

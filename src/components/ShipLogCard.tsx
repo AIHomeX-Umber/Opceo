@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import type { ShipLog } from '@/lib/types';
 import { formatRelativeTime, truncate } from '@/lib/utils';
+import { ToolStackPill } from '@/components/ToolStackPill';
 
 interface ShipLogCardProps {
   log: ShipLog;
@@ -54,17 +55,17 @@ export default function ShipLogCard({ log, showBuilder = true }: ShipLogCardProp
           {truncate(log.shipped, 160)}
         </p>
 
-        {/* Tags */}
-        {log.tags.length > 0 && (
+        {/* Tool stack */}
+        {log.tool_stack.length > 0 && (
           <div className="flex flex-wrap gap-1.5 mb-4">
-            {log.tags.map((tag) => (
-              <span
-                key={tag}
-                className="px-2 py-0.5 text-xs bg-white/5 border border-white/10 text-white/40 rounded-full"
-              >
-                {tag}
-              </span>
+            {log.tool_stack.slice(0, 4).map((tool) => (
+              <ToolStackPill key={tool} name={tool} size="sm" />
             ))}
+            {log.tool_stack.length > 4 && (
+              <span className="px-2 py-0.5 text-xs bg-white/5 border border-white/10 text-white/40 rounded-md font-mono">
+                +{log.tool_stack.length - 4} more
+              </span>
+            )}
           </div>
         )}
 

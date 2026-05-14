@@ -50,7 +50,7 @@ export default async function BuilderLogsPage({
 
   const { data: builder } = await supabase
     .from('builders')
-    .select('id, slug, display_name, avatar_url, building, build_score, total_logs, bio, links, skills, tier, is_investor, current_streak, longest_streak, created_at, updated_at, user_id')
+    .select('id, slug, display_name, avatar_url, building, build_score, total_logs, bio, links, skills, tier, is_investor, current_streak, longest_streak, created_at, updated_at, user_id, entity_type')
     .eq('slug', slug)
     .single();
 
@@ -61,7 +61,7 @@ export default async function BuilderLogsPage({
 
   const { data: logsRaw, count } = await supabase
     .from('ship_logs')
-    .select('id, builder_id, week_number, year, shipped, learned, next_week, tags, upvote_count, created_at', {
+    .select('id, builder_id, week_number, year, shipped, learned, next_week, tool_stack, upvote_count, created_at', {
       count: 'exact',
     })
     .eq('builder_id', builder.id)
@@ -74,6 +74,7 @@ export default async function BuilderLogsPage({
       slug: builder.slug,
       display_name: builder.display_name,
       avatar_url: builder.avatar_url,
+      entity_type: (builder.entity_type ?? 'human') as 'human' | 'agent',
     },
   }));
 

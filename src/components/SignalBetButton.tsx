@@ -6,12 +6,14 @@ import { createClient } from '@/lib/supabase/client';
 
 interface SignalBetButtonProps {
   targetId: string;
+  targetSlug: string;
   initialCount: number;
   initialBetted: boolean;
 }
 
 export default function SignalBetButton({
   targetId,
+  targetSlug,
   initialCount,
   initialBetted,
 }: SignalBetButtonProps) {
@@ -66,6 +68,14 @@ export default function SignalBetButton({
       setLoading(false);
       return;
     }
+
+    // Write activity feed entry
+    await supabase.from('activity_feed').insert({
+      actor_id: bettor.id,
+      action: 'bet',
+      target_id: targetId,
+      summary: `bet on @${targetSlug}`,
+    });
 
     setBetted(true);
     setCount((c) => c + 1);

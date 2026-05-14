@@ -1,0 +1,126 @@
+// lib/tool-icons.ts — Tool name → theSVG.org icon slug mapping
+
+export const TOOL_ICON_MAP: Record<string, string> = {
+  // AI & LLM
+  'claude': 'anthropic',
+  'claude code': 'anthropic',
+  'anthropic': 'anthropic',
+  'openai': 'openai',
+  'chatgpt': 'openai',
+  'gpt': 'openai',
+  'gemini': 'google',
+  'copilot': 'github',
+  'cursor': 'cursor',
+  'v0': 'vercel',
+  'midjourney': 'midjourney',
+  'hugging face': 'huggingface',
+  'huggingface': 'huggingface',
+  'langchain': 'langchain',
+  'ollama': 'ollama',
+  'perplexity': 'perplexity',
+  'replicate': 'replicate',
+  'cohere': 'cohere',
+  'mistral': 'mistral',
+  // Dev frameworks & languages
+  'next.js': 'nextdotjs',
+  'nextjs': 'nextdotjs',
+  'react': 'react',
+  'vue': 'vuedotjs',
+  'nuxt': 'nuxtdotjs',
+  'svelte': 'svelte',
+  'angular': 'angular',
+  'typescript': 'typescript',
+  'javascript': 'javascript',
+  'python': 'python',
+  'rust': 'rust',
+  'go': 'go',
+  'node.js': 'nodedotjs',
+  'nodejs': 'nodedotjs',
+  'deno': 'deno',
+  'bun': 'bun',
+  'tailwind': 'tailwindcss',
+  'tailwindcss': 'tailwindcss',
+  'shadcn': 'shadcnui',
+  // Infra & deploy
+  'vercel': 'vercel',
+  'supabase': 'supabase',
+  'firebase': 'firebase',
+  'aws': 'amazonwebservices',
+  'cloudflare': 'cloudflare',
+  'docker': 'docker',
+  'github': 'github',
+  'gitlab': 'gitlab',
+  'netlify': 'netlify',
+  'railway': 'railway',
+  'render': 'render',
+  'digitalocean': 'digitalocean',
+  'heroku': 'heroku',
+  'redis': 'redis',
+  'postgresql': 'postgresql',
+  'postgres': 'postgresql',
+  'mongodb': 'mongodb',
+  'mysql': 'mysql',
+  'prisma': 'prisma',
+  // Design & content
+  'figma': 'figma',
+  'canva': 'canva',
+  'framer': 'framer',
+  'adobe': 'adobe',
+  'photoshop': 'adobephotoshop',
+  'illustrator': 'adobeillustrator',
+  'premiere': 'adobepremierepro',
+  'blender': 'blender',
+  'sketch': 'sketch',
+  'notion': 'notion',
+  'obsidian': 'obsidian',
+  // Automation & workflow
+  'n8n': 'n8n',
+  'zapier': 'zapier',
+  'make': 'make',
+  // Platforms & commerce
+  'shopify': 'shopify',
+  'stripe': 'stripe',
+  'wayfair': 'wayfair',
+  'amazon': 'amazon',
+  'wordpress': 'wordpress',
+  'webflow': 'webflow',
+  'woocommerce': 'woocommerce',
+  // Communication
+  'slack': 'slack',
+  'discord': 'discord',
+  'telegram': 'telegram',
+  'wechat': 'wechat',
+  'feishu': 'bytedance',
+  '飞书': 'bytedance',
+  // Other
+  'linear': 'linear',
+  'jira': 'jira',
+  'postman': 'postman',
+  'vscode': 'visualstudiocode',
+  'neovim': 'neovim',
+  'vim': 'vim',
+  'git': 'git',
+  'npm': 'npm',
+  'yarn': 'yarn',
+  'pnpm': 'pnpm',
+  'webpack': 'webpack',
+  'vite': 'vite',
+  'jest': 'jest',
+  'playwright': 'playwright',
+  'storybook': 'storybook',
+  'chrome': 'googlechrome',
+  'safari': 'safari',
+  'arc': 'arc',
+};
+
+export function getToolIconUrl(toolName: string): string | null {
+  const slug = TOOL_ICON_MAP[toolName.toLowerCase().trim()];
+  if (!slug) return null;
+  return `https://thesvg.org/icons/${slug}/default.svg`;
+}
+
+export function getToolIconMonoUrl(toolName: string): string | null {
+  const slug = TOOL_ICON_MAP[toolName.toLowerCase().trim()];
+  if (!slug) return null;
+  return `https://thesvg.org/icons/${slug}/mono.svg`;
+}
