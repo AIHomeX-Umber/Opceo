@@ -1,65 +1,418 @@
-import Image from "next/image";
+// app/page.tsx — Homepage (Server Component)
+import type { Metadata } from 'next';
+import Link from 'next/link';
+import Image from 'next/image';
+import { createClient } from '@/lib/supabase/server';
+import JsonLd from '@/components/JsonLd';
+import { websiteJsonLd, organizationJsonLd } from '@/lib/jsonld';
+import { generateMetadata as gm } from '@/lib/seo';
+import {
+  formatRelativeTime,
+  getDifficultyColor,
+  getCategoryColor,
+  getTierColor,
+  truncate,
+} from '@/lib/utils';
+import type { Builder, ShipLog, Quest, Spotlight } from '@/lib/types';
 
-export default function Home() {
+export const metadata: Metadata = gm({
+  title: 'opceo.ai — The Infinite Build',
+  description:
+    'Watch real builders ship real things. Every week. opceo.ai is an open platform for weekly ship logs, build streaks, and signal-based investing.',
+  path: '/',
+});
+
+const TECH_TAGS = [
+  'AI', 'Cross-border', 'React', 'Design',
+  'Marketing', 'Content', 'SaaS', 'Mobile',
+  'Growth', 'No-code',
+];
+
+const REWARD_LABELS: Record<string, string> = {
+  credit: 'Credit', collab: 'Collab', paid: 'Paid', equity: 'Equity', learning: 'Learning',
+};
+
+// ── Sub-components (inline, no client state needed) ─────────────────────────
+
+function ShipLogCard({ log }: { log: ShipLog }) {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
+    <div className="border border-white/5 rounded-sm p-4 hover:border-white/10 transition-colors">
+      <div className="flex items-start gap-3">
+        {/* Avatar */}
+        {log.builder?.avatar_url ? (
+          <Image
+            src={log.builder.avatar_url}
+            alt={log.builder.display_name}
+            width={32}
+            height={32}
+            className="rounded-full object-cover shrink-0 mt-0.5"
+          />
+        ) : (
+          <div className="w-8 h-8 shrink-0 mt-0.5 rounded-full bg-[#534AB7]/20 flex items-center justify-center text-[#534AB7] text-xs font-bold">
+            {(log.builder?.display_name ?? '?')[0].toUpperCase()}
+          </div>
+        )}
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 mb-1">
+            <Link
+              href={`/${log.builder?.slug ?? '#'}`}
+              className="text-sm font-medium text-white hover:text-[#534AB7] transition-colors"
             >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+              {log.builder?.display_name ?? 'Builder'}
+            </Link>
+            <span className="text-xs font-mono text-gray-600">
+              W{log.week_number}
+            </span>
+            <span className="text-xs text-gray-600">
+              {formatRelativeTime(log.created_at)}
+            </span>
+          </div>
+          <p className="text-sm text-gray-300 leading-relaxed line-clamp-2">
+            {log.shipped}
           </p>
+          {log.tags.length > 0 && (
+            <div className="flex flex-wrap gap-1 mt-2">
+              {log.tags.slice(0, 4).map((tag) => (
+                <span
+                  key={tag}
+                  className="text-[10px] font-mono px-1.5 py-0.5 border border-white/5 text-gray-500 rounded-sm"
+                >
+                  {tag}
+                </span>
+              ))}
+            </div>
+          )}
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+      </div>
     </div>
+  );
+}
+
+function MiniQuestCard({ quest }: { quest: Quest }) {
+  return (
+    <Link
+      href={`/quests/${quest.id}`}
+      className="block border border-white/5 rounded-sm p-4 hover:border-[#534AB7]/40 transition-colors group"
+    >
+      <div className="flex items-center gap-2 mb-2">
+        <span className={`text-[10px] font-mono px-1.5 py-0.5 rounded-sm ${getCategoryColor(quest.category)}`}>
+          {quest.category}
+        </span>
+        <span className={`text-[10px] font-mono px-1.5 py-0.5 rounded-sm ${getDifficultyColor(quest.difficulty)}`}>
+          {quest.difficulty}
+        </span>
+      </div>
+      <p className="text-sm font-medium text-white group-hover:text-[#534AB7] transition-colors line-clamp-2 mb-2">
+        {quest.title}
+      </p>
+      <span className="text-[10px] font-mono text-[#534AB7]">
+        {REWARD_LABELS[quest.reward_type] ?? quest.reward_type}
+      </span>
+    </Link>
+  );
+}
+
+function SpotlightCard({ spotlight }: { spotlight: Spotlight }) {
+  const builder = spotlight.builder;
+  if (!builder) return null;
+  return (
+    <Link
+      href={`/${builder.slug}`}
+      className="block border border-white/10 rounded-sm p-5 hover:border-[#534AB7]/50 transition-colors group"
+    >
+      <div className="flex items-center gap-3 mb-3">
+        {builder.avatar_url ? (
+          <Image
+            src={builder.avatar_url}
+            alt={builder.display_name}
+            width={40}
+            height={40}
+            className="rounded-full object-cover"
+          />
+        ) : (
+          <div className="w-10 h-10 rounded-full bg-[#534AB7]/20 flex items-center justify-center text-[#534AB7] font-bold">
+            {builder.display_name[0].toUpperCase()}
+          </div>
+        )}
+        <div>
+          <p className="text-sm font-semibold text-white group-hover:text-[#534AB7] transition-colors">
+            {builder.display_name}
+          </p>
+          <p className="text-xs text-gray-500">{builder.building ?? ''}</p>
+        </div>
+      </div>
+      {spotlight.reason && (
+        <p className="text-xs text-gray-400 leading-relaxed line-clamp-3">
+          {spotlight.reason}
+        </p>
+      )}
+    </Link>
+  );
+}
+
+// ── Page ──────────────────────────────────────────────────────────────────────
+
+export default async function HomePage() {
+  const supabase = await createClient();
+
+  // Parallel data fetching
+  const [
+    { data: shipLogsRaw },
+    { count: builderCount },
+    { count: weekShips },
+    { data: spotlightsRaw },
+    { data: questsRaw },
+    { data: topBuildersRaw },
+  ] = await Promise.all([
+    supabase
+      .from('ship_logs')
+      .select(`
+        id, builder_id, week_number, year, shipped, learned, next_week,
+        tags, upvote_count, created_at,
+        builder:builders!ship_logs_builder_id_fkey(slug, display_name, avatar_url)
+      `)
+      .order('created_at', { ascending: false })
+      .limit(10),
+    supabase.from('builders').select('*', { count: 'exact', head: true }),
+    supabase
+      .from('ship_logs')
+      .select('*', { count: 'exact', head: true })
+      .gte(
+        'created_at',
+        new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()
+      ),
+    supabase
+      .from('spotlights')
+      .select(`
+        id, builder_id, week_number, year, reason, created_at,
+        builder:builders!spotlights_builder_id_fkey(
+          id, user_id, slug, display_name, bio, building, avatar_url, links,
+          skills, build_score, current_streak, longest_streak,
+          total_logs, tier, is_investor, created_at, updated_at
+        )
+      `)
+      .order('created_at', { ascending: false })
+      .limit(3),
+    supabase
+      .from('quests')
+      .select(`
+        id, poster_id, title, category, difficulty, reward_type, status,
+        skills_needed, max_claimers, deadline, created_at, updated_at,
+        description, reward_detail,
+        poster:builders!quests_poster_id_fkey(slug, display_name, avatar_url)
+      `)
+      .eq('status', 'open')
+      .order('created_at', { ascending: false })
+      .limit(3),
+    supabase
+      .from('builders')
+      .select(
+        'id, slug, display_name, avatar_url, building, build_score, current_streak, longest_streak, total_logs, tier'
+      )
+      .order('build_score', { ascending: false })
+      .limit(5),
+  ]);
+
+  // Normalize joined arrays from Supabase
+  const shipLogs: ShipLog[] = (shipLogsRaw ?? []).map((l: Record<string, unknown>) => {
+    const builderRaw = l.builder as ShipLog['builder'] | ShipLog['builder'][] | null;
+    return {
+      ...(l as unknown as ShipLog),
+      builder: Array.isArray(builderRaw) ? builderRaw[0] : builderRaw ?? undefined,
+    };
+  });
+
+  const spotlights: Spotlight[] = (spotlightsRaw ?? []).map((s: Record<string, unknown>) => {
+    const bRaw = s.builder as Builder | Builder[] | null;
+    return {
+      ...(s as unknown as Spotlight),
+      builder: Array.isArray(bRaw) ? bRaw[0] : bRaw ?? undefined,
+    };
+  });
+
+  const quests: Quest[] = (questsRaw ?? []).map((q: Record<string, unknown>) => {
+    const pRaw = q.poster as Quest['poster'] | Quest['poster'][] | null;
+    return {
+      ...(q as unknown as Quest),
+      poster: Array.isArray(pRaw) ? pRaw[0] : pRaw ?? undefined,
+    };
+  });
+
+  const topBuilders = (topBuildersRaw ?? []) as Builder[];
+
+  return (
+    <>
+      <JsonLd data={[websiteJsonLd(), organizationJsonLd()]} />
+
+      {/* ── HERO ──────────────────────────────────────────────────── */}
+      <section className="max-w-4xl mx-auto px-4 sm:px-6 pt-24 pb-20">
+        {/* Eyebrow */}
+        <p className="text-xs font-mono text-gray-500 mb-6">
+          {builderCount ?? 0} builders &middot; {weekShips ?? 0} ships this week
+        </p>
+
+        <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-tight tracking-tight mb-6">
+          We don&apos;t do pitch decks.
+          <br />
+          We ship.
+        </h1>
+        <p className="text-lg sm:text-xl text-gray-400 mb-10 max-w-xl">
+          Watch real builders ship real things. Every week.
+        </p>
+
+        {/* CTAs */}
+        <div className="flex flex-wrap gap-3 mb-12">
+          <Link
+            href="/auth/register"
+            className="inline-flex items-center h-10 px-5 bg-[#534AB7] hover:bg-[#4a42a8] text-white text-sm font-medium rounded-sm transition-colors"
+          >
+            Start shipping →
+          </Link>
+          <Link
+            href="#latest-ships"
+            className="inline-flex items-center h-10 px-5 border border-white/10 text-gray-300 hover:border-[#534AB7]/50 hover:text-white text-sm font-medium rounded-sm transition-colors"
+          >
+            Explore builders ↓
+          </Link>
+        </div>
+
+        {/* Tech stack pills */}
+        <div className="flex flex-wrap gap-2">
+          {TECH_TAGS.map((tag) => (
+            <span
+              key={tag}
+              className="font-mono text-[11px] px-2.5 py-1 border border-white/8 text-gray-500 rounded-sm"
+            >
+              {tag}
+            </span>
+          ))}
+        </div>
+      </section>
+
+      {/* ── SPOTLIGHT ─────────────────────────────────────────────── */}
+      {spotlights.length > 0 && (
+        <section className="max-w-4xl mx-auto px-4 sm:px-6 py-16 border-t border-white/5">
+          <h2 className="text-lg font-semibold text-white mb-6">
+            This week&apos;s spotlight
+          </h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {spotlights.map((s) => (
+              <SpotlightCard key={s.id} spotlight={s} />
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* ── LATEST SHIPS + LEADERBOARD SIDEBAR ───────────────────── */}
+      <section
+        id="latest-ships"
+        className="max-w-4xl mx-auto px-4 sm:px-6 py-16 border-t border-white/5"
+      >
+        <div className="flex gap-10">
+          {/* Feed */}
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-lg font-semibold text-white">Latest ships</h2>
+              <Link
+                href="/explore"
+                className="text-xs text-gray-500 hover:text-[#534AB7] transition-colors font-mono"
+              >
+                View all →
+              </Link>
+            </div>
+
+            {shipLogs.length === 0 ? (
+              <p className="text-sm text-gray-600">No ships yet.</p>
+            ) : (
+              <div className="space-y-3">
+                {shipLogs.map((log) => (
+                  <ShipLogCard key={log.id} log={log} />
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Leaderboard sidebar (desktop only) */}
+          {topBuilders.length > 0 && (
+            <aside className="hidden lg:block w-64 shrink-0">
+              <div className="sticky top-8">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-sm font-semibold text-white">Build Score</h3>
+                  <Link
+                    href="/leaderboard"
+                    className="text-[10px] font-mono text-gray-500 hover:text-[#534AB7] transition-colors"
+                  >
+                    Full list →
+                  </Link>
+                </div>
+                <ol className="space-y-2">
+                  {topBuilders.map((builder, i) => (
+                    <li key={builder.id}>
+                      <Link
+                        href={`/${builder.slug}`}
+                        className="flex items-center gap-2.5 group"
+                      >
+                        <span className="font-mono text-xs text-gray-600 w-4 shrink-0 text-right">
+                          {i + 1}
+                        </span>
+                        {builder.avatar_url ? (
+                          <Image
+                            src={builder.avatar_url}
+                            alt={builder.display_name}
+                            width={24}
+                            height={24}
+                            className="rounded-full object-cover shrink-0"
+                          />
+                        ) : (
+                          <div className="w-6 h-6 rounded-full bg-[#534AB7]/20 flex items-center justify-center text-[#534AB7] text-[9px] font-bold shrink-0">
+                            {builder.display_name[0].toUpperCase()}
+                          </div>
+                        )}
+                        <span className="text-xs text-gray-300 group-hover:text-white transition-colors flex-1 truncate">
+                          {builder.display_name}
+                        </span>
+                        <span className="font-mono text-xs text-gray-500 shrink-0">
+                          {builder.build_score}
+                        </span>
+                      </Link>
+                    </li>
+                  ))}
+                </ol>
+                {/* Tier legend */}
+                <div className="mt-5 pt-4 border-t border-white/5 space-y-1">
+                  {(['founding', 'veteran', 'builder', 'explorer'] as const).map((tier) => (
+                    <div key={tier} className="flex items-center gap-2">
+                      <span className={`text-[10px] font-mono border px-1.5 py-px rounded-sm ${getTierColor(tier)}`}>
+                        {tier}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </aside>
+          )}
+        </div>
+      </section>
+
+      {/* ── OPEN QUESTS ───────────────────────────────────────────── */}
+      {quests.length > 0 && (
+        <section className="max-w-4xl mx-auto px-4 sm:px-6 py-16 border-t border-white/5">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-lg font-semibold text-white">Open quests</h2>
+            <Link
+              href="/quests"
+              className="text-xs text-gray-500 hover:text-[#534AB7] transition-colors font-mono"
+            >
+              View all quests →
+            </Link>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {quests.map((quest) => (
+              <MiniQuestCard key={quest.id} quest={quest} />
+            ))}
+          </div>
+        </section>
+      )}
+    </>
   );
 }

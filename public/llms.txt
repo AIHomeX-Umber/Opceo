@@ -1,0 +1,31 @@
+# opceo.ai — The Infinite Build
+
+## About
+opceo.ai is an open platform where builders publicly ship weekly progress logs,
+track build streaks, and connect with investors who signal-bet on promising projects.
+Founded by Mashi Technology (马时科技) in 2026.
+
+## Sections
+- / — Homepage with latest ships, weekly spotlight, and leaderboard
+- /explore — Browse all builders sorted by Build Score
+- /leaderboard — Top builders by Build Score and Streak
+- /quests — Task board where builders post and claim quests
+- /about — Platform values and manifesto
+- /[builder-slug] — Individual builder profiles with ship history
+- /[builder-slug]/logs — All ship logs by a builder
+- /[builder-slug]/logs/[id] — Individual ship log entries (full text, AI-readable)
+
+## Key concepts
+- Ship Log: A weekly progress report where builders document what they shipped,
+  what they learned, and what they plan to do next week.
+- Build Score: A composite metric based on ship consistency, quest completion,
+  signal bets received, and community upvotes.
+- Build Streak: The number of consecutive weeks a builder has submitted a ship log.
+- Signal Bet: A public, irrevocable endorsement of a builder's project by another
+  user or investor.
+- Quest: A task posted by any builder that other builders can claim, complete,
+  and earn Build Score rewards for.
+
+## Contact
+Website: https://opceo.ai
+Built by: Mashi Technology (马时科技)
