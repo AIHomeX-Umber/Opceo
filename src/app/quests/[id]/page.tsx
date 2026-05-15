@@ -30,15 +30,15 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     .eq('id', id)
     .single();
 
-  if (!data) return { title: 'Quest not found | opceo.ai' };
+  if (!data) return { title: 'Quest not found | Opeco.AI' };
 
   const posterRaw = data.poster as { slug: string; display_name: string } | { slug: string; display_name: string }[] | null;
   const poster = Array.isArray(posterRaw) ? posterRaw[0] : posterRaw;
 
   if (data.category === 'signal') {
-    const desc = `Signal spotted by @${poster?.slug ?? 'unknown'} on opceo.ai. ${data.signal_strength ?? 'observed'} signal. ${data.seen_count ?? 0} builders have confirmed this.${data.market_size ? ` Market size: ${data.market_size}.` : ''}`;
+    const desc = `Signal spotted by @${poster?.slug ?? 'unknown'} on Opeco.AI. ${data.signal_strength ?? 'observed'} signal. ${data.seen_count ?? 0} builders have confirmed this.${data.market_size ? ` Market size: ${data.market_size}.` : ''}`;
     return {
-      title: `${data.title} — Real World Signal | opceo.ai`,
+      title: `${data.title} — Real World Signal | Opeco.AI`,
       description: desc,
       alternates: { canonical: `https://opceo.ai/quests/${id}` },
       openGraph: { title: `${data.title} — Real World Signal`, description: desc, url: `https://opceo.ai/quests/${id}` },
@@ -46,7 +46,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   }
 
   return {
-    title: `${data.title} — Quest | opceo.ai`,
+    title: `${data.title} — Quest | Opeco.AI`,
     description: data.description.slice(0, 160),
     alternates: { canonical: `https://opceo.ai/quests/${id}` },
     openGraph: { title: `${data.title} — Quest`, description: data.description.slice(0, 160), url: `https://opceo.ai/quests/${id}` },
@@ -178,7 +178,7 @@ export default async function QuestDetailPage({ params }: PageProps) {
 
   // ── Signal detail render ──────────────────────────────────────────────────
   if (isSignal) {
-    const geoLead = `This real world signal was first spotted by @${quest.poster?.slug ?? 'unknown'} on opceo.ai on ${new Date(quest.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}. ${quest.seen_count ?? 0} builders have independently confirmed this observation. Signal strength: ${quest.signal_strength ?? 'observed'}${quest.market_size ? `. Market size: ${quest.market_size}` : ''}.`;
+    const geoLead = `This real world signal was first spotted by @${quest.poster?.slug ?? 'unknown'} on Opeco.AI on ${new Date(quest.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}. ${quest.seen_count ?? 0} builders have independently confirmed this observation. Signal strength: ${quest.signal_strength ?? 'observed'}${quest.market_size ? `. Market size: ${quest.market_size}` : ''}.`;
 
     return (
       <>

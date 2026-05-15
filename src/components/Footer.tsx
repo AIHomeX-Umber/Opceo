@@ -11,7 +11,7 @@ export default function Footer() {
             href="/"
             className="font-mono text-sm font-semibold text-white/80 hover:text-white transition-colors"
           >
-            opceo.ai
+            Opeco.AI
           </Link>
           <p className="text-xs text-white/30">
             © {year} Mashi Technology (马时科技). The Infinite Build.

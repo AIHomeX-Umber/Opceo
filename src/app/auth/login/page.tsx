@@ -4,8 +4,8 @@ import { createClient } from '@/lib/supabase/server';
 import LoginFormInner from './LoginFormInner';
 
 export const metadata: Metadata = {
-  title: 'Sign In — opceo.ai',
-  description: 'Sign in to your opceo.ai builder profile and keep shipping.',
+  title: 'Sign In — Opeco.AI',
+  description: 'Sign in to your Opeco.AI builder profile and keep shipping.',
 };
 
 export default async function LoginPage() {
@@ -51,7 +51,7 @@ export default async function LoginPage() {
       {/* Left brand panel */}
       <div className="hidden md:flex md:w-1/2 bg-[#08080f] border-r border-white/5 p-12 flex-col justify-between">
         <div>
-          <p className="text-[#534AB7] font-mono text-xs uppercase tracking-widest mb-10">opceo.ai</p>
+          <p className="text-[#534AB7] font-mono text-xs uppercase tracking-widest mb-10">Opeco.AI</p>
           <h2 className="text-3xl font-semibold text-white leading-snug mb-4">
             The Infinite Build
           </h2>

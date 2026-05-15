@@ -16,14 +16,14 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: 'opceo.ai — The Infinite Build',
-    template: '%s | opceo.ai',
+    default: 'Opeco.AI — The Infinite Build',
+    template: '%s | Opeco.AI',
   },
   description:
-    'opceo.ai is an open platform where builders publicly ship weekly progress logs, track build streaks, and connect with investors who signal-bet on promising projects.',
+    'Opeco.AI is an open platform where builders publicly ship weekly progress logs, track build streaks, and connect with investors who signal-bet on promising projects.',
   metadataBase: new URL('https://opceo.ai'),
   openGraph: {
-    siteName: 'opceo.ai — The Infinite Build',
+    siteName: 'Opeco.AI — The Infinite Build',
     type: 'website',
   },
 };

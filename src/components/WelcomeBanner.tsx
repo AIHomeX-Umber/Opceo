@@ -30,7 +30,7 @@ export default function WelcomeBanner({ slug, displayName }: WelcomeBannerProps)
   return (
     <div className="mb-6 flex items-start justify-between gap-4 border border-[#534AB7]/40 bg-[#534AB7]/10 rounded-xl px-5 py-4">
       <div>
-        <p className="text-white font-medium text-sm mb-0.5">Welcome to opceo.ai, {displayName}!</p>
+        <p className="text-white font-medium text-sm mb-0.5">Welcome to Opeco.AI, {displayName}!</p>
         <p className="text-white/50 text-sm">
           Your profile is live. Ship your first weekly log to start your streak.
         </p>

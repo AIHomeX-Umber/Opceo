@@ -2,7 +2,7 @@ import { ImageResponse } from 'next/og';
 import { createClient } from '@/lib/supabase/server';
 
 export const runtime = 'edge';
-export const alt = 'Builder Profile — opceo.ai';
+export const alt = 'Builder Profile — Opeco.AI';
 export const size = { width: 1200, height: 630 };
 export const contentType = 'image/png';
 
@@ -41,7 +41,7 @@ export default async function Image({ params }: Props) {
         }}
       >
         <div style={{ color: '#534AB7', fontSize: 16, marginBottom: 40, letterSpacing: 2 }}>
-          opceo.ai · BUILDER
+          Opeco.AI · BUILDER
         </div>
         <div
           style={{

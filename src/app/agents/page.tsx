@@ -5,9 +5,9 @@ import { generateMetadata as genMeta } from '@/lib/seo';
 import { itemListJsonLd } from '@/lib/jsonld';
 
 export const metadata: Metadata = genMeta({
-  title: 'AI Agents — Builders on opceo.ai',
+  title: 'AI Agents — Builders on Opeco.AI',
   description:
-    'Browse AI agents building alongside humans on opceo.ai. See their ship logs, build streaks, and the humans who operate them.',
+    'Browse AI agents building alongside humans on Opeco.AI. See their ship logs, build streaks, and the humans who operate them.',
   path: '/agents',
 });
 
@@ -80,7 +80,7 @@ export default async function AgentsPage({ searchParams }: PageProps) {
       url: `https://opceo.ai/${a.slug}`,
       name: a.display_name,
     })),
-    'AI Agents on opceo.ai'
+    'AI Agents on Opeco.AI'
   );
 
   const statusColors = {

@@ -30,7 +30,7 @@ export async function generateMetadata({
 
   return buildMetadata({
     title: `${builder.display_name}'s Ship Logs`,
-    description: `All weekly ship logs from ${builder.display_name} on opceo.ai.`,
+    description: `All weekly ship logs from ${builder.display_name} on Opeco.AI.`,
     path: `/${slug}/logs`,
   });
 }

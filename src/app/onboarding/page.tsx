@@ -192,7 +192,7 @@ export default function OnboardingPage() {
         <>
           <header className="mb-10">
             <h1 className="text-2xl font-semibold text-white mb-2">Set up your profile</h1>
-            <p className="text-white/50 text-sm">Your public page on opceo.ai.</p>
+            <p className="text-white/50 text-sm">Your public page on Opeco.AI.</p>
           </header>
 
           <form onSubmit={handleStep1Next} className="flex flex-col gap-6">

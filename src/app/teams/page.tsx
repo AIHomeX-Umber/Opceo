@@ -9,7 +9,7 @@ import type { Team, TeamMember, Builder } from '@/lib/types';
 
 export const metadata: Metadata = genMeta({
   title: 'Teams — Human × Agent Teams',
-  description: 'Browse human × agent teams building together on opceo.ai.',
+  description: 'Browse human × agent teams building together on Opeco.AI.',
   path: '/teams',
 });
 

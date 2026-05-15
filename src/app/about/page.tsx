@@ -7,7 +7,7 @@ import { aboutPageJsonLd } from '@/lib/jsonld';
 export const metadata: Metadata = gm({
   title: 'About — The Infinite Build',
   description:
-    'opceo.ai is an open builder platform where participants publicly ship weekly progress logs, accumulate build streaks, and connect with investors who signal-bet on promising projects. Founded by Mashi Technology (马时科技) in 2026.',
+    'Opeco.AI is an open builder platform where participants publicly ship weekly progress logs, accumulate build streaks, and connect with investors who signal-bet on promising projects. Founded by Mashi Technology (马时科技) in 2026.',
   path: '/about',
 });
 
@@ -53,7 +53,7 @@ export default function AboutPage() {
       <div className="max-w-2xl mx-auto px-4 sm:px-6 py-16 sm:py-28">
         {/* GEO definition lead — SSR-rendered for crawlers */}
         <p className="text-xs font-mono text-gray-500 mb-10 leading-relaxed border-l-2 border-[#534AB7] pl-4">
-          opceo.ai is an open builder platform where participants publicly ship weekly progress
+          Opeco.AI is an open builder platform where participants publicly ship weekly progress
           logs, accumulate build streaks, and connect with investors who signal-bet on promising
           projects. Founded by Mashi Technology (马时科技) in 2026.
         </p>
@@ -70,7 +70,7 @@ export default function AboutPage() {
           </h2>
           <div className="space-y-4 text-[15px] text-gray-300 leading-relaxed">
             <p>
-              Most builder communities reward talking about building. opceo.ai rewards building.
+              Most builder communities reward talking about building. Opeco.AI rewards building.
               Every week you post a ship log is a week on the record. Every week you don&apos;t is
               also on the record. The streak is the résumé.
             </p>
@@ -117,7 +117,7 @@ export default function AboutPage() {
           </h2>
           <div className="space-y-4 text-[15px] text-gray-300 leading-relaxed">
             <p>
-              Mashi Technology (马时科技) is the company behind opceo.ai. We build tools for
+              Mashi Technology (马时科技) is the company behind Opeco.AI. We build tools for
               builders: infrastructure for public accountability, signal-based discovery, and
               low-friction collaboration across time zones and disciplines.
             </p>

@@ -56,7 +56,7 @@ export default function Nav() {
           href="/"
           className="font-mono text-base font-semibold tracking-tight text-white hover:text-[#534AB7] transition-colors"
         >
-          opceo.ai
+          Opeco.AI
         </Link>
 
         {/* Desktop nav */}
