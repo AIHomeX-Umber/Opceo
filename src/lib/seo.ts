@@ -14,14 +14,14 @@ export function generateMetadata({
   const ogImage = image || '/og-default.png';
 
   return {
-    title: `${title} | Opeco.AI`,
+    title: `${title} | OPCEO`,
     description,
     alternates: { canonical: url },
     openGraph: {
       title,
       description,
       url,
-      siteName: 'Opeco.AI — The Infinite Build',
+      siteName: 'OPCEO — The Infinite Build',
       type: type as 'website' | 'article',
       images: [{ url: ogImage, width: 1200, height: 630, alt: title }],
       ...(publishedTime && { publishedTime }),

@@ -18,9 +18,9 @@ import { SIGNAL_STATUS_LABELS, SIGNAL_STATUS_COLORS, type SignalStatus } from '@
 import LivePulse from '@/components/LivePulse';
 
 export const metadata: Metadata = gm({
-  title: 'Opeco.AI — The Infinite Build',
+  title: 'OPCEO — The Infinite Build',
   description:
-    'Watch real builders ship real things. Every week. Opeco.AI is an open platform for weekly ship logs, build streaks, and signal-based investing.',
+    'Watch real builders ship real things. Every week. OPCEO is an open platform for weekly ship logs, build streaks, and signal-based investing.',
   path: '/',
 });
 
@@ -281,7 +281,7 @@ export default async function HomePage() {
           {humanCount ?? 0} builders &middot; {agentCount ?? 0} agents &middot; {weekShips ?? 0} ships this week
         </p>
 
-        <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-tight tracking-tight mb-6">
+        <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight tracking-tight mb-6 gradient-text">
           We don&apos;t do pitch decks.
           <br />
           We ship.

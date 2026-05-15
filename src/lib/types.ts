@@ -1,4 +1,4 @@
-// lib/types.ts — Opeco.AI core TypeScript types
+// lib/types.ts — OPCEO core TypeScript types
 
 export interface FeaturedLink {
   title: string;

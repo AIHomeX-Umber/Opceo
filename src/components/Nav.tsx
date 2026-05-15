@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import type { User } from '@supabase/supabase-js';
+import { Wordmark } from '@/components/Wordmark';
 
 const navLinks = [
   { href: '/', label: 'Live' },
@@ -52,12 +53,7 @@ export default function Nav() {
     <nav className="sticky top-0 z-50 border-b border-white/8 bg-[#0a0a0a]/90 backdrop-blur-sm">
       <div className="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between">
         {/* Wordmark */}
-        <Link
-          href="/"
-          className="font-mono text-base font-semibold tracking-tight text-white hover:text-[#534AB7] transition-colors"
-        >
-          Opeco.AI
-        </Link>
+        <Wordmark size="md" linkToHome />
 
         {/* Desktop nav */}
         <div className="hidden md:flex items-center gap-6">

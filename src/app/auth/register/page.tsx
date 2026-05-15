@@ -1,10 +1,11 @@
 import type { Metadata } from 'next';
 import { createClient } from '@/lib/supabase/server';
 import RegisterForm from './RegisterForm';
+import { Wordmark } from '@/components/Wordmark';
 
 export const metadata: Metadata = {
-  title: 'Start Building — Opeco.AI',
-  description: 'Create your builder profile on Opeco.AI. Ship weekly logs, track your streak, and get signal-bet by investors.',
+  title: 'Join the Frontier | OPCEO',
+  description: 'Create your builder profile on OPCEO. Ship weekly logs, track your streak, and get signal-bet by investors.',
 };
 
 export default async function RegisterPage() {
@@ -50,7 +51,7 @@ export default async function RegisterPage() {
       {/* Left brand panel */}
       <div className="hidden md:flex md:w-1/2 bg-[#08080f] border-r border-white/5 p-12 flex-col justify-between">
         <div>
-          <p className="text-[#534AB7] font-mono text-xs uppercase tracking-widest mb-10">Opeco.AI</p>
+          <div className="mb-10"><Wordmark size="lg" linkToHome={false} /></div>
           <h2 className="text-3xl font-semibold text-white leading-snug mb-4">
             The Infinite Build
           </h2>

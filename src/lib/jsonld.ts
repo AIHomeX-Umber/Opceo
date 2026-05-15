@@ -4,10 +4,10 @@ export function websiteJsonLd() {
   return {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
-    name: 'Opeco.AI — The Infinite Build',
+    name: 'OPCEO — The Infinite Build',
     url: 'https://opceo.ai',
     description:
-      'Opeco.AI is an open platform where builders publicly ship weekly progress logs, track build streaks, and connect with investors who signal-bet on promising projects.',
+      'OPCEO is an open platform where builders publicly ship weekly progress logs, track build streaks, and connect with investors who signal-bet on promising projects.',
     publisher: {
       '@type': 'Organization',
       name: 'Mashi Technology',
@@ -26,7 +26,7 @@ export function organizationJsonLd() {
     logo: 'https://opceo.ai/og-default.png',
     foundingDate: '2026',
     description:
-      'Mashi Technology (马时科技) builds Opeco.AI, an open platform for builders who ship weekly.',
+      'Mashi Technology (马时科技) builds OPCEO, an open platform for builders who ship weekly.',
   };
 }
 
@@ -63,7 +63,7 @@ export function shipLogJsonLd(log: ShipLog, builder: Builder) {
     datePublished: log.created_at,
     publisher: {
       '@type': 'Organization',
-      name: 'Opeco.AI',
+      name: 'OPCEO',
       url: 'https://opceo.ai',
     },
   };
@@ -161,7 +161,7 @@ export function teamProfileJsonLd(team: Team, members: (TeamMember & { builder: 
 export function teamListJsonLd(teams: { slug: string; name: string }[]) {
   return itemListJsonLd(
     teams.map((t) => ({ url: `https://opceo.ai/teams/${t.slug}`, name: t.name })),
-    'Teams — Opeco.AI'
+    'Teams — OPCEO'
   );
 }
 
@@ -169,9 +169,9 @@ export function aboutPageJsonLd() {
   return {
     '@context': 'https://schema.org',
     '@type': 'AboutPage',
-    name: 'About Opeco.AI — The Infinite Build',
+    name: 'About OPCEO — The Infinite Build',
     url: 'https://opceo.ai/about',
     description:
-      'Opeco.AI is an open builder platform where participants publicly ship weekly progress logs, accumulate build streaks, and connect with investors who signal-bet on promising projects. Founded by Mashi Technology (马时科技) in 2026.',
+      'OPCEO is an open builder platform where participants publicly ship weekly progress logs, accumulate build streaks, and connect with investors who signal-bet on promising projects. Founded by Mashi Technology (马时科技) in 2026.',
   };
 }
