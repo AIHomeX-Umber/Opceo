@@ -1,13 +1,22 @@
 'use client';
-// app/quests/new/page.tsx — Post a Quest form
+// app/quests/new/page.tsx — Post a Quest or Signal
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 
-const CATEGORIES = ['ai-workflow', 'content', 'design', 'dev', 'research', 'ops', 'other'] as const;
+const CATEGORIES = ['ai-workflow', 'content', 'design', 'dev', 'research', 'ops', 'signal', 'other'] as const;
 const REWARD_TYPES = ['credit', 'collab', 'paid', 'equity', 'learning'] as const;
 const DIFFICULTIES = ['starter', 'medium', 'hard', 'legendary'] as const;
+const SIGNAL_STRENGTHS = ['observed', 'moderate', 'strong', 'validated'] as const;
+const MARKET_SIZES = ['niche', 'local', 'national', 'global'] as const;
+
+const SIGNAL_STRENGTH_LABELS: Record<string, string> = {
+  observed: 'Observed — I noticed this, but haven\'t verified deeply',
+  moderate: 'Moderate — I\'ve seen this multiple times from different sources',
+  strong: 'Strong — I have firsthand experience or data supporting this',
+  validated: 'Validated — I have quantitative data or paying customers confirming this',
+};
 
 export default function NewQuestPage() {
   const router = useRouter();
@@ -28,9 +37,14 @@ export default function NewQuestPage() {
     difficulty: 'starter' as typeof DIFFICULTIES[number],
     max_claimers: 1,
     deadline: '',
+    // signal-specific
+    signal_strength: '' as typeof SIGNAL_STRENGTHS[number] | '',
+    location: '',
+    market_size: '' as typeof MARKET_SIZES[number] | '',
   });
 
-  // Auth check + fetch builder id
+  const isSignal = form.category === 'signal';
+
   useEffect(() => {
     (async () => {
       const { data: { user } } = await supabase.auth.getUser();
@@ -78,30 +92,62 @@ export default function NewQuestPage() {
       setError('Description must be at least 20 characters.');
       return;
     }
+    if (isSignal && !form.signal_strength) {
+      setError('Signal strength is required.');
+      return;
+    }
     setError('');
     setLoading(true);
+
     try {
-      const payload: Record<string, unknown> = {
+      const basePayload: Record<string, unknown> = {
         poster_id: builderId,
         title: form.title.trim(),
         description: form.description.trim(),
         category: form.category,
         skills_needed: form.skills_needed,
-        reward_type: form.reward_type,
-        reward_detail: form.reward_detail.trim() || null,
-        difficulty: form.difficulty,
-        max_claimers: form.max_claimers,
-        deadline: form.deadline || null,
         status: 'open',
       };
 
+      if (isSignal) {
+        Object.assign(basePayload, {
+          reward_type: 'credit',
+          reward_detail: 'Valid signals earn Build Score. Validated signals earn bonus.',
+          difficulty: 'starter',
+          max_claimers: 999,
+          deadline: null,
+          signal_strength: form.signal_strength,
+          signal_status: 'observed',
+          location: form.location.trim() || null,
+          market_size: form.market_size || null,
+          seen_count: 0,
+        });
+      } else {
+        Object.assign(basePayload, {
+          reward_type: form.reward_type,
+          reward_detail: form.reward_detail.trim() || null,
+          difficulty: form.difficulty,
+          max_claimers: form.max_claimers,
+          deadline: form.deadline || null,
+        });
+      }
+
       const { data, error: insertError } = await supabase
         .from('quests')
-        .insert(payload)
+        .insert(basePayload)
         .select('id')
         .single();
 
       if (insertError) throw insertError;
+
+      // Activity feed
+      await supabase.from('activity_feed').insert({
+        actor_id: builderId,
+        action: isSignal ? 'signal_posted' : 'quest_posted',
+        summary: isSignal ? `spotted a signal: "${form.title.slice(0, 60)}"` : `posted quest: "${form.title.slice(0, 60)}"`,
+        target_id: data.id,
+      });
+
       router.push(`/quests/${data.id}`);
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'Something went wrong.';
@@ -128,9 +174,13 @@ export default function NewQuestPage() {
   return (
     <div className="max-w-2xl mx-auto px-4 sm:px-6 py-16 sm:py-24">
       <div className="mb-10">
-        <h1 className="text-3xl font-bold text-white mb-2">Post a Quest</h1>
+        <h1 className="text-3xl font-bold text-white mb-2">
+          {isSignal ? 'Post a Signal' : 'Post a Quest'}
+        </h1>
         <p className="text-gray-400 text-sm">
-          Describe the task. The right builder will find it.
+          {isSignal
+            ? 'Document a real-world friction. Problems are worth spotting.'
+            : 'Describe the task. The right builder will find it.'}
         </p>
       </div>
 
@@ -147,36 +197,18 @@ export default function NewQuestPage() {
             required
             value={form.title}
             onChange={(e) => set('title', e.target.value)}
-            placeholder="Build a landing page for our beta launch"
+            placeholder={
+              isSignal
+                ? 'Factory owners in rural China can\'t access global demand data'
+                : 'Build a landing page for our beta launch'
+            }
             className={inputClass}
           />
-          <p className="text-xs text-gray-600 mt-1 text-right">
-            {form.title.length}/120
-          </p>
+          <p className="text-xs text-gray-600 mt-1 text-right">{form.title.length}/120</p>
         </div>
 
-        {/* Description */}
-        <div>
-          <label htmlFor="description" className={labelClass}>
-            Description <span className="text-red-400">*</span>
-          </label>
-          <textarea
-            id="description"
-            rows={6}
-            maxLength={2000}
-            required
-            value={form.description}
-            onChange={(e) => set('description', e.target.value)}
-            placeholder="What needs to be done? What does success look like? Any context the claimer should know."
-            className={`${inputClass} resize-none`}
-          />
-          <p className="text-xs text-gray-600 mt-1 text-right">
-            {form.description.length}/2000
-          </p>
-        </div>
-
-        {/* Category + Difficulty row */}
-        <div className="grid grid-cols-2 gap-4">
+        {/* Category */}
+        <div className={isSignal ? '' : 'grid grid-cols-2 gap-4'}>
           <div>
             <label htmlFor="category" className={labelClass}>
               Category <span className="text-red-400">*</span>
@@ -188,34 +220,113 @@ export default function NewQuestPage() {
               className={selectClass}
             >
               {CATEGORIES.map((c) => (
-                <option key={c} value={c}>
-                  {c}
-                </option>
+                <option key={c} value={c}>{c}</option>
               ))}
             </select>
           </div>
-          <div>
-            <label htmlFor="difficulty" className={labelClass}>
-              Difficulty <span className="text-red-400">*</span>
-            </label>
-            <select
-              id="difficulty"
-              value={form.difficulty}
-              onChange={(e) => set('difficulty', e.target.value as typeof DIFFICULTIES[number])}
-              className={selectClass}
-            >
-              {DIFFICULTIES.map((d) => (
-                <option key={d} value={d}>
-                  {d}
-                </option>
-              ))}
-            </select>
-          </div>
+
+          {/* Difficulty — hidden for signals */}
+          {!isSignal && (
+            <div>
+              <label htmlFor="difficulty" className={labelClass}>
+                Difficulty <span className="text-red-400">*</span>
+              </label>
+              <select
+                id="difficulty"
+                value={form.difficulty}
+                onChange={(e) => set('difficulty', e.target.value as typeof DIFFICULTIES[number])}
+                className={selectClass}
+              >
+                {DIFFICULTIES.map((d) => (
+                  <option key={d} value={d}>{d}</option>
+                ))}
+              </select>
+            </div>
+          )}
+
+          {/* Signal strength — shown only for signals */}
+          {isSignal && (
+            <div className="mt-4">
+              <label htmlFor="signal_strength" className={labelClass}>
+                Signal strength <span className="text-red-400">*</span>
+              </label>
+              <select
+                id="signal_strength"
+                value={form.signal_strength}
+                onChange={(e) => set('signal_strength', e.target.value as typeof SIGNAL_STRENGTHS[number])}
+                className={`${selectClass} border-[#D85A30]/30 focus:border-[#D85A30]`}
+              >
+                <option value="">Select signal strength…</option>
+                {SIGNAL_STRENGTHS.map((s) => (
+                  <option key={s} value={s}>{SIGNAL_STRENGTH_LABELS[s]}</option>
+                ))}
+              </select>
+            </div>
+          )}
         </div>
 
-        {/* Skills needed */}
+        {/* Description / Signal report */}
         <div>
-          <label className={labelClass}>Skills needed</label>
+          <label htmlFor="description" className={labelClass}>
+            {isSignal ? 'Signal report' : 'Description'} <span className="text-red-400">*</span>
+          </label>
+          <textarea
+            id="description"
+            rows={isSignal ? 8 : 6}
+            maxLength={2000}
+            required
+            value={form.description}
+            onChange={(e) => set('description', e.target.value)}
+            placeholder={
+              isSignal
+                ? `Who has this problem?\nWhere did you observe it?\nHow are they solving it now?\nWhy is the current solution broken?\nAny data, links, or firsthand observations?`
+                : 'What needs to be done? What does success look like? Any context the claimer should know.'
+            }
+            className={`${inputClass} resize-none`}
+          />
+          <p className="text-xs text-gray-600 mt-1 text-right">{form.description.length}/2000</p>
+        </div>
+
+        {/* Signal-specific: Location + Market size */}
+        {isSignal && (
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label htmlFor="location" className={labelClass}>
+                Location <span className="text-gray-500 font-normal">(optional)</span>
+              </label>
+              <input
+                id="location"
+                type="text"
+                value={form.location}
+                onChange={(e) => set('location', e.target.value)}
+                placeholder="Yixing, China / Rural Japan / Global"
+                className={inputClass}
+              />
+            </div>
+            <div>
+              <label htmlFor="market_size" className={labelClass}>
+                Market size <span className="text-gray-500 font-normal">(optional)</span>
+              </label>
+              <select
+                id="market_size"
+                value={form.market_size}
+                onChange={(e) => set('market_size', e.target.value as typeof MARKET_SIZES[number] | '')}
+                className={selectClass}
+              >
+                <option value="">Select…</option>
+                {MARKET_SIZES.map((m) => (
+                  <option key={m} value={m}>{m.charAt(0).toUpperCase() + m.slice(1)}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+        )}
+
+        {/* Skills / Related domains */}
+        <div>
+          <label className={labelClass}>
+            {isSignal ? 'Related domains' : 'Skills needed'}
+          </label>
           <div className="flex gap-2">
             <input
               type="text"
@@ -227,7 +338,11 @@ export default function NewQuestPage() {
                   addSkill();
                 }
               }}
-              placeholder="e.g. React (press Enter to add)"
+              placeholder={
+                isSignal
+                  ? 'e.g. supply chain, elderly care, logistics (press Enter)'
+                  : 'e.g. React (press Enter to add)'
+              }
               className={inputClass}
             />
             <button
@@ -260,83 +375,92 @@ export default function NewQuestPage() {
           )}
         </div>
 
-        {/* Reward type + detail */}
-        <div>
-          <label htmlFor="reward_type" className={labelClass}>
-            Reward type <span className="text-red-400">*</span>
-          </label>
-          <select
-            id="reward_type"
-            value={form.reward_type}
-            onChange={(e) => set('reward_type', e.target.value as typeof REWARD_TYPES[number])}
-            className={`${selectClass} mb-3`}
-          >
-            {REWARD_TYPES.map((r) => (
-              <option key={r} value={r}>
-                {r}
-              </option>
-            ))}
-          </select>
-          <label htmlFor="reward_detail" className={labelClass}>
-            Reward details{' '}
-            <span className="text-gray-500 font-normal">(optional)</span>
-          </label>
-          <input
-            id="reward_detail"
-            type="text"
-            maxLength={500}
-            value={form.reward_detail}
-            onChange={(e) => set('reward_detail', e.target.value)}
-            placeholder="e.g. Credit in product + backlink"
-            className={inputClass}
-          />
-        </div>
-
-        {/* Max claimers + deadline */}
-        <div className="grid grid-cols-2 gap-4">
+        {/* Reward — hidden for signals */}
+        {!isSignal && (
           <div>
-            <label htmlFor="max_claimers" className={labelClass}>
-              Max claimers
+            <label htmlFor="reward_type" className={labelClass}>
+              Reward type <span className="text-red-400">*</span>
+            </label>
+            <select
+              id="reward_type"
+              value={form.reward_type}
+              onChange={(e) => set('reward_type', e.target.value as typeof REWARD_TYPES[number])}
+              className={`${selectClass} mb-3`}
+            >
+              {REWARD_TYPES.map((r) => (
+                <option key={r} value={r}>{r}</option>
+              ))}
+            </select>
+            <label htmlFor="reward_detail" className={labelClass}>
+              Reward details <span className="text-gray-500 font-normal">(optional)</span>
             </label>
             <input
-              id="max_claimers"
-              type="number"
-              min={1}
-              max={20}
-              value={form.max_claimers}
-              onChange={(e) => set('max_claimers', parseInt(e.target.value) || 1)}
+              id="reward_detail"
+              type="text"
+              maxLength={500}
+              value={form.reward_detail}
+              onChange={(e) => set('reward_detail', e.target.value)}
+              placeholder="e.g. Credit in product + backlink"
               className={inputClass}
             />
           </div>
-          <div>
-            <label htmlFor="deadline" className={labelClass}>
-              Deadline{' '}
-              <span className="text-gray-500 font-normal">(optional)</span>
-            </label>
-            <input
-              id="deadline"
-              type="datetime-local"
-              value={form.deadline}
-              onChange={(e) => set('deadline', e.target.value)}
-              className={inputClass}
-            />
-          </div>
-        </div>
+        )}
 
-        {/* Error */}
+        {/* Max claimers + deadline — hidden for signals */}
+        {!isSignal && (
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label htmlFor="max_claimers" className={labelClass}>Max claimers</label>
+              <input
+                id="max_claimers"
+                type="number"
+                min={1}
+                max={20}
+                value={form.max_claimers}
+                onChange={(e) => set('max_claimers', parseInt(e.target.value) || 1)}
+                className={inputClass}
+              />
+            </div>
+            <div>
+              <label htmlFor="deadline" className={labelClass}>
+                Deadline <span className="text-gray-500 font-normal">(optional)</span>
+              </label>
+              <input
+                id="deadline"
+                type="datetime-local"
+                value={form.deadline}
+                onChange={(e) => set('deadline', e.target.value)}
+                className={inputClass}
+              />
+            </div>
+          </div>
+        )}
+
+        {/* Signal reward note */}
+        {isSignal && (
+          <p className="text-xs text-gray-600 border border-white/5 rounded-sm px-3 py-2 bg-white/[0.02]">
+            Signals earn Build Score automatically: +10 per signal, +20 when validated, +30 when someone builds for it.
+          </p>
+        )}
+
         {error && (
           <p className="text-red-400 text-sm border border-red-400/20 bg-red-400/5 rounded-sm px-3 py-2">
             {error}
           </p>
         )}
 
-        {/* Submit */}
         <button
           type="submit"
           disabled={loading}
-          className="w-full h-10 bg-[#534AB7] hover:bg-[#4a42a8] disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-medium rounded-sm transition-colors"
+          className={`w-full h-10 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-medium rounded-sm transition-colors ${
+            isSignal
+              ? 'bg-[#D85A30] hover:bg-[#c04e28]'
+              : 'bg-[#534AB7] hover:bg-[#4a42a8]'
+          }`}
         >
-          {loading ? 'Posting…' : 'Post quest'}
+          {loading
+            ? isSignal ? 'Posting signal…' : 'Posting…'
+            : isSignal ? 'Post signal' : 'Post quest'}
         </button>
       </form>
     </div>

@@ -82,6 +82,29 @@ export function questJsonLd(quest: Quest) {
   };
 }
 
+export function signalJsonLd(quest: Quest) {
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'CreativeWork',
+    name: quest.title,
+    description: quest.description?.slice(0, 300),
+    author: quest.poster
+      ? {
+          '@type': 'Person',
+          name: quest.poster.display_name,
+          url: `https://opceo.ai/${quest.poster.slug}`,
+        }
+      : undefined,
+    datePublished: quest.created_at,
+    locationCreated: quest.location ?? undefined,
+    interactionStatistic: {
+      '@type': 'InteractionCounter',
+      interactionType: 'https://schema.org/EndorseAction',
+      userInteractionCount: quest.seen_count ?? 0,
+    },
+  };
+}
+
 export function itemListJsonLd(
   items: Array<{ url: string; name: string }>,
   name: string

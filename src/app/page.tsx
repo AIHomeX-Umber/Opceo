@@ -14,6 +14,7 @@ import {
   truncate,
 } from '@/lib/utils';
 import type { Builder, ShipLog, Quest, Spotlight, ActivityItem } from '@/lib/types';
+import { SIGNAL_STATUS_LABELS, SIGNAL_STATUS_COLORS, type SignalStatus } from '@/lib/signal-lifecycle';
 import LivePulse from '@/components/LivePulse';
 
 export const metadata: Metadata = gm({
@@ -166,6 +167,7 @@ export default async function HomePage() {
     { data: questsRaw },
     { data: topBuildersRaw },
     { data: activityRaw },
+    { data: topSignalsRaw },
   ] = await Promise.all([
     supabase
       .from('ship_logs')
@@ -220,6 +222,12 @@ export default async function HomePage() {
       .select('id, action, summary, target_id, created_at, actor:builders!activity_feed_actor_id_fkey(slug, display_name, avatar_url, entity_type)')
       .order('created_at', { ascending: false })
       .limit(10),
+    supabase
+      .from('quests')
+      .select('id, title, category, signal_strength, signal_status, market_size, location, seen_count, created_at, poster:builders!quests_poster_id_fkey(slug, display_name, avatar_url)')
+      .eq('category', 'signal')
+      .order('seen_count', { ascending: false })
+      .limit(3),
   ]);
 
   // Normalize joined arrays from Supabase
@@ -255,6 +263,11 @@ export default async function HomePage() {
       ...(row as unknown as ActivityItem),
       actor: Array.isArray(actorRaw) ? actorRaw[0] : actorRaw ?? undefined,
     };
+  });
+
+  const topSignals: Quest[] = (topSignalsRaw ?? []).map((q: Record<string, unknown>) => {
+    const pRaw = q.poster as Quest['poster'] | Quest['poster'][] | null;
+    return { ...(q as unknown as Quest), poster: Array.isArray(pRaw) ? pRaw[0] : pRaw ?? undefined };
   });
 
   return (
@@ -426,10 +439,7 @@ export default async function HomePage() {
         <section className="max-w-4xl mx-auto px-4 sm:px-6 py-16 border-t border-white/5">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-lg font-semibold text-white">Open quests</h2>
-            <Link
-              href="/quests"
-              className="text-xs text-gray-500 hover:text-[#534AB7] transition-colors font-mono"
-            >
+            <Link href="/quests" className="text-xs text-gray-500 hover:text-[#534AB7] transition-colors font-mono">
               View all quests →
             </Link>
           </div>
@@ -437,6 +447,57 @@ export default async function HomePage() {
             {quests.map((quest) => (
               <MiniQuestCard key={quest.id} quest={quest} />
             ))}
+          </div>
+        </section>
+      )}
+
+      {/* ── REAL WORLD SIGNALS ────────────────────────────────────── */}
+      {topSignals.length > 0 && (
+        <section className="max-w-4xl mx-auto px-4 sm:px-6 py-16 border-t border-white/5">
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-lg font-semibold text-white">Real world signals</h2>
+            <Link href="/quests?category=signal" className="text-xs text-gray-500 hover:text-[#D85A30] transition-colors font-mono">
+              Explore all signals →
+            </Link>
+          </div>
+          <p className="text-gray-500 text-sm mb-6">Problems builders are finding in the wild.</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {topSignals.map((signal) => {
+              const status = (signal.signal_status ?? 'observed') as SignalStatus;
+              return (
+                <Link
+                  key={signal.id}
+                  href={`/quests/${signal.id}`}
+                  className="block border border-white/10 bg-[#0f0f0f] rounded-sm p-4 hover:border-[#D85A30]/50 transition-colors group border-l-2 border-l-[#D85A30]/60"
+                >
+                  <div className="flex items-center gap-2 mb-2 flex-wrap">
+                    <span className={`text-[10px] font-mono px-1.5 py-0.5 rounded-sm border ${SIGNAL_STATUS_COLORS[status]}`}>
+                      {SIGNAL_STATUS_LABELS[status]}
+                    </span>
+                    {signal.signal_strength && (
+                      <span className="text-[10px] font-mono px-1.5 py-0.5 rounded-sm border border-[#D85A30]/30 text-[#D85A30]/70">
+                        {signal.signal_strength}
+                      </span>
+                    )}
+                    {signal.market_size && (
+                      <span className="text-[10px] font-mono px-1.5 py-0.5 rounded-sm border border-white/10 text-gray-500">
+                        {signal.market_size}
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-sm font-medium text-white group-hover:text-[#D85A30] transition-colors line-clamp-2 mb-2">
+                    {signal.title}
+                  </p>
+                  {signal.location && (
+                    <p className="text-[11px] text-gray-600 font-mono mb-2">📍 {signal.location}</p>
+                  )}
+                  <div className="flex items-center justify-between pt-2 border-t border-white/5">
+                    <span className="text-[11px] text-gray-500">@{signal.poster?.slug ?? 'unknown'}</span>
+                    <span className="text-[11px] text-[#D85A30]/70 font-mono">🔥 {signal.seen_count ?? 0}</span>
+                  </div>
+                </Link>
+              );
+            })}
           </div>
         </section>
       )}

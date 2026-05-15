@@ -12,6 +12,7 @@ import ConnectButton from '@/components/ConnectButton';
 import StreakCalendar from '@/components/StreakCalendar';
 import WelcomeBanner from '@/components/WelcomeBanner';
 import { Suspense } from 'react';
+import { SIGNAL_STATUS_LABELS, SIGNAL_STATUS_COLORS, type SignalStatus } from '@/lib/signal-lifecycle';
 import {
   Globe, Mail, X as XIcon, Rss, ExternalLink,
   Rocket, Code, Code2, BookOpen, Briefcase, Heart, Music, Camera,
@@ -109,6 +110,21 @@ export default async function BuilderProfilePage({ params }: PageProps) {
       .single();
     operator = data;
   }
+
+  // Signal activity
+  const [
+    { count: signalsSpotted },
+    { count: signalsValidated },
+    { count: signalsBuilding },
+    { data: recentSignalsRaw },
+  ] = await Promise.all([
+    supabase.from('quests').select('*', { count: 'exact', head: true }).eq('poster_id', builder.id).eq('category', 'signal'),
+    supabase.from('quests').select('*', { count: 'exact', head: true }).eq('poster_id', builder.id).eq('category', 'signal').eq('signal_status', 'validated'),
+    supabase.from('quests').select('*', { count: 'exact', head: true }).eq('poster_id', builder.id).eq('category', 'signal').eq('signal_status', 'building'),
+    supabase.from('quests').select('id, title, signal_status, seen_count, created_at').eq('poster_id', builder.id).eq('category', 'signal').order('created_at', { ascending: false }).limit(5),
+  ]);
+
+  const hasSignalActivity = (signalsSpotted ?? 0) > 0;
 
   // Fetch ship logs (latest 20 for timeline + all for streak calendar)
   const { data: shipLogs } = await supabase
@@ -496,6 +512,54 @@ export default async function BuilderProfilePage({ params }: PageProps) {
                 </li>
               ))}
             </ol>
+          </section>
+        )}
+
+        {/* Signal Activity */}
+        {hasSignalActivity && (
+          <section aria-labelledby="signal-activity-heading" className="mb-8">
+            <h2 id="signal-activity-heading" className="text-sm font-medium text-white/70 mb-4">
+              Signal activity
+            </h2>
+            <div className="flex gap-6 mb-4 border border-white/8 rounded-xl p-4">
+              <div className="text-center">
+                <p className="text-2xl font-bold text-white tabular-nums">{signalsSpotted ?? 0}</p>
+                <p className="text-xs text-white/30 mt-0.5">Spotted</p>
+              </div>
+              <div className="h-10 w-px bg-white/8 self-center" />
+              <div className="text-center">
+                <p className="text-2xl font-bold text-white tabular-nums">{signalsValidated ?? 0}</p>
+                <p className="text-xs text-white/30 mt-0.5">Validated</p>
+              </div>
+              <div className="h-10 w-px bg-white/8 self-center" />
+              <div className="text-center">
+                <p className="text-2xl font-bold text-white tabular-nums">{signalsBuilding ?? 0}</p>
+                <p className="text-xs text-white/30 mt-0.5">Building</p>
+              </div>
+            </div>
+            {(recentSignalsRaw ?? []).length > 0 && (
+              <ul className="flex flex-col gap-2">
+                {(recentSignalsRaw ?? []).map((signal) => {
+                  const status = (signal.signal_status ?? 'observed') as SignalStatus;
+                  return (
+                    <li key={signal.id}>
+                      <a
+                        href={`/quests/${signal.id}`}
+                        className="flex items-center justify-between gap-3 border border-white/8 rounded-xl px-4 py-3 hover:border-white/15 transition-colors group"
+                      >
+                        <span className="text-white/80 text-sm group-hover:text-white transition-colors truncate">{signal.title}</span>
+                        <div className="flex items-center gap-2 flex-shrink-0">
+                          <span className={`text-[10px] font-mono px-1.5 py-0.5 rounded-sm border ${SIGNAL_STATUS_COLORS[status]}`}>
+                            {SIGNAL_STATUS_LABELS[status]}
+                          </span>
+                          <span className="text-xs text-[#D85A30]/70 font-mono">🔥 {signal.seen_count ?? 0}</span>
+                        </div>
+                      </a>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
           </section>
         )}
 

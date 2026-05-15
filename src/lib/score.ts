@@ -7,6 +7,12 @@ export function calculateBuildScore(builder: {
   bets_received: number;
   quests_completed: number;
   upvotes_received: number;
+  signals_posted?: number;
+  signal_confirmations_received?: number;
+  signals_validated?: number;
+  signals_building?: number;
+  signals_solved?: number;
+  confirmations_given?: number;
 }): number {
   const streakScore = Math.min(builder.current_streak * 10, 250);
   const logScore = Math.min(builder.total_logs * 5, 150);
@@ -14,7 +20,16 @@ export function calculateBuildScore(builder: {
   const questScore = Math.min(builder.quests_completed * 15, 150);
   const upvoteScore = Math.min(builder.upvotes_received * 2, 100);
 
-  return streakScore + logScore + betScore + questScore + upvoteScore;
+  const signalPostScore = Math.min((builder.signals_posted ?? 0) * 10, 100);
+  const signalConfirmScore = Math.min((builder.signal_confirmations_received ?? 0) * 3, 50);
+  const signalValidatedScore = Math.min((builder.signals_validated ?? 0) * 20, 100);
+  const signalBuildingScore = Math.min((builder.signals_building ?? 0) * 30, 100);
+  const signalSolvedScore = Math.min((builder.signals_solved ?? 0) * 50, 100);
+  const confirmGivenScore = Math.min((builder.confirmations_given ?? 0) * 2, 30);
+
+  return streakScore + logScore + betScore + questScore + upvoteScore
+    + signalPostScore + signalConfirmScore + signalValidatedScore
+    + signalBuildingScore + signalSolvedScore + confirmGivenScore;
 }
 
 // Human score includes 30% bonus from operated agents

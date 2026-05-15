@@ -69,7 +69,7 @@ export interface Quest {
   poster_id: string;
   title: string;
   description: string;
-  category: 'ai-workflow' | 'content' | 'design' | 'dev' | 'research' | 'ops' | 'other';
+  category: 'ai-workflow' | 'content' | 'design' | 'dev' | 'research' | 'ops' | 'signal' | 'other';
   skills_needed: string[];
   reward_type: 'credit' | 'collab' | 'paid' | 'equity' | 'learning';
   reward_detail: string | null;
@@ -79,9 +79,34 @@ export interface Quest {
   deadline: string | null;
   created_at: string;
   updated_at: string;
+  // Signal-specific fields
+  signal_strength: 'observed' | 'moderate' | 'strong' | 'validated' | null;
+  signal_status: 'observed' | 'discussed' | 'validated' | 'building' | 'solved' | null;
+  market_size: 'niche' | 'local' | 'national' | 'global' | null;
+  location: string | null;
+  seen_count: number;
   // joined
   poster?: Pick<Builder, 'slug' | 'display_name' | 'avatar_url'>;
   claims_count?: number;
+}
+
+export interface SignalConfirmation {
+  id: string;
+  quest_id: string;
+  builder_id: string;
+  note: string | null;
+  created_at: string;
+  builder?: Pick<Builder, 'slug' | 'display_name' | 'avatar_url'>;
+}
+
+export interface SignalBuilder {
+  id: string;
+  quest_id: string;
+  builder_id: string;
+  project_name: string;
+  project_url: string | null;
+  created_at: string;
+  builder?: Pick<Builder, 'slug' | 'display_name' | 'avatar_url'>;
 }
 
 export interface QuestClaim {
