@@ -85,12 +85,19 @@ DO $$ BEGIN
   END IF;
 END $$;
 
--- 5. Expand activity_feed action constraint
-ALTER TABLE activity_feed DROP CONSTRAINT IF EXISTS activity_feed_action_check;
-ALTER TABLE activity_feed ADD CONSTRAINT activity_feed_action_check
-  CHECK (action IN (
-    'shipped', 'bet', 'quest_posted', 'quest_claimed', 'quest_completed',
-    'joined', 'team_created', 'streak_milestone',
-    'signal_posted', 'signal_confirmed', 'signal_validated',
-    'signal_building', 'signal_solved'
-  ));
+-- 5. Expand activity_feed action constraint (if table exists)
+DO $$ BEGIN
+  IF EXISTS (
+    SELECT 1 FROM information_schema.tables
+    WHERE table_schema = 'public' AND table_name = 'activity_feed'
+  ) THEN
+    ALTER TABLE activity_feed DROP CONSTRAINT IF EXISTS activity_feed_action_check;
+    ALTER TABLE activity_feed ADD CONSTRAINT activity_feed_action_check
+      CHECK (action IN (
+        'shipped', 'bet', 'quest_posted', 'quest_claimed', 'quest_completed',
+        'joined', 'team_created', 'streak_milestone',
+        'signal_posted', 'signal_confirmed', 'signal_validated',
+        'signal_building', 'signal_solved'
+      ));
+  END IF;
+END $$;
