@@ -78,10 +78,11 @@ export default function SignalSeenThisButton({
       target_id: questId,
     });
 
-    if (newStatus !== currentSignalStatus) {
+    const VALID_TRANSITION_ACTIONS = new Set(['validated', 'building', 'solved']);
+    if (newStatus !== currentSignalStatus && VALID_TRANSITION_ACTIONS.has(newStatus)) {
       await supabase.from('activity_feed').insert({
         actor_id: viewerBuilderId,
-        action: `signal_${newStatus}` as string,
+        action: `signal_${newStatus}`,
         summary: `Signal reached ${newStatus} status`,
         target_id: questId,
       });
