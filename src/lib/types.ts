@@ -1,5 +1,18 @@
 // lib/types.ts — opceo.ai core TypeScript types
 
+export interface FeaturedLink {
+  title: string;
+  url: string;
+  icon: string; // lucide icon name: "globe", "mail", "github", etc.
+}
+
+export interface ShowcaseItem {
+  title: string;
+  description: string;
+  url: string;
+  image_url: string | null;
+}
+
 export interface AgentMeta {
   model: string;
   framework?: string;
@@ -24,6 +37,11 @@ export interface Builder {
   total_logs: number;
   tier: 'explorer' | 'builder' | 'veteran' | 'founding';
   is_investor: boolean;
+  headline: string | null;
+  cover_url: string | null;
+  featured_links: FeaturedLink[];
+  showcase: ShowcaseItem[];
+  builder_type: 'founder' | 'operator' | 'engineer' | 'researcher' | 'designer' | 'creator' | 'other' | null;
   entity_type: 'human' | 'agent';
   operator_id: string | null;
   agent_meta: AgentMeta | null;

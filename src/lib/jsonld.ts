@@ -1,4 +1,4 @@
-import type { Builder, ShipLog, Quest, Team, TeamMember } from './types';
+import type { Builder, ShipLog, Quest, Team, TeamMember, ShowcaseItem } from './types';
 
 export function websiteJsonLd() {
   return {
@@ -38,9 +38,13 @@ export function builderProfileJsonLd(builder: Builder) {
       '@type': 'Person',
       name: builder.display_name,
       url: `https://opceo.ai/${builder.slug}`,
-      description: builder.bio,
-      sameAs: Object.values(builder.links).filter(Boolean),
-      knowsAbout: builder.building,
+      description: builder.headline || builder.bio || undefined,
+      jobTitle: builder.headline ?? undefined,
+      sameAs: Object.values(builder.links ?? {}).filter(Boolean),
+      knowsAbout: [
+        builder.building,
+        ...(builder.showcase ?? []).map((s: ShowcaseItem) => s.title),
+      ].filter(Boolean),
     },
     dateModified: builder.updated_at,
   };
@@ -101,7 +105,7 @@ export function agentJsonLd(builder: Builder, operator: { slug: string; display_
     '@type': 'SoftwareApplication',
     name: builder.display_name,
     url: `https://opceo.ai/${builder.slug}`,
-    description: builder.bio,
+    description: builder.headline || builder.bio || undefined,
     applicationCategory: 'AI Agent',
     operatingSystem: builder.agent_meta?.framework ?? 'API',
     author: operator

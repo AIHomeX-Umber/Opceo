@@ -10,9 +10,31 @@ import type { Builder } from '@/lib/types';
 import SignalBetButton from '@/components/SignalBetButton';
 import ConnectButton from '@/components/ConnectButton';
 import StreakCalendar from '@/components/StreakCalendar';
+import WelcomeBanner from '@/components/WelcomeBanner';
+import { Suspense } from 'react';
+import {
+  Globe, Mail, X as XIcon, Rss, ExternalLink,
+  Rocket, Code, Code2, BookOpen, Briefcase, Heart, Music, Camera,
+  PenTool, ShoppingBag, Mic, Newspaper, Video, Hash,
+  Link as LinkIcon, type LucideIcon,
+} from 'lucide-react';
+import type { FeaturedLink, ShowcaseItem } from '@/lib/types';
 
 interface PageProps {
   params: Promise<{ slug: string }>;
+}
+
+const ICON_MAP: Record<string, LucideIcon> = {
+  globe: Globe, mail: Mail, github: Code2, twitter: XIcon,
+  youtube: Rss, linkedin: ExternalLink, instagram: Camera,
+  rocket: Rocket, code: Code, 'book-open': BookOpen, briefcase: Briefcase,
+  heart: Heart, music: Music, camera: Hash, 'pen-tool': PenTool,
+  'shopping-bag': ShoppingBag, mic: Mic, newspaper: Newspaper,
+  video: Video, link: LinkIcon,
+};
+function FeaturedLinkIcon({ name }: { name: string }) {
+  const Icon = ICON_MAP[name] ?? LinkIcon;
+  return <Icon size={16} className="shrink-0 text-white/50" />;
 }
 
 function agentStatus(updatedAt: string): 'active' | 'idle' | 'offline' {
@@ -27,7 +49,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const supabase = await createClient();
   const { data: builder } = await supabase
     .from('builders')
-    .select('display_name, bio, slug, entity_type, building, current_streak, build_score, operator_id')
+    .select('display_name, bio, slug, entity_type, building, current_streak, build_score, operator_id, headline')
     .eq('slug', slug)
     .single();
 
@@ -56,6 +78,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   return genMeta({
     title: `${builder.display_name} — Builder Profile`,
     description:
+      builder.headline ||
       builder.bio ||
       `${builder.display_name} is building in public on opceo.ai — tracking weekly ship logs, build streaks, and signal bets.`,
     path: `/${builder.slug}`,
@@ -145,23 +168,37 @@ export default async function BuilderProfilePage({ params }: PageProps) {
       ? 'bg-yellow-400'
       : 'bg-red-400';
 
+  const geoDesc = isAgent
+    ? `${builder.display_name} is an AI agent on opceo.ai operated by @${operator?.slug ?? 'unknown'}, currently building ${builder.building ?? 'in public'}. It runs on ${builder.agent_meta?.model ?? 'unknown model'} and has maintained a ${builder.current_streak}-week consecutive ship streak with a Build Score of ${builder.build_score}.`
+    : `${builder.display_name} is a builder on opceo.ai. ${builder.headline || builder.bio || `Building ${builder.building ?? 'in public'}`}. ${builder.current_streak}-week ship streak. Build Score: ${builder.build_score}.`;
+
   return (
     <>
+      {/* JSON-LD */}
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
-      <main className="max-w-3xl mx-auto px-4 py-12">
-        {/* GEO definition lead — SSR rendered */}
-        <p className="sr-only">
-          {isAgent
-            ? `${builder.display_name} is an AI agent on opceo.ai operated by @${operator?.slug ?? 'unknown'}, currently building ${builder.building ?? 'in public'}. It runs on ${builder.agent_meta?.model ?? 'unknown model'} and has maintained a ${builder.current_streak}-week consecutive ship streak with a Build Score of ${builder.build_score}.`
-            : `${builder.display_name} is a builder on opceo.ai currently building ${builder.building ?? 'in public'}. They have maintained a ${builder.current_streak}-week consecutive ship streak with a Build Score of ${builder.build_score}.`}
-        </p>
+      {/* GEO lead */}
+      <p className="sr-only">{geoDesc}</p>
+
+      {/* Cover image — full width, outside main container */}
+      {builder.cover_url && (
+        <div className="relative w-full h-[200px] sm:h-[180px] overflow-hidden">
+          <Image src={builder.cover_url} alt="" fill className="object-cover" unoptimized priority />
+        </div>
+      )}
+
+      <main className="max-w-3xl mx-auto px-4 pb-16">
+        {/* Welcome banner — shown only on first arrival via ?welcome=1 */}
+        <Suspense>
+          <WelcomeBanner slug={builder.slug} displayName={builder.display_name} />
+        </Suspense>
 
         {/* Profile header */}
-        <header className="flex flex-col sm:flex-row gap-6 mb-8">
+        <header className={`flex flex-col sm:flex-row gap-6 mb-8 ${builder.cover_url ? 'mt-[-36px]' : 'pt-12'}`}>
+          {/* Avatar */}
           <div className="flex-shrink-0">
             {builder.avatar_url ? (
               <Image
@@ -169,11 +206,11 @@ export default async function BuilderProfilePage({ params }: PageProps) {
                 alt={`${builder.display_name}'s avatar`}
                 width={96}
                 height={96}
-                className="rounded-full object-cover w-24 h-24"
+                className={`rounded-full object-cover w-24 h-24 ${builder.cover_url ? 'ring-2 ring-black' : ''}`}
               />
             ) : (
               <div
-                className="w-24 h-24 rounded-full bg-[#534AB7]/20 border border-[#534AB7]/30 flex items-center justify-center"
+                className={`w-24 h-24 rounded-full bg-[#534AB7]/20 border border-[#534AB7]/30 flex items-center justify-center ${builder.cover_url ? 'ring-2 ring-black' : ''}`}
                 aria-label={`${builder.display_name}'s avatar placeholder`}
               >
                 <span className="text-3xl font-semibold text-[#534AB7]">
@@ -183,10 +220,9 @@ export default async function BuilderProfilePage({ params }: PageProps) {
             )}
           </div>
 
+          {/* Info column */}
           <div className="flex flex-col gap-2 flex-1 min-w-0">
-            <h1 className="text-2xl font-semibold text-white leading-tight">
-              {builder.display_name}
-            </h1>
+            <h1 className="text-2xl font-semibold text-white leading-tight">{builder.display_name}</h1>
 
             {/* Agent badge + operator */}
             {isAgent && (
@@ -242,10 +278,17 @@ export default async function BuilderProfilePage({ params }: PageProps) {
               </>
             )}
 
-            {builder.bio && (
-              <p className="text-white/60 text-sm leading-relaxed">{builder.bio}</p>
+            {/* Headline (only show for humans or always) */}
+            {builder.headline && (
+              <p className="text-white/70 text-base leading-relaxed">{builder.headline}</p>
             )}
 
+            {/* Bio */}
+            {builder.bio && (
+              <p className="text-white/50 text-sm leading-relaxed">{builder.bio}</p>
+            )}
+
+            {/* Currently building */}
             {builder.building && (
               <p className="text-white/50 text-sm">
                 <span className="text-white/30">Currently building:</span>{' '}
@@ -323,13 +366,18 @@ export default async function BuilderProfilePage({ params }: PageProps) {
               </span>
             </div>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 flex-wrap">
             <span
               className={`px-2.5 py-0.5 rounded-full text-xs font-medium border ${getTierColor(builder.tier)}`}
               aria-label={`Tier: ${getTierLabel(builder.tier)}`}
             >
               {getTierLabel(builder.tier)}
             </span>
+            {!isAgent && builder.builder_type && (
+              <span className="px-2.5 py-0.5 rounded-full text-xs font-medium border border-white/15 text-white/50 capitalize">
+                {builder.builder_type}
+              </span>
+            )}
             {builder.is_investor && (
               <span className="px-2.5 py-0.5 rounded-full text-xs font-medium border border-amber-400/40 text-amber-400">
                 Investor
@@ -348,6 +396,58 @@ export default async function BuilderProfilePage({ params }: PageProps) {
           />
           <ConnectButton targetId={builder.id} targetName={builder.display_name} />
         </section>
+
+        {/* Featured Links (new — only if has items) */}
+        {(builder.featured_links ?? []).length > 0 && (
+          <section aria-label="Featured links" className="mb-8">
+            <div className="flex flex-wrap gap-2.5">
+              {(builder.featured_links ?? []).map((link: FeaturedLink, i: number) => (
+                <a
+                  key={i}
+                  href={link.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 px-3.5 py-2.5 border border-white/10 rounded-lg hover:border-white/25 hover:bg-white/[0.04] transition-colors"
+                >
+                  <FeaturedLinkIcon name={link.icon} />
+                  <span className="text-sm text-white/70">{link.title}</span>
+                </a>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* Showcase (new — only if has items) */}
+        {(builder.showcase ?? []).length > 0 && (
+          <section aria-labelledby="showcase-heading" className="mb-8">
+            <h2 id="showcase-heading" className="text-xs text-white/30 uppercase tracking-widest mb-4">
+              Showcase
+            </h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {(builder.showcase ?? []).map((item: ShowcaseItem, i: number) => (
+                <a
+                  key={i}
+                  href={item.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="border border-white/8 rounded-xl overflow-hidden hover:border-white/20 transition-colors group block"
+                >
+                  {item.image_url && (
+                    <div className="relative h-32 overflow-hidden bg-white/5">
+                      <Image src={item.image_url} alt={item.title} fill className="object-cover" unoptimized />
+                    </div>
+                  )}
+                  <div className="p-4">
+                    <p className="text-sm font-medium text-white group-hover:text-[#a49ef5] transition-colors mb-1">
+                      {item.title}
+                    </p>
+                    <p className="text-xs text-white/40 leading-relaxed line-clamp-2">{item.description}</p>
+                  </div>
+                </a>
+              ))}
+            </div>
+          </section>
+        )}
 
         {/* Streak Calendar */}
         <section aria-labelledby="streak-cal-heading" className="mb-8">

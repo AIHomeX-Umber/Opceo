@@ -34,7 +34,7 @@ export default async function ExplorePage({ searchParams }: PageProps) {
 
   const { data: builders } = await filteredQuery;
 
-  const safeBuilders = builders || [];
+  const safeBuilders = (builders || []) as unknown as import('@/lib/types').Builder[];
 
   const jsonLd = itemListJsonLd(
     safeBuilders.slice(0, 100).map((b) => ({
