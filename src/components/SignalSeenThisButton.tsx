@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { calculateSignalStatus, type SignalStatus } from '@/lib/signal-lifecycle';
 
@@ -23,6 +24,7 @@ export default function SignalSeenThisButton({
   currentBuildersCount,
   onStatusChange,
 }: Props) {
+  const router = useRouter();
   const [hasConfirmed, setHasConfirmed] = useState(initialHasConfirmed);
   const [seenCount, setSeenCount] = useState(initialSeenCount);
   const [showNote, setShowNote] = useState(false);
@@ -32,21 +34,24 @@ export default function SignalSeenThisButton({
   const supabase = createClient();
 
   async function handleConfirm() {
-    if (!viewerBuilderId) {
-      window.location.href = `/auth/login?next=/quests/${questId}`;
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      router.push(`/auth/login?next=/quests/${questId}`);
       return;
     }
     setShowNote(true);
   }
 
   async function submitConfirmation() {
-    if (!viewerBuilderId || saving) return;
+    const { data: { user } } = await supabase.auth.getUser();
+    const builderId = viewerBuilderId ?? user?.id;
+    if (!builderId || saving) return;
     setSaving(true);
     setError(null);
 
     const { error: insertError } = await supabase
       .from('signal_confirmations')
-      .insert({ quest_id: questId, builder_id: viewerBuilderId, note: note.trim() || null });
+      .insert({ quest_id: questId, builder_id: builderId, note: note.trim() || null });
 
     if (insertError) {
       setError(insertError.message);
@@ -56,7 +61,6 @@ export default function SignalSeenThisButton({
 
     const newCount = seenCount + 1;
 
-    // Recalculate status
     const newStatus = calculateSignalStatus({
       seen_count: newCount,
       comment_count: 0,
@@ -64,15 +68,13 @@ export default function SignalSeenThisButton({
       has_solution: currentSignalStatus === 'solved',
     });
 
-    // Update quest
     await supabase
       .from('quests')
       .update({ seen_count: newCount, signal_status: newStatus })
       .eq('id', questId);
 
-    // Activity feed
     await supabase.from('activity_feed').insert({
-      actor_id: viewerBuilderId,
+      actor_id: builderId,
       action: 'signal_confirmed',
       summary: `confirmed a signal`,
       target_id: questId,
@@ -81,7 +83,7 @@ export default function SignalSeenThisButton({
     const VALID_TRANSITION_ACTIONS = new Set(['validated', 'building', 'solved']);
     if (newStatus !== currentSignalStatus && VALID_TRANSITION_ACTIONS.has(newStatus)) {
       await supabase.from('activity_feed').insert({
-        actor_id: viewerBuilderId,
+        actor_id: builderId,
         action: `signal_${newStatus}`,
         summary: `Signal reached ${newStatus} status`,
         target_id: questId,

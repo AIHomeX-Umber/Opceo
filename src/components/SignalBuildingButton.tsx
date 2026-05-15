@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { calculateSignalStatus, type SignalStatus } from '@/lib/signal-lifecycle';
 
@@ -21,6 +22,7 @@ export default function SignalBuildingButton({
   currentSeenCount,
   onStatusChange,
 }: Props) {
+  const router = useRouter();
   const [isBuilding, setIsBuilding] = useState(initialIsBuilding);
   const [showForm, setShowForm] = useState(false);
   const [projectName, setProjectName] = useState('');
@@ -30,15 +32,18 @@ export default function SignalBuildingButton({
   const supabase = createClient();
 
   async function handleClick() {
-    if (!viewerBuilderId) {
-      window.location.href = `/auth/login?next=/quests/${questId}`;
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      router.push(`/auth/login?next=/quests/${questId}`);
       return;
     }
     setShowForm(true);
   }
 
   async function submitBuild() {
-    if (!viewerBuilderId || saving || !projectName.trim()) return;
+    const { data: { user } } = await supabase.auth.getUser();
+    const builderId = viewerBuilderId ?? user?.id;
+    if (!builderId || saving || !projectName.trim()) return;
     setSaving(true);
     setError(null);
 
@@ -46,7 +51,7 @@ export default function SignalBuildingButton({
       .from('signal_builders')
       .insert({
         quest_id: questId,
-        builder_id: viewerBuilderId,
+        builder_id: builderId,
         project_name: projectName.trim(),
         project_url: projectUrl.trim() || null,
       });
@@ -57,7 +62,6 @@ export default function SignalBuildingButton({
       return;
     }
 
-    // Recalculate status (building takes precedence)
     const newStatus = calculateSignalStatus({
       seen_count: currentSeenCount,
       comment_count: 0,
@@ -71,7 +75,7 @@ export default function SignalBuildingButton({
       .eq('id', questId);
 
     await supabase.from('activity_feed').insert({
-      actor_id: viewerBuilderId,
+      actor_id: builderId,
       action: 'signal_building',
       summary: `started building for a signal`,
       target_id: questId,
