@@ -11,14 +11,21 @@ export const metadata: Metadata = {
 export default async function LoginPage() {
   const supabase = await createClient();
 
+  const SIGNAL_TIMEOUT_MS = 1500;
+
   async function safeCount(table: string) {
-    try {
-      const { count, error } = await supabase.from(table).select('*', { count: 'exact', head: true });
-      if (error) return null;
-      return count;
-    } catch {
-      return null;
-    }
+    return Promise.race<number | null>([
+      (async () => {
+        try {
+          const { count, error } = await supabase.from(table).select('*', { count: 'exact', head: true });
+          if (error) return null;
+          return count;
+        } catch {
+          return null;
+        }
+      })(),
+      new Promise<null>((resolve) => setTimeout(() => resolve(null), SIGNAL_TIMEOUT_MS)),
+    ]);
   }
 
   const [buildersCount, logsCount, questsCount, betsCount] = await Promise.all([
