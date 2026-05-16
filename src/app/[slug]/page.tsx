@@ -9,6 +9,7 @@ import { generateMetadata as genMeta } from '@/lib/seo';
 import type { Builder } from '@/lib/types';
 import SignalBetButton from '@/components/SignalBetButton';
 import ConnectButton from '@/components/ConnectButton';
+import { ProfileShareButton } from '@/components/ProfileShareButton';
 import StreakCalendar from '@/components/StreakCalendar';
 import WelcomeBanner from '@/components/WelcomeBanner';
 import { Suspense } from 'react';
@@ -402,7 +403,7 @@ export default async function BuilderProfilePage({ params }: PageProps) {
           </div>
         </section>
 
-        {/* Signal Bet + Connect */}
+        {/* Signal Bet + Connect + Share */}
         <section aria-label="Signal bet and connect actions" className="flex flex-wrap gap-3 mb-8">
           <SignalBetButton
             targetId={builder.id}
@@ -411,6 +412,7 @@ export default async function BuilderProfilePage({ params }: PageProps) {
             initialBetted={initialBetted}
           />
           <ConnectButton targetId={builder.id} targetName={builder.display_name} />
+          <ProfileShareButton builder={builder} />
         </section>
 
         {/* Featured Links (new — only if has items) */}

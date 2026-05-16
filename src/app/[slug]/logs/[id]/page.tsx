@@ -9,6 +9,8 @@ import UpvoteButton from '@/components/UpvoteButton';
 import { ToolStackPill } from '@/components/ToolStackPill';
 import { formatRelativeTime } from '@/lib/utils';
 import type { Builder, ShipLog } from '@/lib/types';
+import { ShareButton } from '@/components/ShareButton';
+import { getShipLogShareText } from '@/lib/share-text';
 
 interface Params {
   slug: string;
@@ -50,10 +52,13 @@ export async function generateMetadata({
 
 export default async function ShipLogPage({
   params,
+  searchParams,
 }: {
   params: Promise<Params>;
+  searchParams: Promise<{ new?: string }>;
 }) {
   const { slug, id } = await params;
+  const { new: isNew } = await searchParams;
   const supabase = await createClient();
 
   // Fetch log with builder join
@@ -112,8 +117,6 @@ export default async function ShipLogPage({
   }
 
   const logUrl = `https://opceo.ai/${slug}/logs/${id}`;
-  const shareText = `Week ${log.week_number} ship log 🚀 ${log.shipped.slice(0, 80)}${log.shipped.length > 80 ? '…' : ''} — ${logUrl}`;
-  const twitterUrl = `https://x.com/intent/tweet?text=${encodeURIComponent(shareText)}`;
 
   const publishedDate = new Date(log.created_at);
   const formattedDate = publishedDate.toLocaleDateString('en-US', {
@@ -128,6 +131,21 @@ export default async function ShipLogPage({
 
       <div className="min-h-[calc(100vh-56px)] px-4 py-12">
         <div className="max-w-2xl mx-auto">
+
+          {/* Success banner — shown right after submitting (?new=1) */}
+          {isNew === '1' && (
+            <div className="mb-8 flex items-center justify-between gap-4 px-4 py-3 rounded-lg bg-[#534AB7]/15 border border-[#534AB7]/30">
+              <p className="text-sm text-[#a49ef5] font-medium">
+                🚀 Week {log.week_number} shipped! Share it with your network.
+              </p>
+              <ShareButton
+                url={logUrl}
+                text={getShipLogShareText(log, builder)}
+                variant="full"
+              />
+            </div>
+          )}
+
           <article>
             {/* Header */}
             <header className="mb-8">
@@ -201,23 +219,11 @@ export default async function ShipLogPage({
                 initialCount={log.upvote_count}
                 initialUpvoted={hasUpvoted}
               />
-
-              {/* Copy link */}
-              <CopyLinkButton url={logUrl} />
-
-              {/* X share */}
-              <a
-                href={twitterUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md border border-white/15 text-sm text-white/50 hover:border-white/30 hover:text-white transition-colors"
-                aria-label="Share on X"
-              >
-                <svg width="14" height="14" viewBox="0 0 1200 1227" fill="currentColor">
-                  <path d="M714.163 519.284L1160.89 0H1055.03L667.137 450.887L357.328 0H0L468.492 681.821L0 1226.37H105.866L515.491 750.218L842.672 1226.37H1200L714.163 519.284ZM569.165 687.828L521.697 619.934L144.011 79.6898H306.615L611.412 515.685L658.88 583.579L1055.08 1150.3H892.476L569.165 687.828Z" />
-                </svg>
-                Share
-              </a>
+              <ShareButton
+                url={logUrl}
+                text={getShipLogShareText(log, builder)}
+                variant="full"
+              />
             </div>
 
             {/* Builder card */}
@@ -271,6 +277,3 @@ export default async function ShipLogPage({
     </>
   );
 }
-
-// Client component for copy-to-clipboard
-import CopyLinkButton from './CopyLinkButton';

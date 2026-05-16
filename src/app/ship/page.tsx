@@ -112,7 +112,7 @@ export default function ShipPage() {
       summary: `shipped Week ${week_number}`,
     });
 
-    router.push(`/${builder.slug}/logs/${log.id}`);
+    router.push(`/${builder.slug}/logs/${log.id}?new=1`);
   }
 
   if (loading) {

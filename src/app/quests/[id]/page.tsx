@@ -13,6 +13,8 @@ import SignalStatusBar from '@/components/SignalStatusBar';
 import SignalSeenThisButton from '@/components/SignalSeenThisButton';
 import SignalBuildingButton from '@/components/SignalBuildingButton';
 import SignalSolvedButton from '@/components/SignalSolvedButton';
+import { ShareButton } from '@/components/ShareButton';
+import { getSignalShareText } from '@/lib/share-text';
 import { getDifficultyColor, getCategoryColor, formatRelativeTime } from '@/lib/utils';
 import { SIGNAL_STATUS_LABELS, SIGNAL_STATUS_COLORS, type SignalStatus } from '@/lib/signal-lifecycle';
 import type { Quest, QuestClaim, SignalConfirmation, SignalBuilder } from '@/lib/types';
@@ -282,6 +284,11 @@ export default async function QuestDetailPage({ params }: PageProps) {
                 currentSignalStatus={signalStatus}
                 currentSeenCount={quest.seen_count ?? 0}
               />
+              <ShareButton
+                url={`https://opceo.ai/quests/${quest.id}`}
+                text={getSignalShareText(quest)}
+                variant="full"
+              />
             </div>
 
             {/* Confirmations list */}
@@ -419,6 +426,11 @@ export default async function QuestDetailPage({ params }: PageProps) {
             <span className="font-mono text-xs">{claims.length}/{quest.max_claimers} claimed</span>
             {quest.deadline && <span className="font-mono text-xs">deadline: {formatRelativeTime(quest.deadline)}</span>}
             <span className="font-mono text-xs">posted {formatRelativeTime(quest.created_at)}</span>
+            <ShareButton
+              url={`https://opceo.ai/quests/${quest.id}`}
+              text={`Quest on OpCEO.AI: "${quest.title}"\n\n${quest.description.slice(0, 100)}${quest.description.length > 100 ? '...' : ''}`}
+              variant="icon"
+            />
           </div>
 
           <section className="mb-8">
