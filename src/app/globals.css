@@ -25,6 +25,9 @@
   --color-ai-500: #0EA5E9;
   --color-ai-600: #0284C7;
   --color-ai-800: #075985;
+
+  /* Signal (orange) scale */
+  --color-signal-500: #FF7A00;
 }
 
 :root {
