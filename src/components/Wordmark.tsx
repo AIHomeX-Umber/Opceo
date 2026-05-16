@@ -18,7 +18,7 @@ export function Wordmark({ size = 'md', linkToHome = true }: WordmarkProps) {
   const mark = (
     <span className={`${cls} font-mono font-medium tracking-wide inline-flex`}>
       <span className="text-white">OpCEO</span>
-      <span className="text-[#534AB7]">.AI</span>
+      <span className="text-white/50">.AI</span>
     </span>
   );
 
