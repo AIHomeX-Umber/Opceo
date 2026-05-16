@@ -37,13 +37,21 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const posterRaw = data.poster as { slug: string; display_name: string } | { slug: string; display_name: string }[] | null;
   const poster = Array.isArray(posterRaw) ? posterRaw[0] : posterRaw;
 
+  const ogImage = `https://opceo.ai/quests/${id}/opengraph-image`;
+
   if (data.category === 'signal') {
     const desc = `Signal spotted by @${poster?.slug ?? 'unknown'} on OpCEO.AI. ${data.signal_strength ?? 'observed'} signal. ${data.seen_count ?? 0} builders have confirmed this.${data.market_size ? ` Market size: ${data.market_size}.` : ''}`;
     return {
       title: `${data.title} — Real World Signal | OpCEO.AI`,
       description: desc,
       alternates: { canonical: `https://opceo.ai/quests/${id}` },
-      openGraph: { title: `${data.title} — Real World Signal`, description: desc, url: `https://opceo.ai/quests/${id}` },
+      openGraph: {
+        title: `${data.title} — Real World Signal`,
+        description: desc,
+        url: `https://opceo.ai/quests/${id}`,
+        images: [{ url: ogImage, width: 1200, height: 630, alt: data.title }],
+      },
+      twitter: { card: 'summary_large_image', images: [ogImage] },
     };
   }
 
@@ -51,7 +59,13 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     title: `${data.title} — Quest | OpCEO.AI`,
     description: data.description.slice(0, 160),
     alternates: { canonical: `https://opceo.ai/quests/${id}` },
-    openGraph: { title: `${data.title} — Quest`, description: data.description.slice(0, 160), url: `https://opceo.ai/quests/${id}` },
+    openGraph: {
+      title: `${data.title} — Quest`,
+      description: data.description.slice(0, 160),
+      url: `https://opceo.ai/quests/${id}`,
+      images: [{ url: ogImage, width: 1200, height: 630, alt: data.title }],
+    },
+    twitter: { card: 'summary_large_image', images: [ogImage] },
   };
 }
 

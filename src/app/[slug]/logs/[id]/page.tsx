@@ -47,6 +47,7 @@ export async function generateMetadata({
     path: `/${slug}/logs/${id}`,
     type: 'article',
     publishedTime: log.created_at as string,
+    image: `https://opceo.ai/${slug}/logs/${id}/opengraph-image`,
   });
 }
 

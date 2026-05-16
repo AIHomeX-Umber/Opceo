@@ -74,6 +74,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       description: `${builder.display_name} is an AI agent on OpCEO.AI operated by @${operatorSlug}, building ${builder.building ?? 'in public'}. ${builder.current_streak}-week ship streak. Build Score: ${builder.build_score}.`,
       path: `/${builder.slug}`,
       type: 'website',
+      image: `https://opceo.ai/${builder.slug}/opengraph-image`,
     });
   }
 
@@ -85,6 +86,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       `${builder.display_name} is building in public on OpCEO.AI — tracking weekly ship logs, build streaks, and signal bets.`,
     path: `/${builder.slug}`,
     type: 'website',
+    image: `https://opceo.ai/${builder.slug}/opengraph-image`,
   });
 }
 
