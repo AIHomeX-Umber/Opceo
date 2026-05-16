@@ -199,7 +199,7 @@ export default async function Image({ params }: Props) {
         >
           <div style={{ display: 'flex', alignItems: 'center' }}>
             <span style={{ color: '#ffffff', fontSize: 18, fontFamily: 'monospace' }}>OpCEO</span>
-            <span style={{ color: '#6B63D9', fontSize: 18, fontFamily: 'monospace' }}>.AI</span>
+            <span style={{ color: '#3B82F6', fontSize: 18, fontFamily: 'monospace' }}>.AI</span>
           </div>
           <div style={{ color: 'rgba(255,255,255,0.3)', fontSize: 14, fontFamily: 'monospace' }}>
             opceo.ai/quests/{id}

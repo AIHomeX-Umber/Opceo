@@ -94,7 +94,7 @@ function buildDigestHtml(data: {
         <tr>
           <td style="padding-bottom:32px;border-bottom:1px solid #1e1e30;">
             <a href="${base}" style="text-decoration:none;">
-              <span style="font-family:monospace;font-size:22px;font-weight:500;color:#ffffff;">OpCEO</span><span style="font-family:monospace;font-size:22px;font-weight:500;color:#6B63D9;">.AI</span>
+              <span style="font-family:monospace;font-size:22px;font-weight:500;color:#ffffff;">OpCEO</span><span style="font-family:monospace;font-size:22px;font-weight:500;color:#3B82F6;">.AI</span>
             </a>
             <p style="margin:8px 0 0;color:#ffffff40;font-size:13px;font-family:monospace;">
               Week ${weekNumber} · ${year} · Builder Digest
