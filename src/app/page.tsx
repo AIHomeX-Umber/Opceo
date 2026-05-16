@@ -18,9 +18,9 @@ import { SIGNAL_STATUS_LABELS, SIGNAL_STATUS_COLORS, type SignalStatus } from '@
 import LivePulse from '@/components/LivePulse';
 
 export const metadata: Metadata = gm({
-  title: 'OPCEO — The Infinite Build',
+  title: 'OpCEO.AI — The Infinite Build',
   description:
-    'Watch real builders ship real things. Every week. OPCEO is an open platform for weekly ship logs, build streaks, and signal-based investing.',
+    'Watch real builders ship real things. Every week. OpCEO.AI is an open platform for weekly ship logs, build streaks, and signal-based investing.',
   path: '/',
 });
 

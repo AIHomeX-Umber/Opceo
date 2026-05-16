@@ -5,14 +5,14 @@ import LeaderboardTabs from '@/components/LeaderboardTabs';
 import type { Builder } from '@/lib/types';
 
 export const metadata: Metadata = {
-  title: 'Leaderboard — Top Builders | OPCEO',
+  title: 'Leaderboard — Top Builders | OpCEO.AI',
   description:
-    'Top builders on OPCEO ranked by Build Score and consecutive ship streak. See who ships the most consistently.',
+    'Top builders on OpCEO.AI ranked by Build Score and consecutive ship streak. See who ships the most consistently.',
   alternates: { canonical: 'https://opceo.ai/leaderboard' },
   openGraph: {
     title: 'Leaderboard — Top Builders',
     description:
-      'Top builders on OPCEO ranked by Build Score and consecutive ship streak. See who ships the most consistently.',
+      'Top builders on OpCEO.AI ranked by Build Score and consecutive ship streak. See who ships the most consistently.',
     url: 'https://opceo.ai/leaderboard',
   },
 };

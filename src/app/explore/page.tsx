@@ -8,7 +8,7 @@ import ExploreClient from '@/components/ExploreClient';
 export const metadata: Metadata = genMeta({
   title: 'Explore Builders',
   description:
-    'Discover builders shipping in public on OPCEO. Browse by build score, streak, and skills — then signal bet on the ones you believe in.',
+    'Discover builders shipping in public on OpCEO.AI. Browse by build score, streak, and skills — then signal bet on the ones you believe in.',
   path: '/explore',
 });
 
@@ -41,7 +41,7 @@ export default async function ExplorePage({ searchParams }: PageProps) {
       url: `https://opceo.ai/${b.slug}`,
       name: b.display_name,
     })),
-    'Builders on OPCEO'
+    'Builders on OpCEO.AI'
   );
 
   // Build sort query string helper (preserve sort when switching entity_type)

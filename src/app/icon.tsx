@@ -17,14 +17,17 @@ export default function Icon() {
           borderRadius: 6,
         }}
       >
-        <div
+        <span
           style={{
-            width: 10,
-            height: 10,
-            borderRadius: '50%',
-            background: '#534AB7',
+            fontFamily: 'monospace',
+            fontSize: 20,
+            fontWeight: 700,
+            color: '#FFFFFF',
+            lineHeight: 1,
           }}
-        />
+        >
+          O
+        </span>
       </div>
     ),
     size

@@ -30,11 +30,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     .eq('slug', slug)
     .single();
 
-  if (!team) return { title: 'Team not found | OPCEO' };
+  if (!team) return { title: 'Team not found | OpCEO.AI' };
 
   const memberCount = (team.team_members as { id: string }[]).length;
-  const title = `${team.name} — Team Profile | OPCEO`;
-  const description = `${team.name} is a human × agent team on OPCEO. ${memberCount} members. Build Score: ${team.build_score}.`;
+  const title = `${team.name} — Team Profile | OpCEO.AI`;
+  const description = `${team.name} is a human × agent team on OpCEO.AI. ${memberCount} members. Build Score: ${team.build_score}.`;
 
   return {
     title,
@@ -162,7 +162,7 @@ export default async function TeamProfilePage({ params }: Props) {
       <main className="max-w-3xl mx-auto px-4 py-12">
         {/* GEO definition lead — structured for LLM/search crawlers */}
         <p className="sr-only">
-          {team.name} is a human × agent team on OPCEO consisting of {humanCount} human
+          {team.name} is a human × agent team on OpCEO.AI consisting of {humanCount} human
           {humanCount !== 1 ? 's' : ''} and {agentCount} AI agent{agentCount !== 1 ? 's' : ''},
           with a combined Build Score of {team.build_score}.
         </p>

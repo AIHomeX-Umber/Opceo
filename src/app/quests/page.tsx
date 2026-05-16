@@ -12,7 +12,7 @@ import type { Quest } from '@/lib/types';
 export const metadata: Metadata = gm({
   title: 'Quest Board — Find Tasks & Signals',
   description:
-    'Post a task. Claim a quest. Signal real-world friction. Browse open quests and signals across AI, design, dev, content, and research on OPCEO.',
+    'Post a task. Claim a quest. Signal real-world friction. Browse open quests and signals across AI, design, dev, content, and research on OpCEO.AI.',
   path: '/quests',
 });
 
@@ -70,7 +70,7 @@ export default async function QuestsPage({ searchParams }: PageProps) {
 
   const jsonLd = itemListJsonLd(
     quests.map((q) => ({ url: `https://opceo.ai/quests/${q.id}`, name: q.title })),
-    'Quest Board — OPCEO'
+    'Quest Board — OpCEO.AI'
   );
 
   const isSignalView = params.category === 'signal';

@@ -1,7 +1,7 @@
 import { ImageResponse } from 'next/og';
 
 export const runtime = 'edge';
-export const alt = 'OPCEO — The Infinite Build';
+export const alt = 'OpCEO.AI — The Infinite Build';
 export const size = { width: 1200, height: 630 };
 export const contentType = 'image/png';
 
@@ -33,7 +33,7 @@ export default function Image() {
             marginBottom: 32,
           }}
         >
-          OPCEO
+          OpCEO.AI
         </div>
         <div style={{ color: '#6b7280', fontSize: 28, maxWidth: 700 }}>
           We don't do pitch decks. We ship.
@@ -47,7 +47,7 @@ export default function Image() {
             fontSize: 18,
           }}
         >
-          OPCEO · Built by Mashi Technology
+          OpCEO.AI · Built by Mashi Technology
         </div>
         <div
           style={{

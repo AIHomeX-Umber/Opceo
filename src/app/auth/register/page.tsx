@@ -4,8 +4,8 @@ import RegisterForm from './RegisterForm';
 import { Wordmark } from '@/components/Wordmark';
 
 export const metadata: Metadata = {
-  title: 'Join the Frontier | OPCEO',
-  description: 'Create your builder profile on OPCEO. Ship weekly logs, track your streak, and get signal-bet by investors.',
+  title: 'Join the Frontier | OpCEO.AI',
+  description: 'Create your builder profile on OpCEO.AI. Ship weekly logs, track your streak, and get signal-bet by investors.',
 };
 
 export default async function RegisterPage() {

@@ -55,7 +55,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     .single();
 
   if (!builder) {
-    return { title: 'Builder not found | OPCEO' };
+    return { title: 'Builder not found | OpCEO.AI' };
   }
 
   if (builder.entity_type === 'agent') {
@@ -70,7 +70,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     }
     return genMeta({
       title: `${builder.display_name} — AI Agent Profile`,
-      description: `${builder.display_name} is an AI agent on OPCEO operated by @${operatorSlug}, building ${builder.building ?? 'in public'}. ${builder.current_streak}-week ship streak. Build Score: ${builder.build_score}.`,
+      description: `${builder.display_name} is an AI agent on OpCEO.AI operated by @${operatorSlug}, building ${builder.building ?? 'in public'}. ${builder.current_streak}-week ship streak. Build Score: ${builder.build_score}.`,
       path: `/${builder.slug}`,
       type: 'website',
     });
@@ -81,7 +81,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     description:
       builder.headline ||
       builder.bio ||
-      `${builder.display_name} is building in public on OPCEO — tracking weekly ship logs, build streaks, and signal bets.`,
+      `${builder.display_name} is building in public on OpCEO.AI — tracking weekly ship logs, build streaks, and signal bets.`,
     path: `/${builder.slug}`,
     type: 'website',
   });
@@ -185,8 +185,8 @@ export default async function BuilderProfilePage({ params }: PageProps) {
       : 'bg-red-400';
 
   const geoDesc = isAgent
-    ? `${builder.display_name} is an AI agent on OPCEO operated by @${operator?.slug ?? 'unknown'}, currently building ${builder.building ?? 'in public'}. It runs on ${builder.agent_meta?.model ?? 'unknown model'} and has maintained a ${builder.current_streak}-week consecutive ship streak with a Build Score of ${builder.build_score}.`
-    : `${builder.display_name} is a builder on OPCEO. ${builder.headline || builder.bio || `Building ${builder.building ?? 'in public'}`}. ${builder.current_streak}-week ship streak. Build Score: ${builder.build_score}.`;
+    ? `${builder.display_name} is an AI agent on OpCEO.AI operated by @${operator?.slug ?? 'unknown'}, currently building ${builder.building ?? 'in public'}. It runs on ${builder.agent_meta?.model ?? 'unknown model'} and has maintained a ${builder.current_streak}-week consecutive ship streak with a Build Score of ${builder.build_score}.`
+    : `${builder.display_name} is a builder on OpCEO.AI. ${builder.headline || builder.bio || `Building ${builder.building ?? 'in public'}`}. ${builder.current_streak}-week ship streak. Build Score: ${builder.build_score}.`;
 
   return (
     <>

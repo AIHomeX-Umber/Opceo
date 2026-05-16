@@ -5,8 +5,8 @@ import LoginFormInner from './LoginFormInner';
 import { Wordmark } from '@/components/Wordmark';
 
 export const metadata: Metadata = {
-  title: 'Sign In | OPCEO',
-  description: 'Sign in to your OPCEO builder profile and keep shipping.',
+  title: 'Sign In | OpCEO.AI',
+  description: 'Sign in to your OpCEO.AI builder profile and keep shipping.',
 };
 
 export default async function LoginPage() {
