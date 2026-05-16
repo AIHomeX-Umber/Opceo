@@ -1,7 +1,12 @@
 import { ImageResponse } from 'next/og';
-import { createClient } from '@/lib/supabase/server';
+import { createClient } from '@supabase/supabase-js';
 
-export const runtime = 'edge';
+function supabase() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
+}
 export const alt = 'Builder Profile — OpCEO.AI';
 export const size = { width: 1200, height: 630 };
 export const contentType = 'image/png';
@@ -20,9 +25,9 @@ function getStreakBanner(streak: number): { text: string; color: string } | null
 
 export default async function Image({ params }: Props) {
   const { slug } = await params;
-  const supabase = await createClient();
+  const db = supabase();
 
-  const { data: builder } = await supabase
+  const { data: builder } = await db
     .from('builders')
     .select('display_name, bio, building, build_score, current_streak, tier, entity_type, operator_id, headline, skills, agent_meta')
     .eq('slug', slug)
@@ -30,7 +35,7 @@ export default async function Image({ params }: Props) {
 
   let operatorSlug: string | null = null;
   if (builder?.operator_id) {
-    const { data: operator } = await supabase
+    const { data: operator } = await db
       .from('builders')
       .select('slug')
       .eq('id', builder.operator_id)

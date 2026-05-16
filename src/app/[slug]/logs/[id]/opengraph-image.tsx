@@ -1,7 +1,12 @@
 import { ImageResponse } from 'next/og';
-import { createClient } from '@/lib/supabase/server';
+import { createClient } from '@supabase/supabase-js';
 
-export const runtime = 'edge';
+function supabase() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
+}
 export const alt = 'Ship Log — OpCEO.AI';
 export const size = { width: 1200, height: 630 };
 export const contentType = 'image/png';
@@ -22,9 +27,9 @@ function formatDate(dateStr: string): string {
 
 export default async function Image({ params }: Props) {
   const { id } = await params;
-  const supabase = await createClient();
+  const db = supabase();
 
-  const { data: log } = await supabase
+  const { data: log } = await db
     .from('ship_logs')
     .select('id, week_number, year, shipped, tool_stack, upvote_count, created_at, builder_id, builders(display_name, entity_type, current_streak, build_score)')
     .eq('id', id)

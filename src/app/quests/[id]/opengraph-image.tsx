@@ -1,7 +1,12 @@
 import { ImageResponse } from 'next/og';
-import { createClient } from '@/lib/supabase/server';
+import { createClient } from '@supabase/supabase-js';
 
-export const runtime = 'edge';
+function supabase() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
+}
 export const alt = 'Quest — OpCEO.AI';
 export const size = { width: 1200, height: 630 };
 export const contentType = 'image/png';
@@ -30,9 +35,9 @@ const CATEGORY_COLORS: Record<string, string> = {
 
 export default async function Image({ params }: Props) {
   const { id } = await params;
-  const supabase = await createClient();
+  const db = supabase();
 
-  const { data: quest } = await supabase
+  const { data: quest } = await db
     .from('quests')
     .select('title, description, category, signal_strength, seen_count, reward_type, difficulty, status, poster:builders!quests_poster_id_fkey(slug, display_name)')
     .eq('id', id)
