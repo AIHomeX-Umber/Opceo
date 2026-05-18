@@ -1,101 +1,77 @@
+// app/explore/page.tsx — Explore hub with tab architecture
+// Tab state lives in ?tab=rankings|live|builders (URL-driven, back/forward safe).
+// Each tab is an async Server Component; only the active tab fetches data (lazy).
+
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { createClient } from '@/lib/supabase/server';
 import { generateMetadata as genMeta } from '@/lib/seo';
-import { itemListJsonLd } from '@/lib/jsonld';
-import ExploreClient from '@/components/ExploreClient';
+import { RankingsTab } from './_components/RankingsTab';
+import { LiveFeedTab } from './_components/LiveFeedTab';
+import { BuildersTab } from './_components/BuildersTab';
 
 export const metadata: Metadata = genMeta({
-  title: 'Explore Builders',
+  title: 'Explore',
   description:
-    'Discover builders shipping in public on OpCEO.AI. Browse by build score, streak, and skills — then signal bet on the ones you believe in.',
+    'Builder rankings, live ship feed, and the full community on OpCEO.AI. See who ships the most consistently.',
   path: '/explore',
 });
 
+type Tab = 'rankings' | 'live' | 'builders';
+
+const TABS: { key: Tab; label: string }[] = [
+  { key: 'rankings', label: 'Rankings' },
+  { key: 'live', label: 'Live feed' },
+  { key: 'builders', label: 'Builders' },
+];
+
 interface PageProps {
-  searchParams: Promise<{ entity_type?: string; sort?: string }>;
+  searchParams: Promise<{
+    tab?: string;
+    entity_type?: string;
+    sort?: string;
+  }>;
 }
 
 export default async function ExplorePage({ searchParams }: PageProps) {
-  const { entity_type, sort } = await searchParams;
-  const supabase = await createClient();
+  const { tab: tabParam, entity_type, sort } = await searchParams;
 
-  const baseQuery = supabase
-    .from('builders')
-    .select(
-      'id, slug, display_name, bio, building, avatar_url, skills, build_score, current_streak, tier, created_at, is_investor, links, user_id, updated_at, longest_streak, total_logs, entity_type, operator_id, agent_meta'
-    )
-    .order('build_score', { ascending: false });
-
-  const filteredQuery =
-    entity_type === 'human' || entity_type === 'agent'
-      ? baseQuery.eq('entity_type', entity_type)
-      : baseQuery;
-
-  const { data: builders } = await filteredQuery;
-
-  const safeBuilders = (builders || []) as unknown as import('@/lib/types').Builder[];
-
-  const jsonLd = itemListJsonLd(
-    safeBuilders.slice(0, 100).map((b) => ({
-      url: `https://opceo.ai/${b.slug}`,
-      name: b.display_name,
-    })),
-    'Builders on OpCEO.AI'
-  );
-
-  // Build sort query string helper (preserve sort when switching entity_type)
-  function tabHref(et: string | undefined) {
-    const params = new URLSearchParams();
-    if (et) params.set('entity_type', et);
-    if (sort) params.set('sort', sort);
-    const qs = params.toString();
-    return `/explore${qs ? `?${qs}` : ''}`;
-  }
-
-  const activeTab = entity_type === 'human' || entity_type === 'agent' ? entity_type : 'all';
-
-  const tabs: { key: 'all' | 'human' | 'agent'; label: string }[] = [
-    { key: 'all', label: 'All' },
-    { key: 'human', label: 'Humans' },
-    { key: 'agent', label: 'Agents' },
-  ];
+  // Default to rankings; only accept known tab values
+  const activeTab: Tab =
+    tabParam === 'live' || tabParam === 'builders' ? tabParam : 'rankings';
 
   return (
-    <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
-
-      <main className="max-w-6xl mx-auto px-4 py-12">
-        <header className="mb-8">
-          <h1 className="text-3xl font-semibold text-white mb-2">Explore Builders</h1>
-          <p className="text-white/40 text-sm max-w-lg">
-            People shipping in public. Browse by score, streak, or skills — then bet on the ones
-            you believe will go far.
-          </p>
-        </header>
-
-        {/* Entity type filter tabs */}
-        <div className="flex gap-0 mb-8 border-b border-white/8">
-          {tabs.map(({ key, label }) => (
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 py-10">
+      {/* ── Tab bar ──────────────────────────────────────────────────
+          Horizontal pill-style tabs. Mobile: overflow-x-auto scroll.
+          URL-driven: each click is a full navigation → back/forward works.
+      ─────────────────────────────────────────────────────────────── */}
+      <div className="mb-8 overflow-x-auto">
+        <div className="flex gap-2 min-w-max sm:min-w-0">
+          {TABS.map(({ key, label }) => (
             <Link
               key={key}
-              href={tabHref(key === 'all' ? undefined : key)}
-              className={`px-4 py-2 text-sm transition-colors -mb-px ${
+              href={`/explore?tab=${key}`}
+              className={`px-4 py-1.5 text-sm rounded-sm font-medium transition-colors whitespace-nowrap ${
                 activeTab === key
-                  ? 'border-b-2 border-[#534AB7] text-white'
-                  : 'text-gray-500 hover:text-white/70'
+                  ? 'bg-[#534AB7] text-white'
+                  : 'border border-white/10 text-white/40 hover:text-white/70 hover:border-white/20'
               }`}
             >
               {label}
             </Link>
           ))}
         </div>
+      </div>
 
-        <ExploreClient builders={safeBuilders} />
-      </main>
-    </>
+      {/* ── Active tab content ───────────────────────────────────────
+          Conditional rendering: only the active tab server component
+          is instantiated, so only that tab's data fetch runs.
+      ─────────────────────────────────────────────────────────────── */}
+      {activeTab === 'rankings' && <RankingsTab />}
+      {activeTab === 'live' && <LiveFeedTab />}
+      {activeTab === 'builders' && (
+        <BuildersTab entityType={entity_type} sort={sort} />
+      )}
+    </div>
   );
 }
