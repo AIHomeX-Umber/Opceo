@@ -2,20 +2,15 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import type { User } from '@supabase/supabase-js';
 import { Wordmark } from '@/components/Wordmark';
 
-const navLinks = [
-  { href: '/', label: 'Live' },
-  { href: '/explore', label: 'Explore' },
-  { href: '/agents', label: 'Agents' },
-  { href: '/quests', label: 'Quests' },
-  { href: '/calendar', label: 'Calendar' },
-  { href: '/accelerate', label: 'Accelerate' },
-  { href: '/leaderboard', label: 'Leaderboard' },
-  { href: '/about', label: 'About' },
+const PROGRAMS_ITEMS = [
+  { href: '/quests', label: 'Quests', desc: 'Post a task. Claim a quest. Ship together.' },
+  { href: '/calendar', label: 'Calendar', desc: 'Upcoming events and deadlines.' },
+  { href: '/accelerate', label: 'Accelerate', desc: 'Growth programs for builders.' },
 ];
 
 export default function Nav() {
@@ -23,6 +18,9 @@ export default function Nav() {
   const [user, setUser] = useState<User | null>(null);
   const [builderSlug, setBuilderSlug] = useState<string | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [programsOpen, setProgramsOpen] = useState(false);
+  const [mobileProgramsOpen, setMobileProgramsOpen] = useState(false);
+  const programsRef = useRef<HTMLDivElement>(null);
   const supabase = createClient();
 
   useEffect(() => {
@@ -46,10 +44,24 @@ export default function Nav() {
     return () => listener.subscription.unsubscribe();
   }, []);
 
+  // Close Programs dropdown on outside click
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (programsRef.current && !programsRef.current.contains(e.target as Node)) {
+        setProgramsOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
+  }, []);
+
   async function handleSignOut() {
     await supabase.auth.signOut();
     window.location.href = '/';
   }
+
+  // Programs is "active" if current path is one of its children
+  const programsActive = PROGRAMS_ITEMS.some((p) => pathname === p.href || pathname.startsWith(p.href + '/'));
 
   return (
     <nav className="sticky top-0 z-50 border-b border-white/8 bg-[#0a0a0a]/90 backdrop-blur-sm">
@@ -59,22 +71,71 @@ export default function Nav() {
 
         {/* Desktop nav */}
         <div className="hidden md:flex items-center gap-6">
-          {navLinks.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className={`text-sm transition-colors ${
-                pathname === link.href
-                  ? 'text-white'
-                  : 'text-white/50 hover:text-white'
+          {/* Explore */}
+          <Link
+            href="/explore"
+            className={`text-sm transition-colors ${
+              pathname === '/explore' || pathname.startsWith('/explore')
+                ? 'text-white'
+                : 'text-white/50 hover:text-white'
+            }`}
+          >
+            Explore
+          </Link>
+
+          {/* Agents */}
+          <Link
+            href="/agents"
+            className={`text-sm transition-colors ${
+              pathname === '/agents' || pathname.startsWith('/agents/')
+                ? 'text-white'
+                : 'text-white/50 hover:text-white'
+            }`}
+          >
+            Agents
+          </Link>
+
+          {/* Programs dropdown */}
+          <div className="relative" ref={programsRef}>
+            <button
+              onClick={() => setProgramsOpen((v) => !v)}
+              className={`flex items-center gap-1 text-sm transition-colors ${
+                programsActive || programsOpen ? 'text-white' : 'text-white/50 hover:text-white'
               }`}
             >
-              {link.label}
-            </Link>
-          ))}
+              Programs
+              <svg
+                width="10"
+                height="10"
+                viewBox="0 0 10 10"
+                fill="currentColor"
+                className={`transition-transform ${programsOpen ? 'rotate-180' : ''}`}
+              >
+                <path d="M2 3.5L5 6.5L8 3.5" stroke="currentColor" strokeWidth="1.2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </button>
+
+            {programsOpen && (
+              <div className="absolute left-0 top-full mt-2 w-64 rounded-sm border border-white/10 bg-[#0f0f0f] shadow-xl py-1 z-50">
+                {PROGRAMS_ITEMS.map((item) => (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    onClick={() => setProgramsOpen(false)}
+                    className="block px-4 py-3 hover:bg-white/[0.04] transition-colors group"
+                  >
+                    <div className="text-sm text-white/80 group-hover:text-white transition-colors">
+                      {item.label}
+                    </div>
+                    <div className="text-xs text-white/30 mt-0.5">{item.desc}</div>
+                  </Link>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
 
-        {/* Auth area */}
+        {/* Right side: auth area */}
         <div className="hidden md:flex items-center gap-3">
           {user ? (
             <>
@@ -111,7 +172,7 @@ export default function Nav() {
                 href="/auth/register"
                 className="text-sm px-3 py-1.5 bg-[#534AB7] hover:bg-[#4339a0] text-white rounded-md transition-colors font-medium"
               >
-                Start building
+                Ship →
               </Link>
             </>
           )}
@@ -143,32 +204,83 @@ export default function Nav() {
 
       {/* Mobile menu */}
       {menuOpen && (
-        <div className="md:hidden border-t border-white/8 bg-[#0a0a0a] px-4 py-4 flex flex-col gap-3">
-          {navLinks.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              onClick={() => setMenuOpen(false)}
-              className={`text-sm py-1 transition-colors ${
-                pathname === link.href ? 'text-white' : 'text-white/50'
+        <div className="md:hidden border-t border-white/8 bg-[#0a0a0a] px-4 py-4 flex flex-col gap-1">
+          <Link
+            href="/explore"
+            onClick={() => setMenuOpen(false)}
+            className={`text-sm py-2 transition-colors ${
+              pathname.startsWith('/explore') ? 'text-white' : 'text-white/50'
+            }`}
+          >
+            Explore
+          </Link>
+          <Link
+            href="/agents"
+            onClick={() => setMenuOpen(false)}
+            className={`text-sm py-2 transition-colors ${
+              pathname.startsWith('/agents') ? 'text-white' : 'text-white/50'
+            }`}
+          >
+            Agents
+          </Link>
+
+          {/* Programs — tap to expand */}
+          <div>
+            <button
+              onClick={() => setMobileProgramsOpen((v) => !v)}
+              className={`w-full flex items-center justify-between text-sm py-2 transition-colors ${
+                programsActive || mobileProgramsOpen ? 'text-white' : 'text-white/50'
               }`}
             >
-              {link.label}
-            </Link>
-          ))}
-          <div className="border-t border-white/8 pt-3 flex flex-col gap-2">
+              Programs
+              <svg
+                width="10"
+                height="10"
+                viewBox="0 0 10 10"
+                fill="currentColor"
+                className={`transition-transform ${mobileProgramsOpen ? 'rotate-180' : ''}`}
+              >
+                <path d="M2 3.5L5 6.5L8 3.5" stroke="currentColor" strokeWidth="1.2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+              </svg>
+            </button>
+            {mobileProgramsOpen && (
+              <div className="ml-3 mt-1 mb-1 flex flex-col gap-0.5 border-l border-white/10 pl-3">
+                {PROGRAMS_ITEMS.map((item) => (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    onClick={() => { setMenuOpen(false); setMobileProgramsOpen(false); }}
+                    className="text-sm py-1.5 text-white/50 hover:text-white transition-colors"
+                  >
+                    {item.label}
+                  </Link>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <div className="border-t border-white/8 pt-3 mt-2 flex flex-col gap-2">
             {user ? (
               <>
                 <Link
                   href="/ship"
                   onClick={() => setMenuOpen(false)}
-                  className="text-sm px-3 py-2 bg-[#534AB7] text-white rounded-md text-center"
+                  className="text-sm px-3 py-2 bg-[#534AB7] text-white rounded-md text-center font-medium"
                 >
                   Ship →
                 </Link>
+                {builderSlug && (
+                  <Link
+                    href={`/${builderSlug}`}
+                    onClick={() => setMenuOpen(false)}
+                    className="text-sm text-white/60 py-1"
+                  >
+                    Profile
+                  </Link>
+                )}
                 <button
                   onClick={handleSignOut}
-                  className="text-sm text-white/40 text-left"
+                  className="text-sm text-white/40 text-left py-1"
                 >
                   Sign out
                 </button>
@@ -185,9 +297,9 @@ export default function Nav() {
                 <Link
                   href="/auth/register"
                   onClick={() => setMenuOpen(false)}
-                  className="text-sm px-3 py-2 bg-[#534AB7] text-white rounded-md text-center"
+                  className="text-sm px-3 py-2 bg-[#534AB7] text-white rounded-md text-center font-medium"
                 >
-                  Start building
+                  Ship →
                 </Link>
               </>
             )}
