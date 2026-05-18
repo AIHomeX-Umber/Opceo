@@ -12,6 +12,8 @@ const navLinks = [
   { href: '/explore', label: 'Explore' },
   { href: '/agents', label: 'Agents' },
   { href: '/quests', label: 'Quests' },
+  { href: '/calendar', label: 'Calendar' },
+  { href: '/accelerate', label: 'Accelerate' },
   { href: '/leaderboard', label: 'Leaderboard' },
   { href: '/about', label: 'About' },
 ];
