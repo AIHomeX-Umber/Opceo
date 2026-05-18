@@ -17,8 +17,10 @@ export default function Footer() {
           {[
             { href: '/', label: 'Live' },
             { href: '/explore', label: 'Explore' },
-            { href: '/leaderboard', label: 'Leaderboard' },
             { href: '/quests', label: 'Quests' },
+            { href: '/calendar', label: 'Calendar' },
+            { href: '/accelerate', label: 'Accelerate' },
+            { href: '/leaderboard', label: 'Leaderboard' },
             { href: '/about', label: 'About' },
           ].map((link) => (
             <a

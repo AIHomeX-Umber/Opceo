@@ -501,6 +501,45 @@ export default async function HomePage() {
           </div>
         </section>
       )}
+
+      {/* Accelerate teaser */}
+      <section className="py-14 border-t border-white/5">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+          <div>
+            <p className="font-mono text-xs text-white/25 uppercase tracking-widest mb-1">
+              马时科技 · Mashi Technology
+            </p>
+            <h2 className="text-lg font-semibold text-white">Accelerate Your Build</h2>
+            <p className="mt-1 text-sm text-white/40 max-w-sm">
+              三条路径，帮 AI 创业者从想法跑到第一批用户。
+            </p>
+          </div>
+          <Link
+            href="/accelerate"
+            className="shrink-0 text-sm px-4 py-2 rounded-md bg-[#534AB7] hover:bg-[#4339a0] text-white font-medium transition-colors"
+          >
+            了解计划 →
+          </Link>
+        </div>
+        <div className="grid gap-3 sm:grid-cols-3">
+          {[
+            { color: '#534AB7', label: 'Solo Builder', sub: '¥2,800 / 期', desc: '独立开发者 1v1 加速' },
+            { color: '#1D9E75', label: 'Team Track', sub: '¥6,800 / 期', desc: '2–5 人小团队协作' },
+            { color: '#D85A30', label: 'Insider', sub: '¥980 / 年', desc: '圈子会员 + 活动优先票' },
+          ].map((t) => (
+            <Link
+              key={t.label}
+              href="/accelerate"
+              className="rounded-sm border border-white/5 p-4 hover:border-white/10 transition-colors"
+              style={{ borderTopColor: t.color, borderTopWidth: 2 }}
+            >
+              <div className="text-sm font-medium text-white mb-0.5">{t.label}</div>
+              <div className="font-mono text-xs mb-1" style={{ color: t.color }}>{t.sub}</div>
+              <div className="text-xs text-white/40">{t.desc}</div>
+            </Link>
+          ))}
+        </div>
+      </section>
     </>
   );
 }
