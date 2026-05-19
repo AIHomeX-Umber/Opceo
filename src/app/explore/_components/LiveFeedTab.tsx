@@ -91,9 +91,9 @@ export async function LiveFeedTab() {
     <div className="max-w-2xl">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h2 className="text-lg font-semibold text-white">Live feed</h2>
+          <h2 className="text-lg font-semibold text-white">实时 Ship 流</h2>
           <p className="text-xs text-white/30 mt-0.5">
-            Most recent ships from builders across OpCEO.AI
+            正在建造的人们，正在发生的事。
           </p>
         </div>
         {/* Pulse indicator */}
@@ -107,7 +107,7 @@ export async function LiveFeedTab() {
       </div>
 
       {logs.length === 0 ? (
-        <p className="text-sm text-white/30">No ships yet.</p>
+        <p className="text-sm text-white/30">暂无 Ship 记录。</p>
       ) : (
         <div className="flex flex-col gap-3">
           {logs.map((log) => (
@@ -118,7 +118,7 @@ export async function LiveFeedTab() {
 
       {logs.length === 20 && (
         <p className="mt-6 text-xs text-white/20 text-center font-mono">
-          Showing most recent 20 ships
+          显示最近 20 条 Ship 记录
         </p>
       )}
     </div>

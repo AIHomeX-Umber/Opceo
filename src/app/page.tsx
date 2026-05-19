@@ -379,7 +379,7 @@ export default async function HomePage() {
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="text-sm font-semibold text-white">Build Score</h3>
                   <Link
-                    href="/leaderboard"
+                    href="/explore?tab=rankings"
                     className="text-[10px] font-mono text-gray-500 hover:text-[#534AB7] transition-colors"
                   >
                     Full list →

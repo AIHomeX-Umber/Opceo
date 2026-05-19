@@ -217,8 +217,8 @@ export async function RankingsTab({ sort: sortParam, category, limit }: Props) {
       {/* Table */}
       <div className="rounded-sm border border-white/8 bg-white/[0.02] overflow-hidden mb-6">
 
-        {/* Column headers */}
-        <div className="grid grid-cols-[2rem_1fr_5rem_5rem] sm:grid-cols-[2rem_1fr_6rem_6rem_6rem] border-b border-white/5 px-4 py-2 gap-3">
+        {/* Column headers — must match row grid exactly */}
+        <div className="grid grid-cols-[2rem_1fr_5rem] sm:grid-cols-[2rem_1fr_6rem_6rem_6rem] border-b border-white/5 px-4 py-2 gap-3">
           <span className="text-[10px] font-mono text-white/20 uppercase">#</span>
           <span className="text-[10px] font-mono text-white/20 uppercase">建造者</span>
           {/* Ships/wk and Streak hidden on mobile (shown as sub-row) */}

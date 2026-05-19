@@ -33,12 +33,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.9,
     },
     {
-      url: 'https://opceo.ai/leaderboard',
-      lastModified: new Date(),
-      changeFrequency: 'daily',
-      priority: 0.8,
-    },
-    {
       url: 'https://opceo.ai/quests',
       lastModified: new Date(),
       changeFrequency: 'daily',

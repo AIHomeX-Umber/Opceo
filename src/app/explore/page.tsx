@@ -10,17 +10,17 @@ import { LiveFeedTab } from './_components/LiveFeedTab';
 import { BuildersTab } from './_components/BuildersTab';
 
 export const metadata: Metadata = genMeta({
-  title: 'Explore',
+  title: '持续建造者排行榜',
   description:
-    'Builder rankings, live ship feed, and the full community on OpCEO.AI. See who ships the most consistently.',
+    '按真实 Ship 记录、连续建造周数与长期复利信号排序。发现真正持续建造的 AI Native Builder。',
   path: '/explore',
 });
 
 type Tab = 'rankings' | 'live' | 'builders';
 
 const TABS: { key: Tab; label: string }[] = [
-  { key: 'rankings', label: 'Rankings' },
-  { key: 'live', label: 'Live feed' },
+  { key: 'rankings', label: '排行榜' },
+  { key: 'live', label: 'Live' },
   { key: 'builders', label: 'Builders' },
 ];
 
