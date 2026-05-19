@@ -29,15 +29,20 @@ interface PageProps {
     tab?: string;
     entity_type?: string;
     sort?: string;
+    category?: string;
+    limit?: string;
   }>;
 }
 
 export default async function ExplorePage({ searchParams }: PageProps) {
-  const { tab: tabParam, entity_type, sort } = await searchParams;
+  const { tab: tabParam, entity_type, sort, category, limit: limitStr } = await searchParams;
 
   // Default to rankings; only accept known tab values
   const activeTab: Tab =
     tabParam === 'live' || tabParam === 'builders' ? tabParam : 'rankings';
+
+  // Clamp limit: min 20, max 200
+  const limit = Math.min(Math.max(parseInt(limitStr ?? '20', 10) || 20, 20), 200);
 
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 py-10">
@@ -67,7 +72,9 @@ export default async function ExplorePage({ searchParams }: PageProps) {
           Conditional rendering: only the active tab server component
           is instantiated, so only that tab's data fetch runs.
       ─────────────────────────────────────────────────────────────── */}
-      {activeTab === 'rankings' && <RankingsTab />}
+      {activeTab === 'rankings' && (
+        <RankingsTab sort={sort} category={category} limit={limit} />
+      )}
       {activeTab === 'live' && <LiveFeedTab />}
       {activeTab === 'builders' && (
         <BuildersTab entityType={entity_type} sort={sort} />
