@@ -81,6 +81,18 @@ function buildUrl(
 export async function RankingsTab({ sort: sortParam, category, limit }: Props) {
   const supabase = await createClient();
 
+  // ── Current user (for self-row highlight) ─────────────────────────────────
+  const { data: { user } } = await supabase.auth.getUser();
+  let currentBuilderId: string | null = null;
+  if (user) {
+    const { data: b } = await supabase
+      .from('builders')
+      .select('id')
+      .eq('user_id', user.id)
+      .single();
+    currentBuilderId = b?.id ?? null;
+  }
+
   const validSort: SortKey =
     sortParam === 'ships_per_week' || sortParam === 'current_streak'
       ? sortParam
@@ -260,12 +272,15 @@ export async function RankingsTab({ sort: sortParam, category, limit }: Props) {
             const skills = safeSkills(row.skills);
             const streakWeeks = Math.floor(streak / 7);
             const showStreakBadge = streakWeeks >= 4;
+            const isSelf = currentBuilderId !== null && row.builder_id === currentBuilderId;
 
             return (
               <Link
                 key={row.builder_id}
                 href={`/${row.slug}`}
-                className="grid grid-cols-[2rem_1fr_5rem] sm:grid-cols-[2rem_1fr_6rem_6rem_6rem] items-start gap-3 px-4 py-3 border-b border-white/[0.04] last:border-0 hover:bg-white/[0.03] transition-colors group"
+                className={`grid grid-cols-[2rem_1fr_5rem] sm:grid-cols-[2rem_1fr_6rem_6rem_6rem] items-start gap-3 px-4 py-3 border-b border-white/[0.04] last:border-0 hover:bg-white/[0.03] transition-colors group ${
+                  isSelf ? 'bg-[#534AB7]/[0.06] shadow-[inset_2px_0_0_rgba(83,74,183,0.45)]' : ''
+                }`}
               >
                 {/* Rank number */}
                 <span className={`text-sm font-bold tabular-nums mt-0.5 ${rankColor(i)}`}>
@@ -343,6 +358,13 @@ export async function RankingsTab({ sort: sortParam, category, limit }: Props) {
           })
         )}
       </div>
+
+      {/* Thin-table nudge: < 10 rows but at least 1 */}
+      {rows.length > 0 && rows.length < 10 && !hasMore && (
+        <p className="text-xs text-white/20 text-center mb-6">
+          更多 Builder 正在加入长期建造。
+        </p>
+      )}
 
       {/* Show more */}
       {hasMore && (
