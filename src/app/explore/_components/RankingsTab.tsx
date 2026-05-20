@@ -224,29 +224,29 @@ export async function RankingsTab({ sort: sortParam, category, limit }: Props) {
 
         {/* Column headers — must match row grid exactly */}
         <div className="grid grid-cols-[2rem_1fr_5rem] sm:grid-cols-[2rem_1fr_6rem_6rem_6rem] border-b border-[#DDD8CB] px-4 py-2.5 gap-3 bg-[#F3EFE6]">
-          <span className="font-mono-jb text-[0.65rem] text-[#AEA899] uppercase tracking-wider">#</span>
-          <span className="font-mono-jb text-[0.65rem] text-[#AEA899] uppercase tracking-wider">建造者</span>
+          <span className="font-mono-jb text-[0.65rem] text-[#5C564C] uppercase tracking-wider">#</span>
+          <span className="font-mono-jb text-[0.65rem] text-[#5C564C] uppercase tracking-wider">建造者</span>
           {/* Ships/wk and Streak hidden on mobile */}
-          <span className="hidden sm:block font-mono-jb text-[0.65rem] text-[#AEA899] uppercase tracking-wider text-right">
+          <span className="hidden sm:block font-mono-jb text-[0.65rem] text-[#5C564C] uppercase tracking-wider text-right">
             <Link
               href={buildUrl(urlBase, { sort: validSort === 'ships_per_week' ? 'ranking_score' : 'ships_per_week' })}
-              className={`transition-colors hover:text-[#5C564C] ${validSort === 'ships_per_week' ? 'text-[#C15F3C]' : ''}`}
+              className={`transition-colors hover:text-[#302B24] ${validSort === 'ships_per_week' ? 'text-[#C15F3C]' : ''}`}
             >
               周产出{validSort === 'ships_per_week' ? ' ↓' : ''}
             </Link>
           </span>
-          <span className="hidden sm:block font-mono-jb text-[0.65rem] text-[#AEA899] uppercase tracking-wider text-right">
+          <span className="hidden sm:block font-mono-jb text-[0.65rem] text-[#5C564C] uppercase tracking-wider text-right">
             <Link
               href={buildUrl(urlBase, { sort: validSort === 'current_streak' ? 'ranking_score' : 'current_streak' })}
-              className={`transition-colors hover:text-[#5C564C] ${validSort === 'current_streak' ? 'text-[#C15F3C]' : ''}`}
+              className={`transition-colors hover:text-[#302B24] ${validSort === 'current_streak' ? 'text-[#C15F3C]' : ''}`}
             >
               连续建造{validSort === 'current_streak' ? ' ↓' : ''}
             </Link>
           </span>
-          <span className="font-mono-jb text-[0.65rem] text-[#AEA899] uppercase tracking-wider text-right">
+          <span className="font-mono-jb text-[0.65rem] text-[#5C564C] uppercase tracking-wider text-right">
             <Link
               href={buildUrl(urlBase, { sort: 'ranking_score' })}
-              className={`transition-colors hover:text-[#5C564C] ${validSort === 'ranking_score' ? 'text-[#C15F3C]' : ''}`}
+              className={`transition-colors hover:text-[#302B24] ${validSort === 'ranking_score' ? 'text-[#C15F3C]' : ''}`}
             >
               综合评分{validSort === 'ranking_score' ? ' ↓' : ''}
             </Link>

@@ -29,7 +29,7 @@ export default function Footer() {
           >
             OpCEO<span className="text-[#C15F3C]">.</span>AI
           </Link>
-          <p className="font-body-serif text-[0.75rem] text-[#AEA899]">
+          <p className="font-body-serif text-[0.75rem] text-[#847E72]">
             © {year} Mashi Technology (马时科技). The Infinite Build.
           </p>
         </div>
