@@ -88,7 +88,7 @@ export function IntelPreview() {
                 <strong className="text-[#302B24] font-[500]">43</strong> 天
               </span>
               <span className="font-mono-jb text-[0.62rem] ml-auto px-2 py-[3px] rounded-[4px] bg-[rgba(25,22,19,0.05)] text-[#5C564C]">
-                AI工具
+                Coding Agents
               </span>
             </div>
           </div>

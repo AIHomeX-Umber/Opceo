@@ -8,6 +8,7 @@ export function RealWorldSignal() {
   return (
     <section
       style={{
+        background: '#F3EFE6',
         borderTop: '1px solid #DDD8CB',
         padding: '64px clamp(24px, 5vw, 72px)',
         textAlign: 'center',
