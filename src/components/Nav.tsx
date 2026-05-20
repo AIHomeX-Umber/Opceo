@@ -1,24 +1,28 @@
 'use client';
 
+// Nav — warm editorial global nav for all routes except /.
+// / gets its own LandingNav via ConditionalNav in layout.tsx.
+// All auth logic, Programs dropdown, and mobile menu preserved exactly.
+// Visual system: #FAFAF5 bg, #302B24 text, #C15F3C accent, #DDD8CB border.
+
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import type { User } from '@supabase/supabase-js';
-import { Wordmark } from '@/components/Wordmark';
 
 const PROGRAMS_ITEMS = [
-  { href: '/quests', label: 'Quests', desc: 'Post a task. Claim a quest. Ship together.' },
-  { href: '/calendar', label: 'Calendar', desc: 'Upcoming events and deadlines.' },
-  { href: '/accelerate', label: 'Accelerate', desc: 'Growth programs for builders.' },
+  { href: '/quests',     label: 'Quests',     desc: '发布任务，认领 Quest，一起 Ship。' },
+  { href: '/calendar',  label: 'Calendar',   desc: '即将举行的活动与重要节点。' },
+  { href: '/accelerate',label: 'Accelerate', desc: '面向 Builder 的成长项目。' },
 ];
 
 export default function Nav() {
   const pathname = usePathname();
-  const [user, setUser] = useState<User | null>(null);
-  const [builderSlug, setBuilderSlug] = useState<string | null>(null);
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [programsOpen, setProgramsOpen] = useState(false);
+  const [user,               setUser]               = useState<User | null>(null);
+  const [builderSlug,        setBuilderSlug]        = useState<string | null>(null);
+  const [menuOpen,           setMenuOpen]           = useState(false);
+  const [programsOpen,       setProgramsOpen]       = useState(false);
   const [mobileProgramsOpen, setMobileProgramsOpen] = useState(false);
   const programsRef = useRef<HTMLDivElement>(null);
   const supabase = createClient();
@@ -44,7 +48,6 @@ export default function Nav() {
     return () => listener.subscription.unsubscribe();
   }, []);
 
-  // Close Programs dropdown on outside click
   useEffect(() => {
     function handleClick(e: MouseEvent) {
       if (programsRef.current && !programsRef.current.contains(e.target as Node)) {
@@ -60,37 +63,44 @@ export default function Nav() {
     window.location.href = '/';
   }
 
-  // Programs is "active" if current path is one of its children
-  const programsActive = PROGRAMS_ITEMS.some((p) => pathname === p.href || pathname.startsWith(p.href + '/'));
+  const programsActive = PROGRAMS_ITEMS.some(
+    (p) => pathname === p.href || pathname.startsWith(p.href + '/')
+  );
+
+  // Underline indicator for active nav links
+  const linkCls = (active: boolean) =>
+    `font-body-serif text-[0.88rem] transition-colors relative pb-[2px] ${
+      active
+        ? 'text-[#191613] after:absolute after:bottom-0 after:left-0 after:right-0 after:h-[2px] after:bg-[#C15F3C] after:rounded-full'
+        : 'text-[#5C564C] hover:text-[#302B24]'
+    }`;
 
   return (
-    <nav className="sticky top-0 z-50 border-b border-white/8 bg-[#0a0a0a]/90 backdrop-blur-sm">
-      <div className="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between">
-        {/* Wordmark */}
-        <Wordmark size="md" linkToHome />
+    <nav className="sticky top-0 z-50 border-b border-[#DDD8CB] bg-[#FAFAF5]">
+      <div
+        className="h-14 flex items-center justify-between"
+        style={{ padding: '0 clamp(16px, 4vw, 48px)' }}
+      >
+        {/* Logo */}
+        <Link
+          href="/"
+          className="font-display text-[1.15rem] font-medium text-[#191613] no-underline tracking-[-0.02em] flex-shrink-0"
+        >
+          OpCEO<span className="text-[#C15F3C]">.</span>AI
+        </Link>
 
-        {/* Desktop nav */}
-        <div className="hidden md:flex items-center gap-6">
-          {/* Explore */}
+        {/* Desktop nav links */}
+        <div className="hidden md:flex items-center gap-7">
           <Link
             href="/explore"
-            className={`text-sm transition-colors ${
-              pathname === '/explore' || pathname.startsWith('/explore')
-                ? 'text-white'
-                : 'text-white/50 hover:text-white'
-            }`}
+            className={linkCls(pathname === '/explore' || pathname.startsWith('/explore'))}
           >
             Explore
           </Link>
 
-          {/* Agents */}
           <Link
             href="/agents"
-            className={`text-sm transition-colors ${
-              pathname === '/agents' || pathname.startsWith('/agents/')
-                ? 'text-white'
-                : 'text-white/50 hover:text-white'
-            }`}
+            className={linkCls(pathname === '/agents' || pathname.startsWith('/agents/'))}
           >
             Agents
           </Link>
@@ -99,35 +109,34 @@ export default function Nav() {
           <div className="relative" ref={programsRef}>
             <button
               onClick={() => setProgramsOpen((v) => !v)}
-              className={`flex items-center gap-1 text-sm transition-colors ${
-                programsActive || programsOpen ? 'text-white' : 'text-white/50 hover:text-white'
+              className={`font-body-serif text-[0.88rem] transition-colors flex items-center gap-1 cursor-pointer ${
+                programsActive || programsOpen ? 'text-[#191613]' : 'text-[#5C564C] hover:text-[#302B24]'
               }`}
             >
               Programs
               <svg
-                width="10"
-                height="10"
-                viewBox="0 0 10 10"
-                fill="currentColor"
+                width="10" height="10" viewBox="0 0 10 10"
+                fill="none" stroke="currentColor" strokeWidth="1.2"
+                strokeLinecap="round" strokeLinejoin="round"
                 className={`transition-transform ${programsOpen ? 'rotate-180' : ''}`}
               >
-                <path d="M2 3.5L5 6.5L8 3.5" stroke="currentColor" strokeWidth="1.2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+                <path d="M2 3.5L5 6.5L8 3.5"/>
               </svg>
             </button>
 
             {programsOpen && (
-              <div className="absolute left-0 top-full mt-2 w-64 rounded-sm border border-white/10 bg-[#0f0f0f] shadow-xl py-1 z-50">
+              <div className="absolute left-0 top-full mt-2 w-64 rounded-[8px] border border-[#DDD8CB] bg-[#FAFAF5] shadow-[0_8px_32px_rgba(25,22,19,0.08)] py-1 z-50">
                 {PROGRAMS_ITEMS.map((item) => (
                   <Link
                     key={item.href}
                     href={item.href}
                     onClick={() => setProgramsOpen(false)}
-                    className="block px-4 py-3 hover:bg-white/[0.04] transition-colors group"
+                    className="block px-4 py-3 hover:bg-[#F3EFE6] transition-colors group"
                   >
-                    <div className="text-sm text-white/80 group-hover:text-white transition-colors">
+                    <div className="font-body-serif text-[0.88rem] text-[#302B24] group-hover:text-[#191613] transition-colors">
                       {item.label}
                     </div>
-                    <div className="text-xs text-white/30 mt-0.5">{item.desc}</div>
+                    <div className="text-[0.75rem] text-[#AEA899] mt-0.5">{item.desc}</div>
                   </Link>
                 ))}
               </div>
@@ -135,27 +144,27 @@ export default function Nav() {
           </div>
         </div>
 
-        {/* Right side: auth area */}
-        <div className="hidden md:flex items-center gap-3">
+        {/* Right side — auth area */}
+        <div className="hidden md:flex items-center gap-4">
           {user ? (
             <>
               <Link
                 href="/ship"
-                className="text-sm px-3 py-1.5 bg-[#534AB7] hover:bg-[#4339a0] text-white rounded-md transition-colors font-medium"
+                className="font-body-serif text-[0.84rem] px-[18px] py-[7px] bg-[#191613] hover:bg-[#302B24] text-[#FAFAF5] rounded-[6px] no-underline transition-colors"
               >
                 Ship →
               </Link>
               {builderSlug && (
                 <Link
                   href={`/${builderSlug}`}
-                  className="text-sm text-white/60 hover:text-white transition-colors"
+                  className="font-body-serif text-[0.88rem] text-[#5C564C] hover:text-[#302B24] transition-colors no-underline"
                 >
                   Profile
                 </Link>
               )}
               <button
                 onClick={handleSignOut}
-                className="text-sm text-white/40 hover:text-white/70 transition-colors"
+                className="font-body-serif text-[0.88rem] text-[#AEA899] hover:text-[#5C564C] transition-colors cursor-pointer"
               >
                 Sign out
               </button>
@@ -164,13 +173,13 @@ export default function Nav() {
             <>
               <Link
                 href="/auth/login"
-                className="text-sm text-white/60 hover:text-white transition-colors"
+                className="font-body-serif text-[0.88rem] text-[#5C564C] hover:text-[#302B24] transition-colors no-underline"
               >
                 Login
               </Link>
               <Link
                 href="/auth/register"
-                className="text-sm px-3 py-1.5 bg-[#534AB7] hover:bg-[#4339a0] text-white rounded-md transition-colors font-medium"
+                className="font-body-serif text-[0.84rem] px-[18px] py-[7px] bg-[#191613] hover:bg-[#302B24] text-[#FAFAF5] rounded-[6px] no-underline transition-colors"
               >
                 Ship →
               </Link>
@@ -180,7 +189,7 @@ export default function Nav() {
 
         {/* Mobile hamburger */}
         <button
-          className="md:hidden text-white/60 hover:text-white transition-colors"
+          className="md:hidden text-[#5C564C] hover:text-[#302B24] transition-colors"
           onClick={() => setMenuOpen(!menuOpen)}
           aria-label="Toggle menu"
         >
@@ -204,12 +213,12 @@ export default function Nav() {
 
       {/* Mobile menu */}
       {menuOpen && (
-        <div className="md:hidden border-t border-white/8 bg-[#0a0a0a] px-4 py-4 flex flex-col gap-1">
+        <div className="md:hidden border-t border-[#DDD8CB] bg-[#FAFAF5] px-5 py-4 flex flex-col gap-1">
           <Link
             href="/explore"
             onClick={() => setMenuOpen(false)}
-            className={`text-sm py-2 transition-colors ${
-              pathname.startsWith('/explore') ? 'text-white' : 'text-white/50'
+            className={`font-body-serif text-[0.88rem] py-2.5 transition-colors border-b border-[#EBE6DA] ${
+              pathname.startsWith('/explore') ? 'text-[#191613]' : 'text-[#5C564C]'
             }`}
           >
             Explore
@@ -217,40 +226,39 @@ export default function Nav() {
           <Link
             href="/agents"
             onClick={() => setMenuOpen(false)}
-            className={`text-sm py-2 transition-colors ${
-              pathname.startsWith('/agents') ? 'text-white' : 'text-white/50'
+            className={`font-body-serif text-[0.88rem] py-2.5 transition-colors border-b border-[#EBE6DA] ${
+              pathname.startsWith('/agents') ? 'text-[#191613]' : 'text-[#5C564C]'
             }`}
           >
             Agents
           </Link>
 
           {/* Programs — tap to expand */}
-          <div>
+          <div className="border-b border-[#EBE6DA]">
             <button
               onClick={() => setMobileProgramsOpen((v) => !v)}
-              className={`w-full flex items-center justify-between text-sm py-2 transition-colors ${
-                programsActive || mobileProgramsOpen ? 'text-white' : 'text-white/50'
+              className={`w-full flex items-center justify-between font-body-serif text-[0.88rem] py-2.5 transition-colors cursor-pointer ${
+                programsActive || mobileProgramsOpen ? 'text-[#191613]' : 'text-[#5C564C]'
               }`}
             >
               Programs
               <svg
-                width="10"
-                height="10"
-                viewBox="0 0 10 10"
-                fill="currentColor"
+                width="10" height="10" viewBox="0 0 10 10"
+                fill="none" stroke="currentColor" strokeWidth="1.2"
+                strokeLinecap="round" strokeLinejoin="round"
                 className={`transition-transform ${mobileProgramsOpen ? 'rotate-180' : ''}`}
               >
-                <path d="M2 3.5L5 6.5L8 3.5" stroke="currentColor" strokeWidth="1.2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+                <path d="M2 3.5L5 6.5L8 3.5"/>
               </svg>
             </button>
             {mobileProgramsOpen && (
-              <div className="ml-3 mt-1 mb-1 flex flex-col gap-0.5 border-l border-white/10 pl-3">
+              <div className="ml-3 mb-1 flex flex-col gap-0 border-l-2 border-[#DDD8CB] pl-3">
                 {PROGRAMS_ITEMS.map((item) => (
                   <Link
                     key={item.href}
                     href={item.href}
                     onClick={() => { setMenuOpen(false); setMobileProgramsOpen(false); }}
-                    className="text-sm py-1.5 text-white/50 hover:text-white transition-colors"
+                    className="font-body-serif text-[0.84rem] py-2 text-[#5C564C] hover:text-[#302B24] transition-colors no-underline"
                   >
                     {item.label}
                   </Link>
@@ -259,13 +267,13 @@ export default function Nav() {
             )}
           </div>
 
-          <div className="border-t border-white/8 pt-3 mt-2 flex flex-col gap-2">
+          <div className="pt-3 mt-1 flex flex-col gap-2.5">
             {user ? (
               <>
                 <Link
                   href="/ship"
                   onClick={() => setMenuOpen(false)}
-                  className="text-sm px-3 py-2 bg-[#534AB7] text-white rounded-md text-center font-medium"
+                  className="font-body-serif text-[0.88rem] py-2.5 bg-[#191613] text-[#FAFAF5] rounded-[6px] text-center no-underline"
                 >
                   Ship →
                 </Link>
@@ -273,14 +281,14 @@ export default function Nav() {
                   <Link
                     href={`/${builderSlug}`}
                     onClick={() => setMenuOpen(false)}
-                    className="text-sm text-white/60 py-1"
+                    className="font-body-serif text-[0.88rem] text-[#5C564C] py-1 no-underline"
                   >
                     Profile
                   </Link>
                 )}
                 <button
                   onClick={handleSignOut}
-                  className="text-sm text-white/40 text-left py-1"
+                  className="font-body-serif text-[0.88rem] text-[#AEA899] text-left py-1 cursor-pointer"
                 >
                   Sign out
                 </button>
@@ -290,14 +298,14 @@ export default function Nav() {
                 <Link
                   href="/auth/login"
                   onClick={() => setMenuOpen(false)}
-                  className="text-sm text-white/60 py-1"
+                  className="font-body-serif text-[0.88rem] text-[#5C564C] py-1 no-underline"
                 >
                   Login
                 </Link>
                 <Link
                   href="/auth/register"
                   onClick={() => setMenuOpen(false)}
-                  className="text-sm px-3 py-2 bg-[#534AB7] text-white rounded-md text-center font-medium"
+                  className="font-body-serif text-[0.88rem] py-2.5 bg-[#191613] text-[#FAFAF5] rounded-[6px] text-center no-underline"
                 >
                   Ship →
                 </Link>

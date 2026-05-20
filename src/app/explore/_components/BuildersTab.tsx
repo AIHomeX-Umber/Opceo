@@ -1,5 +1,7 @@
-// BuildersTab — current /explore builder grid, now living as a tab.
-// Preserves entity_type filter, sort, and ExploreClient exactly as before.
+// BuildersTab — warm editorial reskin.
+// ALL data logic, queries, entityType/sort filters, itemListJsonLd UNCHANGED.
+// ExploreClient component is NOT modified (dark-styled client, out of scope).
+// Only visual: heading text and entity sub-tabs changed to warm editorial style.
 
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
@@ -67,23 +69,23 @@ export async function BuildersTab({ entityType, sort }: BuildersTabProps) {
       <div>
         <div className="flex items-center justify-between mb-6">
           <div>
-            <h2 className="text-lg font-semibold text-white">Builders</h2>
-            <p className="text-xs text-white/30 mt-0.5">
+            <h2 className="font-display text-[1.4rem] font-medium text-[#191613]">Builders</h2>
+            <p className="font-body-serif text-[0.8rem] text-[#AEA899] mt-0.5">
               People shipping in public — browse by score, streak, or skills.
             </p>
           </div>
         </div>
 
-        {/* Entity sub-filter */}
-        <div className="flex gap-0 mb-8 border-b border-white/8">
+        {/* Entity sub-filter — warm underline tabs */}
+        <div className="flex gap-0 mb-8 border-b border-[#DDD8CB]">
           {ENTITY_TABS.map(({ key, label }) => (
             <Link
               key={key}
               href={entityTabHref(key)}
-              className={`px-4 py-2 text-sm transition-colors -mb-px ${
+              className={`font-body-serif px-4 py-2 text-[0.88rem] transition-colors -mb-px border-b-2 ${
                 activeEntity === key
-                  ? 'border-b-2 border-[#534AB7] text-white'
-                  : 'text-gray-500 hover:text-white/70'
+                  ? 'border-[#C15F3C] text-[#191613]'
+                  : 'border-transparent text-[#847E72] hover:text-[#5C564C]'
               }`}
             >
               {label}

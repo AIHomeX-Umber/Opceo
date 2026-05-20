@@ -1,6 +1,6 @@
-// LiveFeedTab — chronological stream of ship logs
-// Mirrors the "Latest ships" section from the homepage.
-// Fetches its own data; only runs when tab=live is active.
+// LiveFeedTab — warm editorial reskin.
+// ALL data logic, queries, formatRelativeTime UNCHANGED.
+// Only visual: warm bg/border/text replacing dark system colors.
 
 import Image from 'next/image';
 import Link from 'next/link';
@@ -31,7 +31,7 @@ async function getLiveFeed(): Promise<ShipLog[]> {
 
 function ShipCard({ log }: { log: ShipLog }) {
   return (
-    <div className="border border-white/5 rounded-sm p-4 hover:border-white/10 transition-colors">
+    <div className="border border-[#DDD8CB] rounded-[8px] p-4 bg-[#FAFAF5] hover:border-[#C9C3B8] hover:bg-[#F3EFE6] transition-colors">
       <div className="flex items-start gap-3">
         {/* Avatar */}
         {log.builder?.avatar_url ? (
@@ -43,7 +43,7 @@ function ShipCard({ log }: { log: ShipLog }) {
             className="rounded-full object-cover shrink-0 mt-0.5"
           />
         ) : (
-          <div className="w-8 h-8 shrink-0 mt-0.5 rounded-full bg-[#534AB7]/20 flex items-center justify-center text-[#534AB7] text-xs font-bold">
+          <div className="w-8 h-8 shrink-0 mt-0.5 rounded-full bg-[rgba(193,95,60,0.12)] flex items-center justify-center text-[#C15F3C] font-mono-jb text-xs font-bold">
             {(log.builder?.display_name ?? '?')[0].toUpperCase()}
           </div>
         )}
@@ -52,17 +52,17 @@ function ShipCard({ log }: { log: ShipLog }) {
           <div className="flex items-center gap-2 mb-1 flex-wrap">
             <Link
               href={`/${log.builder?.slug ?? '#'}`}
-              className="text-sm font-medium text-white hover:text-[#534AB7] transition-colors"
+              className="font-body-serif text-[0.88rem] font-medium text-[#302B24] hover:text-[#C15F3C] transition-colors"
             >
               {log.builder?.display_name ?? 'Builder'}
             </Link>
-            <span className="text-xs font-mono text-gray-600">W{log.week_number}</span>
-            <span className="text-xs text-gray-600">
+            <span className="font-mono-jb text-[0.72rem] text-[#AEA899]">W{log.week_number}</span>
+            <span className="font-mono-jb text-[0.72rem] text-[#AEA899]">
               {formatRelativeTime(log.created_at)}
             </span>
           </div>
 
-          <p className="text-sm text-gray-300 leading-relaxed line-clamp-3">
+          <p className="font-body-serif text-[0.88rem] text-[#5C564C] leading-relaxed line-clamp-3">
             {log.shipped}
           </p>
 
@@ -71,7 +71,7 @@ function ShipCard({ log }: { log: ShipLog }) {
               {log.tool_stack.slice(0, 4).map((tool) => (
                 <span
                   key={tool}
-                  className="text-[10px] font-mono px-1.5 py-0.5 border border-white/5 text-gray-500 rounded-sm"
+                  className="font-mono-jb text-[10px] px-1.5 py-0.5 border border-[#DDD8CB] text-[#AEA899] rounded-sm"
                 >
                   {tool}
                 </span>
@@ -91,23 +91,23 @@ export async function LiveFeedTab() {
     <div className="max-w-2xl">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h2 className="text-lg font-semibold text-white">实时 Ship 流</h2>
-          <p className="text-xs text-white/30 mt-0.5">
+          <h2 className="font-display text-[1.4rem] font-medium text-[#191613]">实时 Ship 流</h2>
+          <p className="font-body-serif text-[0.8rem] text-[#AEA899] mt-0.5">
             正在建造的人们，正在发生的事。
           </p>
         </div>
         {/* Pulse indicator */}
         <div className="flex items-center gap-1.5">
           <span className="relative flex h-2 w-2">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-green-400" />
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-500 opacity-60" />
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500" />
           </span>
-          <span className="text-[10px] font-mono text-white/25">live</span>
+          <span className="font-mono-jb text-[10px] text-[#AEA899]">live</span>
         </div>
       </div>
 
       {logs.length === 0 ? (
-        <p className="text-sm text-white/30">暂无 Ship 记录。</p>
+        <p className="font-body-serif text-[0.88rem] text-[#AEA899]">暂无 Ship 记录。</p>
       ) : (
         <div className="flex flex-col gap-3">
           {logs.map((log) => (
@@ -117,7 +117,7 @@ export async function LiveFeedTab() {
       )}
 
       {logs.length === 20 && (
-        <p className="mt-6 text-xs text-white/20 text-center font-mono">
+        <p className="mt-6 font-mono-jb text-[0.72rem] text-[#C9C3B8] text-center">
           显示最近 20 条 Ship 记录
         </p>
       )}

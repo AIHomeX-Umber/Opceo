@@ -45,21 +45,22 @@ export default async function ExplorePage({ searchParams }: PageProps) {
   const limit = Math.min(Math.max(parseInt(limitStr ?? '20', 10) || 20, 20), 200);
 
   return (
+    <div style={{ background: '#FAFAF5', minHeight: '100vh' }}>
     <div className="max-w-6xl mx-auto px-4 sm:px-6 py-10">
       {/* ── Tab bar ──────────────────────────────────────────────────
-          Horizontal pill-style tabs. Mobile: overflow-x-auto scroll.
+          Warm editorial underline tabs. Mobile: overflow-x-auto scroll.
           URL-driven: each click is a full navigation → back/forward works.
       ─────────────────────────────────────────────────────────────── */}
-      <div className="mb-8 overflow-x-auto">
-        <div className="flex gap-2 min-w-max sm:min-w-0">
+      <div className="mb-8 overflow-x-auto border-b border-[#DDD8CB]">
+        <div className="flex gap-0 min-w-max sm:min-w-0 -mb-px">
           {TABS.map(({ key, label }) => (
             <Link
               key={key}
               href={`/explore?tab=${key}`}
-              className={`px-4 py-1.5 text-sm rounded-sm font-medium transition-colors whitespace-nowrap ${
+              className={`font-body-serif px-5 py-2.5 text-[0.88rem] transition-colors whitespace-nowrap -mb-px border-b-2 ${
                 activeTab === key
-                  ? 'bg-[#534AB7] text-white'
-                  : 'border border-white/10 text-white/40 hover:text-white/70 hover:border-white/20'
+                  ? 'border-[#C15F3C] text-[#191613]'
+                  : 'border-transparent text-[#847E72] hover:text-[#5C564C]'
               }`}
             >
               {label}
@@ -79,6 +80,7 @@ export default async function ExplorePage({ searchParams }: PageProps) {
       {activeTab === 'builders' && (
         <BuildersTab entityType={entity_type} sort={sort} />
       )}
+    </div>
     </div>
   );
 }
