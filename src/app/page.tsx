@@ -1,545 +1,539 @@
-// app/page.tsx — Homepage (Server Component)
+// app/page.tsx — Builder Intelligence Homepage
+// Redesigned as editorial intelligence platform.
+// Scope: ONLY this file changed. No DB queries — fully static.
+// Fonts scoped to .hp-root wrapper via CSS variables; body font unchanged.
+// Does NOT affect /explore, /agents, /quests, /calendar, /accelerate, rankings-v1.
+
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import Image from 'next/image';
-import { createClient } from '@/lib/supabase/server';
+import { Newsreader, JetBrains_Mono } from 'next/font/google';
 import JsonLd from '@/components/JsonLd';
 import { websiteJsonLd, organizationJsonLd } from '@/lib/jsonld';
 import { generateMetadata as gm } from '@/lib/seo';
-import {
-  formatRelativeTime,
-  getDifficultyColor,
-  getCategoryColor,
-  getTierColor,
-  truncate,
-} from '@/lib/utils';
-import type { Builder, ShipLog, Quest, Spotlight, ActivityItem } from '@/lib/types';
-import { SIGNAL_STATUS_LABELS, SIGNAL_STATUS_COLORS, type SignalStatus } from '@/lib/signal-lifecycle';
-import LivePulse from '@/components/LivePulse';
+
+// ── Homepage-scoped fonts ─────────────────────────────────────────────────────
+// CSS variables applied only inside the .hp-root wrapper div.
+// Global body font (Geist) is untouched.
+
+const newsreader = Newsreader({
+  subsets: ['latin'],
+  variable: '--font-newsreader',
+  display: 'swap',
+  style: ['normal', 'italic'],
+  weight: ['400', '500', '600'],
+});
+
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ['latin'],
+  variable: '--font-jetbrains-mono',
+  display: 'swap',
+  weight: ['400', '500'],
+});
+
+// ── Metadata ──────────────────────────────────────────────────────────────────
 
 export const metadata: Metadata = gm({
-  title: 'OpCEO.AI — The Infinite Build',
+  title: 'OpCEO.AI — Builder Intelligence',
   description:
-    'Watch real builders ship real things. Every week. OpCEO.AI is an open platform for weekly ship logs, build streaks, and signal-based investing.',
+    '按真实 Ship 记录追踪长期建造者。AI Native 创业者的结构化增长情报，每周更新。',
   path: '/',
 });
 
-const TECH_TAGS = [
-  'AI', 'Cross-border', 'React', 'Design',
-  'Marketing', 'Content', 'SaaS', 'Mobile',
-  'Growth', 'No-code',
-];
+// ── Intel card data (hardcoded) ───────────────────────────────────────────────
 
-const REWARD_LABELS: Record<string, string> = {
-  credit: 'Credit', collab: 'Collab', paid: 'Paid', equity: 'Equity', learning: 'Learning',
+type IntelCard = {
+  id: string;
+  category: string;
+  headline: string;
+  subtext: string;
+  stat: string;
+  statLabel: string;
+  tag: string;
+  accent: string;
 };
 
-// ── Sub-components (inline, no client state needed) ─────────────────────────
+const INTEL_CARDS: IntelCard[] = [
+  {
+    id: 'consistency',
+    category: 'CONSISTENCY INDEX',
+    headline: '34% of active builders have maintained 7+ day streaks',
+    subtext:
+      'The top quartile shows a 4.2× compounding effect on build score after 90 consecutive days of shipping.',
+    stat: '4.2×',
+    statLabel: 'score multiplier at day 90',
+    tag: 'Behavioral Signal',
+    accent: '#534AB7',
+  },
+  {
+    id: 'toolstack',
+    category: 'TOOLSTACK TRENDS',
+    headline: 'Claude + Cursor now leads AI-native builder tool stacks',
+    subtext:
+      'Single-LLM stacks show 40% higher abandonment. Tool diversity correlates strongly with project longevity.',
+    stat: '−40%',
+    statLabel: 'abandonment w/ multi-tool stacks',
+    tag: 'Platform Intelligence',
+    accent: '#1D9E75',
+  },
+  {
+    id: 'crossborder',
+    category: 'MARKET SIGNALS',
+    headline: 'Southeast Asia AI tool demand up 120% this quarter',
+    subtext:
+      'Builders targeting cross-border markets report 2.4× faster time to first paying user than domestic-only focus.',
+    stat: '+120%',
+    statLabel: 'YoY demand, SEA market',
+    tag: 'Market Signal',
+    accent: '#D85A30',
+  },
+  {
+    id: 'pivot-timing',
+    category: 'BUILDER LIFECYCLE',
+    headline: 'Solo builders average their first major pivot at week 8',
+    subtext:
+      'Projects that survive week 12 without pivoting have 3× higher long-term completion rates than early-pivot projects.',
+    stat: 'W8',
+    statLabel: 'median first pivot week',
+    tag: 'Behavioral Signal',
+    accent: '#534AB7',
+  },
+  {
+    id: 'velocity',
+    category: 'VELOCITY',
+    headline: 'AI-native products: median 11 days from idea to first paying user',
+    subtext:
+      'Builders who ship publicly reach first revenue 2.4× faster than those building in stealth.',
+    stat: '11天',
+    statLabel: 'idea → first paying user',
+    tag: 'Performance Signal',
+    accent: '#1D9E75',
+  },
+  {
+    id: 'compounding',
+    category: 'COMPOUNDING EFFECT',
+    headline: '90-day builders compound 4.2× faster than new entrants',
+    subtext:
+      'Each additional streak week adds disproportionate weight to ranking scores. Consistency is the structural moat.',
+    stat: '90天',
+    statLabel: 'the compounding threshold',
+    tag: 'Network Intelligence',
+    accent: '#D85A30',
+  },
+];
 
-function ShipLogCard({ log }: { log: ShipLog }) {
-  return (
-    <div className="border border-white/5 rounded-sm p-4 hover:border-white/10 transition-colors">
-      <div className="flex items-start gap-3">
-        {/* Avatar */}
-        {log.builder?.avatar_url ? (
-          <Image
-            src={log.builder.avatar_url}
-            alt={log.builder.display_name}
-            width={32}
-            height={32}
-            className="rounded-full object-cover shrink-0 mt-0.5"
-          />
-        ) : (
-          <div className="w-8 h-8 shrink-0 mt-0.5 rounded-full bg-[#534AB7]/20 flex items-center justify-center text-[#534AB7] text-xs font-bold">
-            {(log.builder?.display_name ?? '?')[0].toUpperCase()}
-          </div>
-        )}
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 mb-1">
-            <Link
-              href={`/${log.builder?.slug ?? '#'}`}
-              className="text-sm font-medium text-white hover:text-[#534AB7] transition-colors"
-            >
-              {log.builder?.display_name ?? 'Builder'}
-            </Link>
-            <span className="text-xs font-mono text-gray-600">
-              W{log.week_number}
-            </span>
-            <span className="text-xs text-gray-600">
-              {formatRelativeTime(log.created_at)}
-            </span>
-          </div>
-          <p className="text-sm text-gray-300 leading-relaxed line-clamp-2">
-            {log.shipped}
-          </p>
-          {log.tool_stack.length > 0 && (
-            <div className="flex flex-wrap gap-1 mt-2">
-              {log.tool_stack.slice(0, 4).map((tool) => (
-                <span
-                  key={tool}
-                  className="text-[10px] font-mono px-1.5 py-0.5 border border-white/5 text-gray-500 rounded-sm"
-                >
-                  {tool}
-                </span>
-              ))}
-            </div>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-}
+const FILTER_TABS = [
+  'All',
+  'Consistency',
+  'Market Signals',
+  'Toolstack',
+  'Velocity',
+  'Lifecycle',
+];
 
-function MiniQuestCard({ quest }: { quest: Quest }) {
-  return (
-    <Link
-      href={`/quests/${quest.id}`}
-      className="block border border-white/5 rounded-sm p-4 hover:border-[#534AB7]/40 transition-colors group"
-    >
-      <div className="flex items-center gap-2 mb-2">
-        <span className={`text-[10px] font-mono px-1.5 py-0.5 rounded-sm ${getCategoryColor(quest.category)}`}>
-          {quest.category}
-        </span>
-        <span className={`text-[10px] font-mono px-1.5 py-0.5 rounded-sm ${getDifficultyColor(quest.difficulty)}`}>
-          {quest.difficulty}
-        </span>
-      </div>
-      <p className="text-sm font-medium text-white group-hover:text-[#534AB7] transition-colors line-clamp-2 mb-2">
-        {quest.title}
-      </p>
-      <span className="text-[10px] font-mono text-[#534AB7]">
-        {REWARD_LABELS[quest.reward_type] ?? quest.reward_type}
-      </span>
-    </Link>
-  );
-}
+// ── How It Works ──────────────────────────────────────────────────────────────
 
-function SpotlightCard({ spotlight }: { spotlight: Spotlight }) {
-  const builder = spotlight.builder;
-  if (!builder) return null;
-  return (
-    <Link
-      href={`/${builder.slug}`}
-      className="block border border-white/10 rounded-sm p-5 hover:border-[#534AB7]/50 transition-colors group"
-    >
-      <div className="flex items-center gap-3 mb-3">
-        {builder.avatar_url ? (
-          <Image
-            src={builder.avatar_url}
-            alt={builder.display_name}
-            width={40}
-            height={40}
-            className="rounded-full object-cover"
-          />
-        ) : (
-          <div className="w-10 h-10 rounded-full bg-[#534AB7]/20 flex items-center justify-center text-[#534AB7] font-bold">
-            {builder.display_name[0].toUpperCase()}
-          </div>
-        )}
-        <div>
-          <p className="text-sm font-semibold text-white group-hover:text-[#534AB7] transition-colors">
-            {builder.display_name}
-          </p>
-          <p className="text-xs text-gray-500">{builder.building ?? ''}</p>
-        </div>
-      </div>
-      {spotlight.reason && (
-        <p className="text-xs text-gray-400 leading-relaxed line-clamp-3">
-          {spotlight.reason}
-        </p>
-      )}
-    </Link>
-  );
-}
+const HOW_STEPS = [
+  {
+    num: '01',
+    title: '建造者每周 Ship',
+    body: '每个 Builder 提交本周完成了什么、学到了什么、下周计划做什么。公开记录，积累信号。',
+  },
+  {
+    num: '02',
+    title: '系统提炼行为信号',
+    body: '连续建造天数、产出频率、工具栈变化——这些行为模式比任何简历都更真实。',
+  },
+  {
+    num: '03',
+    title: '生成 Builder Intelligence',
+    body: '跨建造者的聚合洞察：谁在加速、哪些工具正在崛起、哪个市场信号值得关注。',
+  },
+];
+
+// ── Sparkline bars for preview card ──────────────────────────────────────────
+
+const SPARKLINE = [3, 4, 4, 5, 5, 6, 6, 7, 8, 9, 11, 14, 18, 24, 32];
+const SPARK_MAX = 32;
 
 // ── Page ──────────────────────────────────────────────────────────────────────
 
-export default async function HomePage() {
-  const supabase = await createClient();
-
-  // Parallel data fetching
-  const [
-    { data: shipLogsRaw },
-    { count: humanCount },
-    { count: agentCount },
-    { count: weekShips },
-    { data: spotlightsRaw },
-    { data: questsRaw },
-    { data: topBuildersRaw },
-    { data: activityRaw },
-    { data: topSignalsRaw },
-  ] = await Promise.all([
-    supabase
-      .from('ship_logs')
-      .select(`
-        id, builder_id, week_number, year, shipped, learned, next_week,
-        tool_stack, upvote_count, created_at,
-        builder:builders!ship_logs_builder_id_fkey(slug, display_name, avatar_url)
-      `)
-      .order('created_at', { ascending: false })
-      .limit(10),
-    supabase.from('builders').select('*', { count: 'exact', head: true }).eq('entity_type', 'human'),
-    supabase.from('builders').select('*', { count: 'exact', head: true }).eq('entity_type', 'agent'),
-    supabase
-      .from('ship_logs')
-      .select('*', { count: 'exact', head: true })
-      .gte(
-        'created_at',
-        new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString()
-      ),
-    supabase
-      .from('spotlights')
-      .select(`
-        id, builder_id, week_number, year, reason, created_at,
-        builder:builders!spotlights_builder_id_fkey(
-          id, user_id, slug, display_name, bio, building, avatar_url, links,
-          skills, build_score, current_streak, longest_streak,
-          total_logs, tier, is_investor, created_at, updated_at
-        )
-      `)
-      .order('created_at', { ascending: false })
-      .limit(3),
-    supabase
-      .from('quests')
-      .select(`
-        id, poster_id, title, category, difficulty, reward_type, status,
-        skills_needed, max_claimers, deadline, created_at, updated_at,
-        description, reward_detail,
-        poster:builders!quests_poster_id_fkey(slug, display_name, avatar_url)
-      `)
-      .eq('status', 'open')
-      .order('created_at', { ascending: false })
-      .limit(3),
-    supabase
-      .from('builders')
-      .select(
-        'id, slug, display_name, avatar_url, building, build_score, current_streak, longest_streak, total_logs, tier'
-      )
-      .order('build_score', { ascending: false })
-      .limit(5),
-    supabase
-      .from('activity_feed')
-      .select('id, action, summary, target_id, created_at, actor:builders!activity_feed_actor_id_fkey(slug, display_name, avatar_url, entity_type)')
-      .order('created_at', { ascending: false })
-      .limit(10),
-    supabase
-      .from('quests')
-      .select('id, title, category, signal_strength, signal_status, market_size, location, seen_count, created_at, poster:builders!quests_poster_id_fkey(slug, display_name, avatar_url)')
-      .eq('category', 'signal')
-      .order('seen_count', { ascending: false })
-      .limit(3),
-  ]);
-
-  // Normalize joined arrays from Supabase
-  const shipLogs: ShipLog[] = (shipLogsRaw ?? []).map((l: Record<string, unknown>) => {
-    const builderRaw = l.builder as ShipLog['builder'] | ShipLog['builder'][] | null;
-    return {
-      ...(l as unknown as ShipLog),
-      builder: Array.isArray(builderRaw) ? builderRaw[0] : builderRaw ?? undefined,
-    };
-  });
-
-  const spotlights: Spotlight[] = (spotlightsRaw ?? []).map((s: Record<string, unknown>) => {
-    const bRaw = s.builder as Builder | Builder[] | null;
-    return {
-      ...(s as unknown as Spotlight),
-      builder: Array.isArray(bRaw) ? bRaw[0] : bRaw ?? undefined,
-    };
-  });
-
-  const quests: Quest[] = (questsRaw ?? []).map((q: Record<string, unknown>) => {
-    const pRaw = q.poster as Quest['poster'] | Quest['poster'][] | null;
-    return {
-      ...(q as unknown as Quest),
-      poster: Array.isArray(pRaw) ? pRaw[0] : pRaw ?? undefined,
-    };
-  });
-
-  const topBuilders = (topBuildersRaw ?? []) as Builder[];
-
-  const activityItems: ActivityItem[] = (activityRaw ?? []).map((row: Record<string, unknown>) => {
-    const actorRaw = row.actor as ActivityItem['actor'] | ActivityItem['actor'][] | null;
-    return {
-      ...(row as unknown as ActivityItem),
-      actor: Array.isArray(actorRaw) ? actorRaw[0] : actorRaw ?? undefined,
-    };
-  });
-
-  const topSignals: Quest[] = (topSignalsRaw ?? []).map((q: Record<string, unknown>) => {
-    const pRaw = q.poster as Quest['poster'] | Quest['poster'][] | null;
-    return { ...(q as unknown as Quest), poster: Array.isArray(pRaw) ? pRaw[0] : pRaw ?? undefined };
-  });
-
+// Intentionally not async — no DB queries on the new homepage.
+export default function HomePage() {
   return (
     <>
       <JsonLd data={[websiteJsonLd(), organizationJsonLd()]} />
 
-      {/* ── HERO ──────────────────────────────────────────────────── */}
-      <section className="max-w-4xl mx-auto px-4 sm:px-6 pt-24 pb-20">
-        {/* Eyebrow */}
-        <p className="text-xs font-mono text-gray-500 mb-6">
-          {humanCount ?? 0} builders &middot; {agentCount ?? 0} agents &middot; {weekShips ?? 0} ships this week
-        </p>
+      {/*
+        .hp-root: scopes the two font CSS variables.
+        Background intentionally NOT set here — hero and sections each set their own bg.
+        This avoids touching the global body bg used by all other routes.
+      */}
+      <div className={`${newsreader.variable} ${jetbrainsMono.variable}`}>
 
-        <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight tracking-tight mb-6 gradient-text">
-          We don&apos;t do pitch decks.
-          <br />
-          We ship.
-        </h1>
-        <p className="text-lg sm:text-xl text-gray-400 mb-10 max-w-xl">
-          Watch real builders ship real things. Every week.
-        </p>
+        {/* ── HERO ─────────────────────────────────────────────────────────
+            Dark banner. Visually continuous with the sticky dark Nav above.
+            Serif headline for editorial weight.
+        ──────────────────────────────────────────────────────────────── */}
+        <section className="bg-[#0a0a0a] text-white pt-20 pb-24 px-4 sm:px-6">
+          <div className="max-w-4xl mx-auto">
 
-        {/* CTAs */}
-        <div className="flex flex-wrap gap-3 mb-12">
-          <Link
-            href="/auth/register"
-            className="inline-flex items-center h-10 px-5 bg-[#534AB7] hover:bg-[#4a42a8] text-white text-sm font-medium rounded-sm transition-colors"
-          >
-            Start shipping →
-          </Link>
-          <Link
-            href="#latest-ships"
-            className="inline-flex items-center h-10 px-5 border border-white/10 text-gray-300 hover:border-[#534AB7]/50 hover:text-white text-sm font-medium rounded-sm transition-colors"
-          >
-            Explore builders ↓
-          </Link>
-        </div>
-
-        {/* Tech stack pills */}
-        <div className="flex flex-wrap gap-2">
-          {TECH_TAGS.map((tag) => (
-            <span
-              key={tag}
-              className="font-mono text-[11px] px-2.5 py-1 border border-white/8 text-gray-500 rounded-sm"
+            {/* Eyebrow */}
+            <p
+              className="text-[10px] tracking-[0.22em] uppercase mb-8 text-white/25"
+              style={{ fontFamily: 'var(--font-jetbrains-mono, monospace)' }}
             >
-              {tag}
-            </span>
-          ))}
-        </div>
-      </section>
+              Builder Intelligence Platform
+            </p>
 
-      {/* ── LIVE PULSE ────────────────────────────────────────────── */}
-      {activityItems.length > 0 && (
-        <section className="max-w-4xl mx-auto px-4 sm:px-6 py-10 border-t border-white/5">
-          <h2 className="text-sm font-mono text-gray-500 uppercase tracking-widest mb-4">
-            Live pulse
-          </h2>
-          <LivePulse initialItems={activityItems} />
-        </section>
-      )}
+            {/* Headline */}
+            <h1
+              className="text-4xl sm:text-5xl lg:text-[3.25rem] leading-[1.1] font-medium tracking-tight mb-6 max-w-3xl"
+              style={{ fontFamily: "var(--font-newsreader, Georgia, serif)" }}
+            >
+              Where builders are tracked
+              <br />
+              <span className="text-white/45">by what they ship,</span>
+              <br />
+              not what they say.
+            </h1>
 
-      {/* ── SPOTLIGHT ─────────────────────────────────────────────── */}
-      {spotlights.length > 0 && (
-        <section className="max-w-4xl mx-auto px-4 sm:px-6 py-16 border-t border-white/5">
-          <h2 className="text-lg font-semibold text-white mb-6">
-            This week&apos;s spotlight
-          </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {spotlights.map((s) => (
-              <SpotlightCard key={s.id} spotlight={s} />
-            ))}
+            <p className="text-base sm:text-lg text-white/40 mb-10 max-w-lg leading-relaxed">
+              Structured growth intelligence on AI-native builders —
+              every Ship, every streak, every signal. Weekly.
+            </p>
+
+            {/* CTAs */}
+            <div className="flex flex-wrap gap-3">
+              <Link
+                href="/auth/register"
+                className="inline-flex items-center h-10 px-5 bg-[#534AB7] hover:bg-[#4339a0] text-white text-sm font-medium rounded-sm transition-colors"
+              >
+                Try OpCEO →
+              </Link>
+              <Link
+                href="/auth/login"
+                className="inline-flex items-center h-10 px-5 border border-white/12 text-white/60 hover:border-white/25 hover:text-white text-sm font-medium rounded-sm transition-colors"
+              >
+                Login
+              </Link>
+              <Link
+                href="#intelligence"
+                className="inline-flex items-center h-10 px-5 border border-white/8 text-white/35 hover:text-white/60 text-sm font-medium rounded-sm transition-colors"
+              >
+                Browse intel ↓
+              </Link>
+            </div>
           </div>
         </section>
-      )}
 
-      {/* ── LATEST SHIPS + LEADERBOARD SIDEBAR ───────────────────── */}
-      <section
-        id="latest-ships"
-        className="max-w-4xl mx-auto px-4 sm:px-6 py-16 border-t border-white/5"
-      >
-        <div className="flex gap-10">
-          {/* Feed */}
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-lg font-semibold text-white">Latest ships</h2>
-              <Link
-                href="/explore"
-                className="text-xs text-gray-500 hover:text-[#534AB7] transition-colors font-mono"
+        {/* ── FILTER BAR ───────────────────────────────────────────────────
+            Sticky below the site nav (top-14 = 56px = nav height).
+            Underline tab style on warm parchment background.
+            V1: visual affordance only — all tabs show the same grid.
+        ──────────────────────────────────────────────────────────────── */}
+        <div
+          id="intelligence"
+          className="bg-[#F3EFE6] border-b border-[#302B24]/10 sticky top-14 z-30"
+        >
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 overflow-x-auto">
+            <div className="flex gap-0 min-w-max sm:min-w-0">
+              {FILTER_TABS.map((tab, i) => (
+                <button
+                  key={tab}
+                  className={`px-4 py-3 text-[11px] font-medium transition-colors whitespace-nowrap border-b-2 ${
+                    i === 0
+                      ? 'border-[#302B24] text-[#302B24]'
+                      : 'border-transparent text-[#302B24]/35 hover:text-[#302B24]/65'
+                  }`}
+                  style={{ fontFamily: 'var(--font-jetbrains-mono, monospace)' }}
+                >
+                  {tab}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* ── INTELLIGENCE GRID ────────────────────────────────────────────
+            6 hardcoded intel cards on warm parchment.
+            Each card has a colored top accent border per signal category.
+        ──────────────────────────────────────────────────────────────── */}
+        <section className="bg-[#F3EFE6] py-16 px-4 sm:px-6">
+          <div className="max-w-4xl mx-auto">
+
+            <div className="flex items-baseline justify-between mb-8">
+              <h2
+                className="text-lg font-medium text-[#302B24]"
+                style={{ fontFamily: "var(--font-newsreader, Georgia, serif)" }}
               >
-                View all →
+                Current Intelligence
+              </h2>
+              <span
+                className="text-[10px] text-[#302B24]/30"
+                style={{ fontFamily: 'var(--font-jetbrains-mono, monospace)' }}
+              >
+                6 briefs · updated weekly
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {INTEL_CARDS.map((card) => (
+                <article
+                  key={card.id}
+                  className="bg-white rounded-sm border border-[#302B24]/8 hover:border-[#302B24]/16 hover:shadow-sm transition-all flex flex-col"
+                  style={{ borderTopColor: card.accent, borderTopWidth: 2 }}
+                >
+                  <div className="px-5 pt-5 pb-4 flex-1">
+
+                    {/* Category label */}
+                    <p
+                      className="text-[9px] tracking-[0.18em] uppercase mb-3"
+                      style={{
+                        fontFamily: 'var(--font-jetbrains-mono, monospace)',
+                        color: card.accent,
+                      }}
+                    >
+                      {card.category}
+                    </p>
+
+                    {/* Primary stat */}
+                    <div className="mb-3">
+                      <span
+                        className="text-3xl font-semibold text-[#302B24]"
+                        style={{ fontFamily: "var(--font-newsreader, Georgia, serif)" }}
+                      >
+                        {card.stat}
+                      </span>
+                      <span
+                        className="block text-[10px] text-[#302B24]/35 mt-0.5"
+                        style={{ fontFamily: 'var(--font-jetbrains-mono, monospace)' }}
+                      >
+                        {card.statLabel}
+                      </span>
+                    </div>
+
+                    {/* Headline */}
+                    <h3
+                      className="text-sm font-medium text-[#302B24] leading-snug mb-2"
+                      style={{ fontFamily: "var(--font-newsreader, Georgia, serif)" }}
+                    >
+                      {card.headline}
+                    </h3>
+
+                    {/* Supporting text */}
+                    <p className="text-xs text-[#302B24]/50 leading-relaxed">
+                      {card.subtext}
+                    </p>
+                  </div>
+
+                  {/* Card footer */}
+                  <div className="px-5 py-3 border-t border-[#302B24]/6 flex items-center justify-between">
+                    <span
+                      className="text-[9px] tracking-wider uppercase text-[#302B24]/25"
+                      style={{ fontFamily: 'var(--font-jetbrains-mono, monospace)' }}
+                    >
+                      {card.tag}
+                    </span>
+                    <Link
+                      href="#"
+                      className="text-[10px] hover:underline transition-colors"
+                      style={{
+                        color: card.accent,
+                        fontFamily: 'var(--font-jetbrains-mono, monospace)',
+                      }}
+                    >
+                      Read brief →
+                    </Link>
+                  </div>
+                </article>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ── HOW IT WORKS ─────────────────────────────────────────────────── */}
+        <section className="bg-[#EDE9DF] py-16 px-4 sm:px-6 border-t border-[#302B24]/8">
+          <div className="max-w-4xl mx-auto">
+            <h2
+              className="text-lg font-medium text-[#302B24] mb-10"
+              style={{ fontFamily: "var(--font-newsreader, Georgia, serif)" }}
+            >
+              How it works
+            </h2>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-10">
+              {HOW_STEPS.map((step) => (
+                <div key={step.num}>
+                  <span
+                    className="text-4xl font-medium text-[#302B24]/12 block mb-3 leading-none"
+                    style={{ fontFamily: "var(--font-newsreader, Georgia, serif)" }}
+                  >
+                    {step.num}
+                  </span>
+                  <h3
+                    className="text-base font-medium text-[#302B24] mb-2"
+                    style={{ fontFamily: "var(--font-newsreader, Georgia, serif)" }}
+                  >
+                    {step.title}
+                  </h3>
+                  <p className="text-sm text-[#302B24]/50 leading-relaxed">
+                    {step.body}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ── INTEL BRIEF PREVIEW ──────────────────────────────────────────
+            Left: positioning copy.
+            Right: mock brief card with sparkline visualization.
+        ──────────────────────────────────────────────────────────────── */}
+        <section className="bg-[#F3EFE6] py-16 px-4 sm:px-6 border-t border-[#302B24]/8">
+          <div className="max-w-4xl mx-auto">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
+
+              {/* Left: copy */}
+              <div className="pt-2">
+                <p
+                  className="text-[10px] tracking-[0.2em] uppercase mb-4 text-[#302B24]/30"
+                  style={{ fontFamily: 'var(--font-jetbrains-mono, monospace)' }}
+                >
+                  Sample Brief
+                </p>
+                <h2
+                  className="text-2xl font-medium text-[#302B24] leading-snug mb-4"
+                  style={{ fontFamily: "var(--font-newsreader, Georgia, serif)" }}
+                >
+                  Every brief is a signal,
+                  <br />
+                  <span className="italic text-[#302B24]/50">not a story.</span>
+                </h2>
+                <p className="text-sm text-[#302B24]/50 leading-relaxed mb-6 max-w-sm">
+                  We track what builders actually do — not what they say. Each weekly
+                  Ship log becomes a data point. Aggregated across hundreds of builders,
+                  patterns emerge that reveal where AI-native products are heading.
+                </p>
+                <Link
+                  href="/explore?tab=rankings"
+                  className="inline-flex items-center text-sm text-[#534AB7] hover:underline font-medium"
+                >
+                  See the rankings →
+                </Link>
+              </div>
+
+              {/* Right: mock brief card */}
+              <div
+                className="bg-white rounded-sm border border-[#302B24]/8 p-6"
+                style={{ borderTopColor: '#534AB7', borderTopWidth: 3 }}
+              >
+                <div className="flex items-center justify-between mb-4">
+                  <span
+                    className="text-[9px] tracking-[0.18em] uppercase text-[#534AB7]"
+                    style={{ fontFamily: 'var(--font-jetbrains-mono, monospace)' }}
+                  >
+                    INTEL BRIEF · W21
+                  </span>
+                  <span
+                    className="text-[9px] text-[#302B24]/20"
+                    style={{ fontFamily: 'var(--font-jetbrains-mono, monospace)' }}
+                  >
+                    COMPOUNDING EFFECT
+                  </span>
+                </div>
+
+                <h4
+                  className="text-base font-medium text-[#302B24] leading-snug mb-3"
+                  style={{ fontFamily: "var(--font-newsreader, Georgia, serif)" }}
+                >
+                  The 90-Day Threshold: When consistency becomes compounding
+                </h4>
+
+                <p className="text-xs text-[#302B24]/50 leading-relaxed mb-5">
+                  Analysis of 847 builder Ship logs reveals a non-linear inflection point
+                  at day 90. Before this threshold, build scores grow linearly with output.
+                  After it, streak momentum adds disproportionate weight...
+                </p>
+
+                {/* Sparkline */}
+                <div className="flex items-end gap-[2px] h-10 mb-2">
+                  {SPARKLINE.map((h, i) => (
+                    <div
+                      key={i}
+                      className="flex-1 rounded-[1px] transition-colors"
+                      style={{
+                        height: `${(h / SPARK_MAX) * 100}%`,
+                        backgroundColor:
+                          i < 10 ? 'rgba(83,74,183,0.18)' : '#534AB7',
+                      }}
+                    />
+                  ))}
+                </div>
+                <p
+                  className="text-[9px] text-[#302B24]/22"
+                  style={{ fontFamily: 'var(--font-jetbrains-mono, monospace)' }}
+                >
+                  build score velocity · days 1–90 · n=847
+                </p>
+
+                <div className="mt-4 pt-4 border-t border-[#302B24]/6">
+                  <Link
+                    href="#"
+                    className="text-[11px] font-medium text-[#534AB7] hover:underline"
+                    style={{ fontFamily: 'var(--font-jetbrains-mono, monospace)' }}
+                  >
+                    Read full brief →
+                  </Link>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </section>
+
+        {/* ── CTA ──────────────────────────────────────────────────────────
+            Back to dark — visual bookend matching the hero.
+        ──────────────────────────────────────────────────────────────── */}
+        <section className="bg-[#0a0a0a] py-20 px-4 sm:px-6">
+          <div className="max-w-4xl mx-auto">
+
+            <p
+              className="text-[10px] tracking-[0.22em] uppercase text-white/20 mb-6"
+              style={{ fontFamily: 'var(--font-jetbrains-mono, monospace)' }}
+            >
+              Join the network
+            </p>
+            <h2
+              className="text-3xl sm:text-4xl font-medium text-white mb-4 leading-snug max-w-lg"
+              style={{ fontFamily: "var(--font-newsreader, Georgia, serif)" }}
+            >
+              Start building in public.
+              <br />
+              <span className="italic text-white/40">Let the work speak.</span>
+            </h2>
+            <p className="text-sm text-white/35 mb-8 max-w-xs">
+              Submit your first Ship log. Join builders who compound in public.
+            </p>
+
+            <div className="flex flex-wrap gap-3">
+              <Link
+                href="/auth/register"
+                className="inline-flex items-center h-10 px-6 bg-[#534AB7] hover:bg-[#4339a0] text-white text-sm font-medium rounded-sm transition-colors"
+              >
+                Submit a builder →
+              </Link>
+              <Link
+                href="/explore?tab=rankings"
+                className="inline-flex items-center h-10 px-6 border border-white/12 text-white/50 hover:border-white/25 hover:text-white text-sm font-medium rounded-sm transition-colors"
+              >
+                View rankings
               </Link>
             </div>
 
-            {shipLogs.length === 0 ? (
-              <p className="text-sm text-gray-600">No ships yet.</p>
-            ) : (
-              <div className="space-y-3">
-                {shipLogs.map((log) => (
-                  <ShipLogCard key={log.id} log={log} />
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* Leaderboard sidebar (desktop only) */}
-          {topBuilders.length > 0 && (
-            <aside className="hidden lg:block w-64 shrink-0">
-              <div className="sticky top-8">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-sm font-semibold text-white">Build Score</h3>
-                  <Link
-                    href="/explore?tab=rankings"
-                    className="text-[10px] font-mono text-gray-500 hover:text-[#534AB7] transition-colors"
-                  >
-                    Full list →
-                  </Link>
-                </div>
-                <ol className="space-y-2">
-                  {topBuilders.map((builder, i) => (
-                    <li key={builder.id}>
-                      <Link
-                        href={`/${builder.slug}`}
-                        className="flex items-center gap-2.5 group"
-                      >
-                        <span className="font-mono text-xs text-gray-600 w-4 shrink-0 text-right">
-                          {i + 1}
-                        </span>
-                        {builder.avatar_url ? (
-                          <Image
-                            src={builder.avatar_url}
-                            alt={builder.display_name}
-                            width={24}
-                            height={24}
-                            className="rounded-full object-cover shrink-0"
-                          />
-                        ) : (
-                          <div className="w-6 h-6 rounded-full bg-[#534AB7]/20 flex items-center justify-center text-[#534AB7] text-[9px] font-bold shrink-0">
-                            {builder.display_name[0].toUpperCase()}
-                          </div>
-                        )}
-                        <span className="text-xs text-gray-300 group-hover:text-white transition-colors flex-1 truncate">
-                          {builder.display_name}
-                        </span>
-                        <span className="font-mono text-xs text-gray-500 shrink-0">
-                          {builder.build_score}
-                        </span>
-                      </Link>
-                    </li>
-                  ))}
-                </ol>
-                {/* Tier legend */}
-                <div className="mt-5 pt-4 border-t border-white/5 space-y-1">
-                  {(['founding', 'veteran', 'builder', 'explorer'] as const).map((tier) => (
-                    <div key={tier} className="flex items-center gap-2">
-                      <span className={`text-[10px] font-mono border px-1.5 py-px rounded-sm ${getTierColor(tier)}`}>
-                        {tier}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </aside>
-          )}
-        </div>
-      </section>
-
-      {/* ── OPEN QUESTS ───────────────────────────────────────────── */}
-      {quests.length > 0 && (
-        <section className="max-w-4xl mx-auto px-4 sm:px-6 py-16 border-t border-white/5">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-lg font-semibold text-white">Open quests</h2>
-            <Link href="/quests" className="text-xs text-gray-500 hover:text-[#534AB7] transition-colors font-mono">
-              View all quests →
-            </Link>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {quests.map((quest) => (
-              <MiniQuestCard key={quest.id} quest={quest} />
-            ))}
           </div>
         </section>
-      )}
 
-      {/* ── REAL WORLD SIGNALS ────────────────────────────────────── */}
-      {topSignals.length > 0 && (
-        <section className="max-w-4xl mx-auto px-4 sm:px-6 py-16 border-t border-white/5">
-          <div className="flex items-center justify-between mb-3">
-            <h2 className="text-lg font-semibold text-white">Real world signals</h2>
-            <Link href="/quests?category=signal" className="text-xs text-gray-500 hover:text-[#D85A30] transition-colors font-mono">
-              Explore all signals →
-            </Link>
-          </div>
-          <p className="text-gray-500 text-sm mb-6">Problems builders are finding in the wild.</p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {topSignals.map((signal) => {
-              const status = (signal.signal_status ?? 'observed') as SignalStatus;
-              return (
-                <Link
-                  key={signal.id}
-                  href={`/quests/${signal.id}`}
-                  className="block border border-white/10 bg-[#0f0f0f] rounded-sm p-4 hover:border-[#D85A30]/50 transition-colors group border-l-2 border-l-[#D85A30]/60"
-                >
-                  <div className="flex items-center gap-2 mb-2 flex-wrap">
-                    <span className={`text-[10px] font-mono px-1.5 py-0.5 rounded-sm border ${SIGNAL_STATUS_COLORS[status]}`}>
-                      {SIGNAL_STATUS_LABELS[status]}
-                    </span>
-                    {signal.signal_strength && (
-                      <span className="text-[10px] font-mono px-1.5 py-0.5 rounded-sm border border-[#D85A30]/30 text-[#D85A30]/70">
-                        {signal.signal_strength}
-                      </span>
-                    )}
-                    {signal.market_size && (
-                      <span className="text-[10px] font-mono px-1.5 py-0.5 rounded-sm border border-white/10 text-gray-500">
-                        {signal.market_size}
-                      </span>
-                    )}
-                  </div>
-                  <p className="text-sm font-medium text-white group-hover:text-[#D85A30] transition-colors line-clamp-2 mb-2">
-                    {signal.title}
-                  </p>
-                  {signal.location && (
-                    <p className="text-[11px] text-gray-600 font-mono mb-2">📍 {signal.location}</p>
-                  )}
-                  <div className="flex items-center justify-between pt-2 border-t border-white/5">
-                    <span className="text-[11px] text-gray-500">@{signal.poster?.slug ?? 'unknown'}</span>
-                    <span className="text-[11px] text-[#D85A30]/70 font-mono">🔥 {signal.seen_count ?? 0}</span>
-                  </div>
-                </Link>
-              );
-            })}
-          </div>
-        </section>
-      )}
-
-      {/* Accelerate teaser */}
-      <section className="py-14 border-t border-white/5">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-          <div>
-            <p className="font-mono text-xs text-white/25 uppercase tracking-widest mb-1">
-              马时科技 · Mashi Technology
-            </p>
-            <h2 className="text-lg font-semibold text-white">Accelerate Your Build</h2>
-            <p className="mt-1 text-sm text-white/40 max-w-sm">
-              三条路径，帮 AI 创业者从想法跑到第一批用户。
-            </p>
-          </div>
-          <Link
-            href="/accelerate"
-            className="shrink-0 text-sm px-4 py-2 rounded-md bg-[#534AB7] hover:bg-[#4339a0] text-white font-medium transition-colors"
-          >
-            了解计划 →
-          </Link>
-        </div>
-        <div className="grid gap-3 sm:grid-cols-3">
-          {[
-            { color: '#534AB7', label: 'Solo Builder', sub: '¥2,800 / 期', desc: '独立开发者 1v1 加速' },
-            { color: '#1D9E75', label: 'Team Track', sub: '¥6,800 / 期', desc: '2–5 人小团队协作' },
-            { color: '#D85A30', label: 'Insider', sub: '¥980 / 年', desc: '圈子会员 + 活动优先票' },
-          ].map((t) => (
-            <Link
-              key={t.label}
-              href="/accelerate"
-              className="rounded-sm border border-white/5 p-4 hover:border-white/10 transition-colors"
-              style={{ borderTopColor: t.color, borderTopWidth: 2 }}
-            >
-              <div className="text-sm font-medium text-white mb-0.5">{t.label}</div>
-              <div className="font-mono text-xs mb-1" style={{ color: t.color }}>{t.sub}</div>
-              <div className="text-xs text-white/40">{t.desc}</div>
-            </Link>
-          ))}
-        </div>
-      </section>
+      </div>
     </>
   );
 }
