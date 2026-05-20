@@ -17,6 +17,7 @@ import { FilterBar }     from './_components/home/FilterBar';
 import { IntelGrid }     from './_components/home/IntelGrid';
 import { HowItWorks }   from './_components/home/HowItWorks';
 import { IntelPreview }  from './_components/home/IntelPreview';
+import { RealWorldSignal } from './_components/home/RealWorldSignal';
 import { CTA }           from './_components/home/CTA';
 import { LandingFooter } from './_components/home/LandingFooter';
 
@@ -221,10 +222,13 @@ export default function HomePage() {
         {/* 6. Intel Preview — split layout with sample brief */}
         <IntelPreview />
 
-        {/* 7. CTA — closing call to action */}
+        {/* 7. Real-world signal — pull quote linking to /accelerate */}
+        <RealWorldSignal />
+
+        {/* 8. CTA — closing call to action */}
         <CTA />
 
-        {/* 8. Landing Footer */}
+        {/* 9. Landing Footer */}
         <LandingFooter />
       </div>
     </>
