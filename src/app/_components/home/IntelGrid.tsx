@@ -22,7 +22,7 @@ const CARDS: Card[] = [
     desc: 'AI 缩略图工具。免费水印计划做冷启动，X 上 22 秒 Build 短片引流，注册流程从 5 步压缩到 2 步。',
     stat1Value: '$8.2K', stat1Label: 'MRR',
     stat2Value: '43',    stat2Label: '天',
-    category: 'AI工具',
+    category: 'Coding Agents',
     visColor: '#D4896A',
     icon: (
       <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" width="64" height="64">
@@ -37,7 +37,7 @@ const CARDS: Card[] = [
     desc: 'Reddit 长文作为增长主渠道，定价从 $9 涨到 $29，收入翻三倍而转化率几乎不变。',
     stat1Value: '2.4K', stat1Label: '用户',
     stat2Value: '$0',   stat2Label: '广告',
-    category: 'SaaS',
+    category: 'AI SaaS',
     visColor: '#B7C9B5',
     icon: (
       <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" width="64" height="64">
@@ -51,7 +51,7 @@ const CARDS: Card[] = [
     desc: 'AI 主题 Newsletter。Twitter 线程引流至 8K 订阅，用决策框架模板做 Freebie，3.2% 转付费。',
     stat1Value: '8K',  stat1Label: '订阅',
     stat2Value: '12',  stat2Label: '周',
-    category: '内容增长',
+    category: 'AI Media',
     visColor: '#B8A9D4',
     icon: (
       <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" width="64" height="64">
@@ -66,7 +66,7 @@ const CARDS: Card[] = [
     desc: '图像处理 API，2 天做完发 HN，从按次计费迭代到月付套餐，ARPU 提升 4 倍。',
     stat1Value: '$12K', stat1Label: 'MRR',
     stat2Value: '67',   stat2Label: '天',
-    category: '开发工具',
+    category: 'AI Infra',
     visColor: '#D4C17A',
     icon: (
       <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" width="64" height="64">
@@ -80,7 +80,7 @@ const CARDS: Card[] = [
     desc: '跨境 AI 选品工具，解决自身痛点，上线 TikTok Shop，用 Claude 批量生成商品文案。',
     stat1Value: '$3K', stat1Label: '首月',
     stat2Value: '30',  stat2Label: '天',
-    category: '跨境出海',
+    category: 'AI Commerce',
     visColor: '#8BAEC4',
     icon: (
       <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" width="64" height="64">
@@ -94,7 +94,7 @@ const CARDS: Card[] = [
     desc: '设计工具。公开所有数据指标，把透明度变成信任资产，仅靠 X 就带来 500 名付费用户。',
     stat1Value: '500', stat1Label: '付费',
     stat2Value: '90',  stat2Label: '天',
-    category: 'SaaS',
+    category: 'AI Workforce',
     visColor: '#D4A0A0',
     icon: (
       <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" width="64" height="64">

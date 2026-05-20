@@ -7,12 +7,14 @@
 import { useState } from 'react';
 
 const TABS = [
-  { label: '全部',    count: 6 },
-  { label: 'AI工具',  count: 2 },
-  { label: 'SaaS',   count: 2 },
-  { label: '内容增长', count: 1 },
-  { label: '跨境出海', count: 1 },
-  { label: '开发工具', count: 1 },
+  { label: '全部',          count: 6 },
+  { label: 'Coding Agents', count: 1 },
+  { label: 'AI SaaS',       count: 1 },
+  { label: 'AI Infra',      count: 1 },
+  { label: 'AI Commerce',   count: 1 },
+  { label: 'AI Media',      count: 1 },
+  { label: 'AI Workforce',  count: 1 },
+  { label: 'AI Hardware',   count: 0 },
 ];
 
 export function FilterBar() {
