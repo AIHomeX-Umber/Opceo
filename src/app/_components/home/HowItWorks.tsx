@@ -5,18 +5,18 @@
 const STEPS = [
   {
     num: '01',
-    title: 'We track builders',
-    desc: 'Every solo founder building in public — across X, IndieHackers, newsletters, and GitHub — is monitored for real ship signals, not just tweets.',
+    title: '追踪真实 Builder',
+    desc: '我们监控公开建造的 Solo Founder——从 X、独立黑客论坛、Newsletter 到 GitHub——只关注真实 Ship 信号，不看自我包装。',
   },
   {
     num: '02',
-    title: 'We structure the arc',
-    desc: 'Raw signal becomes an intel brief: the decision, the inflection point, the growth lever. Each brief is one founder, one growth arc, fully narrated.',
+    title: '拆解增长路径',
+    desc: '原始信号变成结构化情报：关键决策节点、增长拐点、核心杠杆。每份 Brief 对应一位 Builder，一条完整的增长弧线。',
   },
   {
     num: '03',
-    title: 'You extract the moves',
-    desc: 'Filter by category, revenue tier, or tactic. Copy what works. Skip the noise. Build faster with pattern recognition, not luck.',
+    title: '提炼可复用动作',
+    desc: '按品类、收入阶段或增长打法筛选。直接复用有效动作，跳过噪音，用模式识别而非运气加速自己的 Build。',
   },
 ];
 
@@ -36,7 +36,7 @@ export function HowItWorks() {
         className="font-display text-center font-medium text-[#191613] leading-[1.2] mb-[clamp(40px,6vw,64px)]"
         style={{ fontSize: 'clamp(1.8rem, 4vw, 2.8rem)' }}
       >
-        Intelligence, not interviews.
+        不是访谈，是结构化情报。
       </h2>
 
       {/* 3-col grid → 1-col on mobile */}

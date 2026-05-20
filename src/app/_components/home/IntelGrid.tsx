@@ -18,11 +18,11 @@ type Card = {
 
 const CARDS: Card[] = [
   {
-    title: 'From side project to $8.2K MRR in 43 days',
-    desc: 'AI thumbnail tool. Free watermark plan as distribution, 22-sec build clips on X, onboarding cut from 5 steps to 2.',
+    title: '从副业项目到 $8.2K MRR：43 天复盘',
+    desc: 'AI 缩略图工具。免费水印计划做冷启动，X 上 22 秒 Build 短片引流，注册流程从 5 步压缩到 2 步。',
     stat1Value: '$8.2K', stat1Label: 'MRR',
-    stat2Value: '43',    stat2Label: 'days',
-    category: 'AI Tools',
+    stat2Value: '43',    stat2Label: '天',
+    category: 'AI工具',
     visColor: '#D4896A',
     icon: (
       <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" width="64" height="64">
@@ -33,10 +33,10 @@ const CARDS: Card[] = [
     ),
   },
   {
-    title: '2,400 users with zero ad spend — Notion templates',
-    desc: 'Reddit long-form as growth channel, pricing jump from $9 to $29 tripled revenue without losing conversion.',
-    stat1Value: '2.4K', stat1Label: 'users',
-    stat2Value: '$0',   stat2Label: 'ads',
+    title: '0 广告预算拿到 2,400 用户：Notion 模板增长路径',
+    desc: 'Reddit 长文作为增长主渠道，定价从 $9 涨到 $29，收入翻三倍而转化率几乎不变。',
+    stat1Value: '2.4K', stat1Label: '用户',
+    stat2Value: '$0',   stat2Label: '广告',
     category: 'SaaS',
     visColor: '#B7C9B5',
     icon: (
@@ -47,11 +47,11 @@ const CARDS: Card[] = [
     ),
   },
   {
-    title: 'Newsletter to $4K/mo in 12 weeks',
-    desc: 'AI newsletter. Twitter threads → 8K subs, converted 3.2% to paid with a decision-framework template freebie.',
-    stat1Value: '8K',  stat1Label: 'subs',
-    stat2Value: '12',  stat2Label: 'wks',
-    category: 'Content',
+    title: 'Newsletter 12 周做到 $4K/月',
+    desc: 'AI 主题 Newsletter。Twitter 线程引流至 8K 订阅，用决策框架模板做 Freebie，3.2% 转付费。',
+    stat1Value: '8K',  stat1Label: '订阅',
+    stat2Value: '12',  stat2Label: '周',
+    category: '内容增长',
     visColor: '#B8A9D4',
     icon: (
       <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" width="64" height="64">
@@ -62,11 +62,11 @@ const CARDS: Card[] = [
     ),
   },
   {
-    title: '$12K MRR selling API access to a weekend hack',
-    desc: 'Image processing API. Built in 2 days, posted HN, iterated from pay-per-use to monthly tiers — 4× ARPU.',
+    title: '周末 Hack 卖 API：$12K MRR 的路径',
+    desc: '图像处理 API，2 天做完发 HN，从按次计费迭代到月付套餐，ARPU 提升 4 倍。',
     stat1Value: '$12K', stat1Label: 'MRR',
-    stat2Value: '67',   stat2Label: 'days',
-    category: 'Dev Tools',
+    stat2Value: '67',   stat2Label: '天',
+    category: '开发工具',
     visColor: '#D4C17A',
     icon: (
       <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" width="64" height="64">
@@ -76,11 +76,11 @@ const CARDS: Card[] = [
     ),
   },
   {
-    title: "Factory owner's first AI product — $3K month one",
-    desc: 'Cross-border AI listing tool. Solved own pain, launched TikTok Shop, Claude for product copy at scale.',
-    stat1Value: '$3K', stat1Label: 'mo 1',
-    stat2Value: '30',  stat2Label: 'days',
-    category: 'E-commerce',
+    title: '工厂老板的第一个 AI 产品：首月 $3K',
+    desc: '跨境 AI 选品工具，解决自身痛点，上线 TikTok Shop，用 Claude 批量生成商品文案。',
+    stat1Value: '$3K', stat1Label: '首月',
+    stat2Value: '30',  stat2Label: '天',
+    category: '跨境出海',
     visColor: '#8BAEC4',
     icon: (
       <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" width="64" height="64">
@@ -90,10 +90,10 @@ const CARDS: Card[] = [
     ),
   },
   {
-    title: 'Building in public actually converted — 90-day proof',
-    desc: 'Design tool. Shared every metric publicly, turned transparency into trust, 500 paying users from X alone.',
-    stat1Value: '500', stat1Label: 'paid',
-    stat2Value: '90',  stat2Label: 'days',
+    title: 'Build in Public 如何真正转化：90 天证据',
+    desc: '设计工具。公开所有数据指标，把透明度变成信任资产，仅靠 X 就带来 500 名付费用户。',
+    stat1Value: '500', stat1Label: '付费',
+    stat2Value: '90',  stat2Label: '天',
     category: 'SaaS',
     visColor: '#D4A0A0',
     icon: (

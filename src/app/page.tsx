@@ -1,5 +1,6 @@
 // app/page.tsx — OpCEO.AI Builder Intelligence Homepage
-// Second-pass redesign matching opceo-homepage-reference.html.
+// Chinese-localized hero + warm editorial layout.
+// Global Nav is hidden on / via ConditionalNav in layout.tsx.
 // Fonts scoped to hp-root wrapper via CSS variables; global body font untouched.
 // Scope: ONLY this file + src/app/_components/home/*
 // Does NOT affect /explore, /agents, /quests, /calendar, rankings-v1.
@@ -48,9 +49,9 @@ const jetbrainsMono = JetBrains_Mono({
 // ── Metadata ──────────────────────────────────────────────────────────────────
 
 export const metadata: Metadata = gm({
-  title: 'OpCEO.AI — Builder Intelligence',
+  title: 'OpCEO.AI — AI 时代的建造情报站',
   description:
-    '追踪真实建造者的增长弧线。AI Native 创业者的结构化情报，每周更新。',
+    '追踪真实 Builder 的增长路径、出海打法和变现复盘。结构化情报，每周更新，不是故事包装。',
   path: '/',
 });
 
@@ -65,11 +66,12 @@ export default function HomePage() {
         hp-root: scopes --font-display / --font-body-serif / --font-mono-jb vars
         and the ::selection tint. Does NOT override body background — each section
         controls its own bg to avoid bleed into other routes.
+        Global Nav hidden on / via ConditionalNav — LandingNav is top-0 here.
       */}
       <div
         className={`${newsreader.variable} ${sourceSerif4.variable} ${jetbrainsMono.variable} hp-root`}
       >
-        {/* 1. Landing Nav — sticky below global dark Nav (top-14 = 56px) */}
+        {/* 1. Landing Nav — sticky at top-0 (global Nav hidden on /) */}
         <LandingNav />
 
         {/* 2. Hero — dark editorial banner */}
@@ -107,63 +109,107 @@ export default function HomePage() {
               fontSize: 'clamp(2.4rem, 5.5vw, 3.8rem)',
               fontWeight: 400,
               lineHeight: 1.12,
-              letterSpacing: '-0.025em',
+              letterSpacing: '-0.02em',
               color: '#F3EFE6',
-              maxWidth: 640,
-              margin: '0 auto 20px',
+              maxWidth: 680,
+              margin: '0 auto 16px',
               opacity: 0,
               animation: 'hp-fadeIn 0.6s ease 0.2s forwards',
             }}
           >
-            The live board for builders
-            <br />
-            <span style={{ color: '#847E72', fontStyle: 'italic' }}>
-              building in public.
-            </span>
+            AI 时代的建造情报站
           </h1>
+
+          {/* Second line */}
+          <p
+            className="font-display"
+            style={{
+              fontSize: 'clamp(1.4rem, 3vw, 2.2rem)',
+              fontWeight: 300,
+              fontStyle: 'italic',
+              color: '#847E72',
+              lineHeight: 1.3,
+              maxWidth: 560,
+              margin: '0 auto 24px',
+              opacity: 0,
+              animation: 'hp-fadeIn 0.6s ease 0.3s forwards',
+            }}
+          >
+            看清真正的 Builder<br />
+            如何增长、出海、变现。
+          </p>
 
           {/* Subheading */}
           <p
             className="font-body-serif"
             style={{
-              fontSize: 'clamp(0.95rem, 1.4vw, 1.08rem)',
+              fontSize: 'clamp(0.9rem, 1.3vw, 1.02rem)',
               color: '#AEA899',
-              lineHeight: 1.65,
+              lineHeight: 1.7,
               maxWidth: 440,
-              margin: '0 auto 36px',
+              margin: '0 auto 40px',
               fontWeight: 300,
               opacity: 0,
-              animation: 'hp-fadeIn 0.6s ease 0.35s forwards',
+              animation: 'hp-fadeIn 0.6s ease 0.4s forwards',
             }}
           >
-            Structured growth intelligence on solo founders —
-            every ship, every streak, every move. Weekly.
+            我们追踪真实 Ship 记录、增长路径和长期复利信号。
+            <br />
+            不是故事包装，而是可复盘的行动情报。
           </p>
 
-          {/* CTA */}
-          <Link
-            href="#intel"
-            className="font-body-serif"
+          {/* CTAs */}
+          <div
             style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: 8,
-              padding: '13px 28px',
-              background: '#FAFAF5',
-              color: '#191613',
-              fontSize: '0.92rem',
-              borderRadius: 8,
-              textDecoration: 'none',
-              transition: 'background 0.2s',
+              display: 'flex',
+              gap: 12,
+              justifyContent: 'center',
+              flexWrap: 'wrap',
               opacity: 0,
-              animation: 'hp-fadeIn 0.6s ease 0.45s forwards',
+              animation: 'hp-fadeIn 0.6s ease 0.5s forwards',
             }}
           >
-            Browse intel ↓
-          </Link>
+            <Link
+              href="#intelligence"
+              className="font-body-serif"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 8,
+                padding: '13px 28px',
+                background: '#FAFAF5',
+                color: '#191613',
+                fontSize: '0.92rem',
+                borderRadius: 8,
+                textDecoration: 'none',
+                transition: 'background 0.2s',
+              }}
+            >
+              浏览情报 ↓
+            </Link>
+            <Link
+              href="/explore?tab=rankings"
+              className="font-body-serif"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 8,
+                padding: '13px 28px',
+                background: 'transparent',
+                color: '#AEA899',
+                fontSize: '0.92rem',
+                borderRadius: 8,
+                textDecoration: 'none',
+                border: '1px solid rgba(174,168,153,0.3)',
+                transition: 'border-color 0.2s, color 0.2s',
+              }}
+            >
+              查看排行榜 →
+            </Link>
+          </div>
         </section>
 
-        {/* 3. Filter Bar — sticky at 120px (56px global nav + 64px landing nav) */}
+        {/* 3. Filter Bar — sticky at 64px (just below LandingNav; no global nav) */}
         <FilterBar />
 
         {/* 4. Intel Grid — 6 hardcoded builder intel cards */}

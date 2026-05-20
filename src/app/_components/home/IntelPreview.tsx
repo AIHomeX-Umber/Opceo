@@ -15,22 +15,24 @@ export function IntelPreview() {
         {/* Left — editorial copy */}
         <div className="flex flex-col justify-center gap-6">
           <p className="font-mono-jb text-[0.68rem] tracking-widest text-[#C15F3C] uppercase">
-            Sample brief
+            情报样本
           </p>
           <h2
             className="font-display font-medium text-[#191613] leading-[1.2]"
             style={{ fontSize: 'clamp(1.6rem, 3.5vw, 2.4rem)' }}
           >
-            Inside every brief.
+            每一份 Brief 里面有什么？
           </h2>
           <p className="font-body-serif text-[0.92rem] text-[#5C564C] leading-[1.75] font-[300] max-w-[380px]">
-            Not a case study. Not a podcast. A structured arc — from the first commit to the first dollar — with the exact levers the founder pulled, in the order they pulled them.
+            不是案例研究，不是播客访谈。
+            是从第一行代码到第一笔收入的完整弧线——
+            创始人拉动的每一个杠杆，按顺序呈现。
           </p>
           <a
             href="/auth/register"
             className="font-body-serif text-[0.88rem] text-[#C15F3C] no-underline flex items-center gap-1.5 group w-fit"
           >
-            Read a full brief
+            阅读完整案例
             <span className="transition-transform duration-200 group-hover:translate-x-1">→</span>
           </a>
         </div>
@@ -47,7 +49,7 @@ export function IntelPreview() {
           >
             {/* Timeline bar */}
             <div className="flex items-center gap-0 w-full">
-              {['Day 1', 'Day 12', 'Day 22', 'Day 43'].map((label, i) => (
+              {['第1天', '第12天', '第22天', '第43天'].map((label, i) => (
                 <div key={label} className="flex-1 flex flex-col items-center gap-1">
                   <div
                     className="w-[6px] h-[6px] rounded-full"
@@ -61,7 +63,6 @@ export function IntelPreview() {
                   </span>
                 </div>
               ))}
-              {/* connector line behind dots */}
             </div>
           </div>
 
@@ -70,10 +71,10 @@ export function IntelPreview() {
             <div className="flex items-start justify-between gap-4">
               <div>
                 <h3 className="font-display text-[1.15rem] font-medium text-[#191613] leading-[1.3]">
-                  Jake Kim — AI Thumbnails
+                  Jake Kim — AI 缩略图工具
                 </h3>
                 <p className="font-body-serif text-[0.8rem] text-[#847E72] mt-1 leading-[1.5] font-[300]">
-                  Free watermark tier as distribution. 22-sec build clips on X. Cut onboarding from 5 steps to 2.
+                  免费水印计划做分发，X 上 22 秒 Build 短片引流，注册流程从 5 步压缩到 2 步。
                 </p>
               </div>
             </div>
@@ -84,10 +85,10 @@ export function IntelPreview() {
               </span>
               <span className="w-px h-[10px] bg-[#DDD8CB]" />
               <span className="font-mono-jb text-[0.68rem] text-[#847E72] flex items-center gap-1">
-                <strong className="text-[#302B24] font-[500]">43</strong> days
+                <strong className="text-[#302B24] font-[500]">43</strong> 天
               </span>
               <span className="font-mono-jb text-[0.62rem] ml-auto px-2 py-[3px] rounded-[4px] bg-[rgba(25,22,19,0.05)] text-[#5C564C]">
-                AI Tools
+                AI工具
               </span>
             </div>
           </div>

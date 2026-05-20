@@ -1,6 +1,6 @@
 // LandingNav — homepage-only nav bar.
-// Sticky below the global site Nav (top-14 = 56px).
-// Warm white (#FAFAF5), Newsreader logo, 3 center links, Login + Try OpCEO.
+// Sticky at top-0 (global Nav is hidden on /).
+// Chinese navigation labels for mainland-friendly experience.
 // Does NOT modify the global Nav component.
 
 import Link from 'next/link';
@@ -8,7 +8,7 @@ import Link from 'next/link';
 export function LandingNav() {
   return (
     <nav
-      className="sticky top-14 z-40 border-b border-[#DDD8CB] bg-[#FAFAF5]"
+      className="sticky top-0 z-50 border-b border-[#DDD8CB] bg-[#FAFAF5]"
       style={{ height: 64 }}
     >
       <div
@@ -26,9 +26,10 @@ export function LandingNav() {
         {/* Center links — hidden below md */}
         <div className="hidden md:flex gap-7">
           {[
-            { href: '#intel', label: 'Intelligence' },
-            { href: '#how',   label: 'How it works' },
-            { href: '/auth/register', label: 'Submit a builder' },
+            { href: '#intelligence', label: '增长情报' },
+            { href: '/explore?tab=rankings', label: '建造者排行' },
+            { href: '/agents', label: 'AI 员工' },
+            { href: '/auth/register', label: '提交案例' },
           ].map(({ href, label }) => (
             <Link
               key={label}
@@ -44,15 +45,15 @@ export function LandingNav() {
         <div className="flex items-center gap-4">
           <Link
             href="/auth/login"
-            className="text-[0.88rem] text-[#5C564C] no-underline"
+            className="font-body-serif text-[0.88rem] text-[#5C564C] no-underline"
           >
-            Login
+            登录
           </Link>
           <Link
             href="/auth/register"
             className="font-body-serif text-[0.84rem] text-[#FAFAF5] bg-[#191613] hover:bg-[#302B24] px-[18px] py-2 rounded-[6px] no-underline transition-colors"
           >
-            Try OpCEO
+            加入 OpCEO
           </Link>
         </div>
       </div>

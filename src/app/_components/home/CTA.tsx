@@ -15,7 +15,7 @@ export function CTA() {
       }}
     >
       <p className="font-mono-jb text-[0.68rem] tracking-widest text-[#C15F3C] uppercase mb-6">
-        Join OpCEO
+        加入 OpCEO
       </p>
 
       <h2
@@ -25,23 +25,23 @@ export function CTA() {
           maxWidth: 680,
         }}
       >
-        The builders are shipping.
+        Builder 正在 Ship，
         <br />
-        <span style={{ color: '#5C564C', fontStyle: 'italic' }}>Are you watching?</span>
+        <span style={{ color: '#5C564C', fontStyle: 'italic' }}>你看见了吗？</span>
       </h2>
 
       <p
         className="font-body-serif text-[0.92rem] text-[#5C564C] leading-[1.75] font-[300] mx-auto mb-10"
         style={{ maxWidth: 420 }}
       >
-        One brief, one founder, one growth arc. Every week. Free to start — no card required.
+        每周一份 Brief，一位 Builder，一条增长弧线。免费订阅，无需绑卡。
       </p>
 
       <Link
         href="/auth/register"
         className="inline-block font-body-serif text-[0.95rem] text-[#FAFAF5] bg-[#191613] hover:bg-[#302B24] px-8 py-[14px] rounded-[8px] no-underline transition-colors duration-[200ms]"
       >
-        Start reading
+        开始阅读
       </Link>
     </section>
   );
