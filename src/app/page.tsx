@@ -167,9 +167,7 @@ export default function HomePage() {
         <FilterBar />
 
         {/* 4. Intel Grid — 6 hardcoded builder intel cards */}
-        <div id="intel">
-          <IntelGrid />
-        </div>
+        <IntelGrid />
 
         {/* 5. How It Works — 3-step section */}
         <HowItWorks />

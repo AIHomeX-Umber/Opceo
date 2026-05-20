@@ -107,7 +107,7 @@ const CARDS: Card[] = [
 
 export function IntelGrid() {
   return (
-    <section style={{ padding: '40px clamp(24px, 5vw, 72px) 80px' }}>
+    <section style={{ padding: '40px clamp(24px, 5vw, 72px) 80px', background: '#FAFAF5' }}>
       <div
         className="intel-grid grid gap-6"
       >
