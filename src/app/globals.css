@@ -61,3 +61,18 @@ body {
   -webkit-text-fill-color: transparent;
   background-clip: text;
 }
+
+/* ── Homepage additions (append only — no existing rules modified) ───────── */
+
+@keyframes hp-fadeIn {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Homepage-scoped font utility classes */
+.font-display     { font-family: var(--font-display,     'Newsreader',     ui-serif, Georgia, serif); }
+.font-body-serif  { font-family: var(--font-body-serif,  'Source Serif 4', ui-serif, Georgia, Cambria, serif); }
+.font-mono-jb     { font-family: var(--font-mono-jb,     'JetBrains Mono', monospace); }
+
+/* Homepage selection tint */
+.hp-root ::selection { background: rgba(193, 95, 60, 0.12); }
