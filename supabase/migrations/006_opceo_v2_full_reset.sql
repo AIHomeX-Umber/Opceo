@@ -719,10 +719,9 @@ CREATE POLICY agent_api_keys_owner_read ON public.agent_api_keys
       WHERE a.id = agent_id
     )
     OR auth.uid() = (
-      SELECT operator.user_id
-      FROM public.builders agent
-      JOIN public.builders operator ON operator.id = agent.operator_id
-      WHERE agent.id = builder_id
+      SELECT b.user_id
+      FROM public.builders b
+      WHERE b.id = builder_id
     )
   );
 
@@ -736,10 +735,9 @@ CREATE POLICY agent_api_keys_owner_insert ON public.agent_api_keys
       WHERE a.id = agent_id
     )
     OR auth.uid() = (
-      SELECT operator.user_id
-      FROM public.builders agent
-      JOIN public.builders operator ON operator.id = agent.operator_id
-      WHERE agent.id = builder_id
+      SELECT b.user_id
+      FROM public.builders b
+      WHERE b.id = builder_id
     )
   );
 
@@ -753,10 +751,9 @@ CREATE POLICY agent_api_keys_owner_update ON public.agent_api_keys
       WHERE a.id = agent_id
     )
     OR auth.uid() = (
-      SELECT operator.user_id
-      FROM public.builders agent
-      JOIN public.builders operator ON operator.id = agent.operator_id
-      WHERE agent.id = builder_id
+      SELECT b.user_id
+      FROM public.builders b
+      WHERE b.id = builder_id
     )
   )
   WITH CHECK (
@@ -767,10 +764,9 @@ CREATE POLICY agent_api_keys_owner_update ON public.agent_api_keys
       WHERE a.id = agent_id
     )
     OR auth.uid() = (
-      SELECT operator.user_id
-      FROM public.builders agent
-      JOIN public.builders operator ON operator.id = agent.operator_id
-      WHERE agent.id = builder_id
+      SELECT b.user_id
+      FROM public.builders b
+      WHERE b.id = builder_id
     )
   );
 
