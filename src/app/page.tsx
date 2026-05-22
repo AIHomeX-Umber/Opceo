@@ -1,9 +1,5 @@
-// app/page.tsx — OpCEO.AI Builder Intelligence Homepage
-// Chinese-localized hero + warm editorial layout.
-// Global Nav is hidden on / via ConditionalNav in layout.tsx.
-// Fonts scoped to hp-root wrapper via CSS variables; global body font untouched.
-// Scope: ONLY this file + src/app/_components/home/*
-// Does NOT affect /explore, /agents, /quests, /calendar, rankings-v1.
+// app/page.tsx — OpCEO.AI public builder network homepage.
+// Scope: homepage only. Global Nav is hidden on / via ConditionalNav.
 
 import type { Metadata } from 'next';
 import Link from 'next/link';
@@ -11,14 +7,14 @@ import { Newsreader, Source_Serif_4, JetBrains_Mono } from 'next/font/google';
 import JsonLd from '@/components/JsonLd';
 import { websiteJsonLd, organizationJsonLd } from '@/lib/jsonld';
 import { generateMetadata as gm } from '@/lib/seo';
+import { createClient } from '@/lib/supabase/server';
+import type { Builder } from '@/lib/types';
 
 import { LandingNav }    from './_components/home/LandingNav';
-import { FilterBar }     from './_components/home/FilterBar';
-import { IntelGrid }     from './_components/home/IntelGrid';
-import { HowItWorks }   from './_components/home/HowItWorks';
-import { IntelPreview }  from './_components/home/IntelPreview';
-import { RealWorldSignal } from './_components/home/RealWorldSignal';
-import { CTA }           from './_components/home/CTA';
+import { OrbitSculpture } from './_components/home/OrbitSculpture';
+import { FeaturedBuilders } from './_components/home/FeaturedBuilders';
+import { BuildLoop } from './_components/home/BuildLoop';
+import { HomeEntryLinks } from './_components/home/HomeEntryLinks';
 import { LandingFooter } from './_components/home/LandingFooter';
 
 // ── Homepage-scoped fonts ─────────────────────────────────────────────────────
@@ -50,185 +46,80 @@ const jetbrainsMono = JetBrains_Mono({
 // ── Metadata ──────────────────────────────────────────────────────────────────
 
 export const metadata: Metadata = gm({
-  title: 'OpCEO.AI — AI 时代的建造情报站',
+  title: 'OpCEO.AI — AI-native builders network',
   description:
-    '追踪真实 Builder 的增长路径、出海打法和变现复盘。结构化情报，每周更新，不是故事包装。',
+    'OpCEO 是面向 AI 时代的公开建造者网络。每周发布、获得反馈、积累影响力，让世界看到你的成长轨迹。',
   path: '/',
 });
 
 // ── Page ──────────────────────────────────────────────────────────────────────
 
-export default function HomePage() {
+async function getFeaturedBuilders() {
+  try {
+    const supabase = await createClient();
+    const { data } = await supabase
+      .from('builders')
+      .select(
+        'id, user_id, slug, display_name, bio, building, avatar_url, links, skills, build_score, current_streak, longest_streak, total_logs, tier, is_investor, headline, cover_url, featured_links, showcase, builder_type, entity_type, operator_id, agent_meta, created_at, updated_at'
+      )
+      .eq('entity_type', 'human')
+      .order('current_streak', { ascending: false })
+      .order('total_logs', { ascending: false })
+      .limit(3);
+
+    return (data ?? []) as unknown as Builder[];
+  } catch {
+    return [];
+  }
+}
+
+export default async function HomePage() {
+  const builders = await getFeaturedBuilders();
+
   return (
     <>
       <JsonLd data={[websiteJsonLd(), organizationJsonLd()]} />
 
-      {/*
-        hp-root: scopes --font-display / --font-body-serif / --font-mono-jb vars
-        and the ::selection tint. Does NOT override body background — each section
-        controls its own bg to avoid bleed into other routes.
-        Global Nav hidden on / via ConditionalNav — LandingNav is top-0 here.
-      */}
       <div
-        className={`${newsreader.variable} ${sourceSerif4.variable} ${jetbrainsMono.variable} hp-root`}
+        className={`${newsreader.variable} ${sourceSerif4.variable} ${jetbrainsMono.variable} hp-root min-h-screen bg-[#FAFAF5] text-[#111111]`}
       >
-        {/* 1. Landing Nav — sticky at top-0 (global Nav hidden on /) */}
         <LandingNav />
 
-        {/* 2. Hero — dark editorial banner */}
-        <section
-          style={{
-            background: '#191613',
-            textAlign: 'center',
-            padding: '80px clamp(24px, 8vw, 120px) 88px',
-          }}
-        >
-          {/* Icon */}
-          <div style={{ marginBottom: 28, opacity: 0, animation: 'hp-fadeIn 0.6s ease 0.1s forwards' }}>
-            <svg
-              viewBox="0 0 48 48"
-              fill="none"
-              stroke="#F3EFE6"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              width="48"
-              height="48"
-              style={{ margin: '0 auto' }}
-            >
-              <path d="M8 36V18l16-10 16 10v18"/>
-              <path d="M8 22l16 9 16-9"/>
-              <path d="M24 31v11"/>
-              <circle cx="24" cy="13" r="2.5"/>
-            </svg>
+        <section className="mx-auto grid max-w-6xl grid-cols-1 items-center gap-16 px-6 py-28 sm:px-8 lg:grid-cols-[1.02fr_0.98fr] lg:py-32">
+          <div>
+            <p className="mb-7 font-mono-jb text-[0.72rem] uppercase tracking-[0.18em] text-black/40">
+              AI-native builders network
+            </p>
+            <h1 className="max-w-3xl font-display text-[clamp(3.3rem,8vw,6.9rem)] font-medium leading-[0.95] tracking-[-0.055em] text-[#111111]">
+              在公开中建造。
+              <br />
+              让世界看到你的成长轨迹。
+            </h1>
+            <p className="mt-8 max-w-xl font-body-serif text-[1.15rem] leading-8 text-black/58 sm:text-[1.25rem]">
+              OpCEO 是面向 AI 时代的建造者网络。每周发布、获得反馈、积累影响力。
+            </p>
+            <div className="mt-10 flex flex-col gap-3 sm:flex-row">
+              <Link
+                href="/auth/register"
+                className="inline-flex h-12 items-center justify-center rounded-xl bg-[#111111] px-6 font-body-serif text-[0.95rem] text-white no-underline transition-all duration-200 hover:-translate-y-0.5 hover:bg-[#2a244e]"
+              >
+                加入 OpCEO →
+              </Link>
+              <Link
+                href="/explore?tab=builders"
+                className="inline-flex h-12 items-center justify-center rounded-xl border border-black/10 bg-white px-6 font-body-serif text-[0.95rem] text-[#111111] no-underline transition-all duration-200 hover:-translate-y-0.5 hover:border-black/20"
+              >
+                探索建造者 →
+              </Link>
+            </div>
           </div>
 
-          {/* Headline */}
-          <h1
-            className="font-display"
-            style={{
-              fontSize: 'clamp(2.4rem, 5.5vw, 3.8rem)',
-              fontWeight: 400,
-              lineHeight: 1.12,
-              letterSpacing: '-0.02em',
-              color: '#F3EFE6',
-              maxWidth: 680,
-              margin: '0 auto 16px',
-              opacity: 0,
-              animation: 'hp-fadeIn 0.6s ease 0.2s forwards',
-            }}
-          >
-            AI 时代的建造情报站
-          </h1>
-
-          {/* Second line */}
-          <p
-            className="font-display"
-            style={{
-              fontSize: 'clamp(1.4rem, 3vw, 2.2rem)',
-              fontWeight: 300,
-              fontStyle: 'italic',
-              color: '#847E72',
-              lineHeight: 1.3,
-              maxWidth: 560,
-              margin: '0 auto 24px',
-              opacity: 0,
-              animation: 'hp-fadeIn 0.6s ease 0.3s forwards',
-            }}
-          >
-            看清真正的 Builder<br />
-            如何增长、出海、变现。
-          </p>
-
-          {/* Subheading */}
-          <p
-            className="font-body-serif"
-            style={{
-              fontSize: 'clamp(0.9rem, 1.3vw, 1.02rem)',
-              color: '#AEA899',
-              lineHeight: 1.7,
-              maxWidth: 440,
-              margin: '0 auto 40px',
-              fontWeight: 300,
-              opacity: 0,
-              animation: 'hp-fadeIn 0.6s ease 0.4s forwards',
-            }}
-          >
-            我们追踪真实 Ship 记录、增长路径和长期复利信号。
-            <br />
-            不是故事包装，而是可复盘的行动情报。
-          </p>
-
-          {/* CTAs */}
-          <div
-            style={{
-              display: 'flex',
-              gap: 12,
-              justifyContent: 'center',
-              flexWrap: 'wrap',
-              opacity: 0,
-              animation: 'hp-fadeIn 0.6s ease 0.5s forwards',
-            }}
-          >
-            <Link
-              href="#intelligence"
-              className="font-body-serif"
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: 8,
-                padding: '13px 28px',
-                background: '#FAFAF5',
-                color: '#191613',
-                fontSize: '0.92rem',
-                borderRadius: 8,
-                textDecoration: 'none',
-                transition: 'background 0.2s',
-              }}
-            >
-              浏览情报 ↓
-            </Link>
-            <Link
-              href="/explore?tab=rankings"
-              className="font-body-serif"
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: 8,
-                padding: '13px 28px',
-                background: 'transparent',
-                color: '#AEA899',
-                fontSize: '0.92rem',
-                borderRadius: 8,
-                textDecoration: 'none',
-                border: '1px solid rgba(174,168,153,0.3)',
-                transition: 'border-color 0.2s, color 0.2s',
-              }}
-            >
-              查看排行榜 →
-            </Link>
-          </div>
+          <OrbitSculpture />
         </section>
 
-        {/* 3. Filter Bar — sticky at 64px (just below LandingNav; no global nav) */}
-        <FilterBar />
-
-        {/* 4. Intel Grid — 6 hardcoded builder intel cards */}
-        <IntelGrid />
-
-        {/* 5. How It Works — 3-step section */}
-        <HowItWorks />
-
-        {/* 6. Intel Preview — split layout with sample brief */}
-        <IntelPreview />
-
-        {/* 7. Real-world signal — pull quote linking to /accelerate */}
-        <RealWorldSignal />
-
-        {/* 8. CTA — closing call to action */}
-        <CTA />
-
-        {/* 9. Landing Footer */}
+        <FeaturedBuilders builders={builders} />
+        <BuildLoop />
+        <HomeEntryLinks />
         <LandingFooter />
       </div>
     </>
