@@ -1,19 +1,24 @@
+'use client';
+
 // Footer — warm editorial global footer for all routes except /.
 // / gets its own LandingFooter via the homepage component tree.
 // Visual system: #F3EFE6 bg, #DDD8CB border, #847E72 text, #C15F3C accent.
 
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 
 const NAV_LINKS = [
-  { href: '/explore',    label: 'Explore' },
-  { href: '/agents',     label: 'Agents' },
-  { href: '/quests',     label: 'Quests' },
-  { href: '/calendar',   label: 'Calendar' },
-  { href: '/about',      label: 'About' },
+  { href: '/agents', label: 'Agents' },
+  { href: '/quests', label: 'Quests' },
+  { href: '/explore?tab=rankings', label: 'Leaderboard' },
+  { href: '/about', label: 'About' },
 ];
 
 export default function Footer() {
+  const pathname = usePathname();
   const year = new Date().getFullYear();
+
+  if (pathname?.startsWith('/auth/')) return null;
 
   return (
     <footer className="border-t border-[#DDD8CB] bg-[#F3EFE6]">
