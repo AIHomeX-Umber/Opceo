@@ -2,30 +2,29 @@
 
 // Nav — warm editorial global nav for all routes except /.
 // / gets its own LandingNav via ConditionalNav in layout.tsx.
-// All auth logic, Programs dropdown, and mobile menu preserved exactly.
+// Auth logic and mobile menu preserved; top-level information architecture is intentionally compact.
 // Visual system: #FAFAF5 bg, #302B24 text, #C15F3C accent, #DDD8CB border.
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import type { User } from '@supabase/supabase-js';
 
-const PROGRAMS_ITEMS = [
-  { href: '/quests',     label: 'Quests',     desc: '发布任务，认领 Quest，一起 Ship。' },
-  { href: '/calendar',  label: 'Calendar',   desc: '即将举行的活动与重要节点。' },
-  { href: '/accelerate',label: 'Accelerate', desc: '面向 Builder 的成长项目。' },
+const NAV_ITEMS = [
+  { href: '/explore?tab=live', label: 'Live', active: (pathname: string) => pathname === '/explore' },
+  { href: '/explore?tab=builders', label: 'Builders', active: () => false },
+  { href: '/calendar', label: 'Calendar', active: (pathname: string) => pathname.startsWith('/calendar') },
+  { href: '/accelerate', label: 'Accelerate', active: (pathname: string) => pathname.startsWith('/accelerate') },
 ];
 
 export default function Nav() {
   const pathname = usePathname();
-  const [user,               setUser]               = useState<User | null>(null);
-  const [builderSlug,        setBuilderSlug]        = useState<string | null>(null);
-  const [menuOpen,           setMenuOpen]           = useState(false);
-  const [programsOpen,       setProgramsOpen]       = useState(false);
-  const [mobileProgramsOpen, setMobileProgramsOpen] = useState(false);
-  const programsRef = useRef<HTMLDivElement>(null);
+  const [user,        setUser]        = useState<User | null>(null);
+  const [builderSlug, setBuilderSlug] = useState<string | null>(null);
+  const [menuOpen,    setMenuOpen]    = useState(false);
   const supabase = createClient();
+  const isAuthRoute = pathname?.startsWith('/auth/');
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
@@ -48,24 +47,10 @@ export default function Nav() {
     return () => listener.subscription.unsubscribe();
   }, []);
 
-  useEffect(() => {
-    function handleClick(e: MouseEvent) {
-      if (programsRef.current && !programsRef.current.contains(e.target as Node)) {
-        setProgramsOpen(false);
-      }
-    }
-    document.addEventListener('mousedown', handleClick);
-    return () => document.removeEventListener('mousedown', handleClick);
-  }, []);
-
   async function handleSignOut() {
     await supabase.auth.signOut();
     window.location.href = '/';
   }
-
-  const programsActive = PROGRAMS_ITEMS.some(
-    (p) => pathname === p.href || pathname.startsWith(p.href + '/')
-  );
 
   // Underline indicator for active nav links
   const linkCls = (active: boolean) =>
@@ -74,6 +59,8 @@ export default function Nav() {
         ? 'text-[#191613] after:absolute after:bottom-0 after:left-0 after:right-0 after:h-[2px] after:bg-[#C15F3C] after:rounded-full'
         : 'text-[#5C564C] hover:text-[#302B24]'
     }`;
+
+  if (isAuthRoute) return null;
 
   return (
     <nav className="sticky top-0 z-50 border-b border-[#DDD8CB] bg-[#FAFAF5]">
@@ -91,57 +78,15 @@ export default function Nav() {
 
         {/* Desktop nav links */}
         <div className="hidden md:flex items-center gap-7">
-          <Link
-            href="/explore"
-            className={linkCls(pathname === '/explore' || pathname.startsWith('/explore'))}
-          >
-            Explore
-          </Link>
-
-          <Link
-            href="/agents"
-            className={linkCls(pathname === '/agents' || pathname.startsWith('/agents/'))}
-          >
-            Agents
-          </Link>
-
-          {/* Programs dropdown */}
-          <div className="relative" ref={programsRef}>
-            <button
-              onClick={() => setProgramsOpen((v) => !v)}
-              className={`font-body-serif text-[0.88rem] transition-colors flex items-center gap-1 cursor-pointer ${
-                programsActive || programsOpen ? 'text-[#191613]' : 'text-[#5C564C] hover:text-[#302B24]'
-              }`}
+          {NAV_ITEMS.map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={linkCls(item.active(pathname))}
             >
-              Programs
-              <svg
-                width="10" height="10" viewBox="0 0 10 10"
-                fill="none" stroke="currentColor" strokeWidth="1.2"
-                strokeLinecap="round" strokeLinejoin="round"
-                className={`transition-transform ${programsOpen ? 'rotate-180' : ''}`}
-              >
-                <path d="M2 3.5L5 6.5L8 3.5"/>
-              </svg>
-            </button>
-
-            {programsOpen && (
-              <div className="absolute left-0 top-full mt-2 w-64 rounded-[8px] border border-[#DDD8CB] bg-[#FAFAF5] shadow-[0_8px_32px_rgba(25,22,19,0.08)] py-1 z-50">
-                {PROGRAMS_ITEMS.map((item) => (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    onClick={() => setProgramsOpen(false)}
-                    className="block px-4 py-3 hover:bg-[#F3EFE6] transition-colors group"
-                  >
-                    <div className="font-body-serif text-[0.88rem] text-[#302B24] group-hover:text-[#191613] transition-colors">
-                      {item.label}
-                    </div>
-                    <div className="text-[0.75rem] text-[#AEA899] mt-0.5">{item.desc}</div>
-                  </Link>
-                ))}
-              </div>
-            )}
-          </div>
+              {item.label}
+            </Link>
+          ))}
         </div>
 
         {/* Right side — auth area */}
@@ -215,57 +160,41 @@ export default function Nav() {
       {menuOpen && (
         <div className="md:hidden border-t border-[#DDD8CB] bg-[#FAFAF5] px-5 py-4 flex flex-col gap-1">
           <Link
-            href="/explore"
+            href="/explore?tab=live"
             onClick={() => setMenuOpen(false)}
             className={`font-body-serif text-[0.88rem] py-2.5 transition-colors border-b border-[#EBE6DA] ${
               pathname.startsWith('/explore') ? 'text-[#191613]' : 'text-[#5C564C]'
             }`}
           >
-            Explore
+            Live
           </Link>
           <Link
-            href="/agents"
+            href="/explore?tab=builders"
             onClick={() => setMenuOpen(false)}
             className={`font-body-serif text-[0.88rem] py-2.5 transition-colors border-b border-[#EBE6DA] ${
-              pathname.startsWith('/agents') ? 'text-[#191613]' : 'text-[#5C564C]'
+              pathname.startsWith('/explore') ? 'text-[#191613]' : 'text-[#5C564C]'
             }`}
           >
-            Agents
+            Builders
           </Link>
-
-          {/* Programs — tap to expand */}
-          <div className="border-b border-[#EBE6DA]">
-            <button
-              onClick={() => setMobileProgramsOpen((v) => !v)}
-              className={`w-full flex items-center justify-between font-body-serif text-[0.88rem] py-2.5 transition-colors cursor-pointer ${
-                programsActive || mobileProgramsOpen ? 'text-[#191613]' : 'text-[#5C564C]'
-              }`}
-            >
-              Programs
-              <svg
-                width="10" height="10" viewBox="0 0 10 10"
-                fill="none" stroke="currentColor" strokeWidth="1.2"
-                strokeLinecap="round" strokeLinejoin="round"
-                className={`transition-transform ${mobileProgramsOpen ? 'rotate-180' : ''}`}
-              >
-                <path d="M2 3.5L5 6.5L8 3.5"/>
-              </svg>
-            </button>
-            {mobileProgramsOpen && (
-              <div className="ml-3 mb-1 flex flex-col gap-0 border-l-2 border-[#DDD8CB] pl-3">
-                {PROGRAMS_ITEMS.map((item) => (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    onClick={() => { setMenuOpen(false); setMobileProgramsOpen(false); }}
-                    className="font-body-serif text-[0.84rem] py-2 text-[#5C564C] hover:text-[#302B24] transition-colors no-underline"
-                  >
-                    {item.label}
-                  </Link>
-                ))}
-              </div>
-            )}
-          </div>
+          <Link
+            href="/calendar"
+            onClick={() => setMenuOpen(false)}
+            className={`font-body-serif text-[0.88rem] py-2.5 transition-colors border-b border-[#EBE6DA] ${
+              pathname.startsWith('/calendar') ? 'text-[#191613]' : 'text-[#5C564C]'
+            }`}
+          >
+            Calendar
+          </Link>
+          <Link
+            href="/accelerate"
+            onClick={() => setMenuOpen(false)}
+            className={`font-body-serif text-[0.88rem] py-2.5 transition-colors border-b border-[#EBE6DA] ${
+              pathname.startsWith('/accelerate') ? 'text-[#191613]' : 'text-[#5C564C]'
+            }`}
+          >
+            Accelerate
+          </Link>
 
           <div className="pt-3 mt-1 flex flex-col gap-2.5">
             {user ? (

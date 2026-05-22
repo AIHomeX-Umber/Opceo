@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
-import { createClient } from '@/lib/supabase/server';
+import Link from 'next/link';
 import RegisterForm from './RegisterForm';
-import { Wordmark } from '@/components/Wordmark';
 
 export const metadata: Metadata = {
   title: 'Join the Frontier | OpCEO.AI',
@@ -9,85 +8,49 @@ export const metadata: Metadata = {
 };
 
 export default async function RegisterPage() {
-  const supabase = await createClient();
-
-  const SIGNAL_TIMEOUT_MS = 1500;
-
-  async function safeCount(table: string) {
-    return Promise.race<number | null>([
-      (async () => {
-        try {
-          const { count, error } = await supabase.from(table).select('*', { count: 'exact', head: true });
-          if (error) return null;
-          return count;
-        } catch {
-          return null;
-        }
-      })(),
-      new Promise<null>((resolve) => setTimeout(() => resolve(null), SIGNAL_TIMEOUT_MS)),
-    ]);
-  }
-
-  const [buildersCount, logsCount, questsCount, betsCount] = await Promise.all([
-    safeCount('builders'),
-    safeCount('ship_logs'),
-    safeCount('quests'),
-    safeCount('signal_bets'),
-  ]);
-
-  const signals = {
-    builders: buildersCount,
-    logs: logsCount,
-    quests: questsCount,
-    bets: betsCount,
-  };
-
-  function formatSignal(value: number | null) {
-    return value === null ? '—' : value.toLocaleString();
-  }
-
   return (
-    <div className="min-h-[calc(100vh-56px)] flex flex-col md:flex-row">
-      {/* Left brand panel */}
-      <div className="hidden md:flex md:w-1/2 bg-[#08080f] border-r border-white/5 p-12 flex-col justify-between">
-        <div>
-          <div className="mb-10"><Wordmark size="lg" linkToHome={false} /></div>
-          <h2 className="text-3xl font-semibold text-white leading-snug mb-4">
-            The Infinite Build
-          </h2>
-          <p className="text-white/40 text-sm leading-relaxed max-w-xs">
-            Ship weekly logs. Track your streak. Get signal-bet by investors who see your trajectory before anyone else does.
+    <div className="min-h-screen bg-[#0a0a0a]">
+      <header className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
+        <Link href="/" className="font-mono text-sm font-medium tracking-wide text-white transition-opacity hover:opacity-80">
+          OpCEO<span className="text-[#3B82F6]">.AI</span>
+        </Link>
+        <Link href="/auth/login" className="text-sm text-white/50 transition-colors hover:text-white">
+          Sign in
+        </Link>
+      </header>
+
+      <main className="mx-auto grid min-h-[calc(100vh-64px)] max-w-6xl grid-cols-1 px-4 pb-16 pt-10 sm:px-6 lg:grid-cols-[1fr_420px] lg:items-center lg:gap-20 lg:pb-24 lg:pt-16">
+        <section className="mb-12 lg:mb-0">
+          <p className="mb-5 font-mono text-xs uppercase tracking-wider text-white/30">
+            Frontier Gateway
           </p>
-        </div>
+          <h1 className="max-w-2xl text-4xl font-semibold tracking-tight text-white sm:text-5xl">
+            Build in public.
+            <br />
+            Compound weekly.
+            <br />
+            Become impossible to ignore.
+          </h1>
+          <p className="mt-6 max-w-md text-base leading-relaxed text-zinc-400">
+            For AI-native builders shipping in public.
+          </p>
 
-        {/* Live signals */}
-        <div>
-          <p className="text-white/20 text-xs uppercase tracking-widest mb-4">Live on the platform</p>
-          <div className="grid grid-cols-2 gap-5">
-            <div>
-              <p className="text-2xl font-bold text-white tabular-nums">{formatSignal(signals.builders)}</p>
-              <p className="text-white/30 text-xs mt-0.5">builders</p>
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-white tabular-nums">{formatSignal(signals.logs)}</p>
-              <p className="text-white/30 text-xs mt-0.5">ship logs</p>
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-white tabular-nums">{formatSignal(signals.quests)}</p>
-              <p className="text-white/30 text-xs mt-0.5">open quests</p>
-            </div>
-            <div>
-              <p className="text-2xl font-bold text-white tabular-nums">{formatSignal(signals.bets)}</p>
-              <p className="text-white/30 text-xs mt-0.5">signal bets</p>
-            </div>
+          <div className="mt-10 grid max-w-xl gap-3 sm:grid-cols-3">
+            {['Weekly ships.', 'Visible trajectories.', 'Signal before consensus.'].map((signal) => (
+              <div
+                key={signal}
+                className="border border-white/10 bg-white/[0.02] px-4 py-3 transition-colors hover:border-white/20"
+              >
+                <p className="font-mono text-xs uppercase tracking-wider text-white/55">{signal}</p>
+              </div>
+            ))}
           </div>
-        </div>
-      </div>
+        </section>
 
-      {/* Right form panel */}
-      <div className="flex-1 flex items-center justify-center px-6 py-12">
-        <RegisterForm />
-      </div>
+        <div className="border border-white/10 bg-white/[0.02] p-6 sm:p-8">
+          <RegisterForm />
+        </div>
+      </main>
     </div>
   );
 }
