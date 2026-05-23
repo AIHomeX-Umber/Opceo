@@ -9,6 +9,6 @@ import Nav from '@/components/Nav';
 
 export default function ConditionalNav() {
   const pathname = usePathname();
-  if (pathname === '/') return null;
+  if (pathname === '/' || pathname.startsWith('/auth/')) return null;
   return <Nav />;
 }
