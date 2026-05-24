@@ -9,19 +9,19 @@ export function LandingFooter() {
             href="/"
             className="font-display text-[1rem] font-medium tracking-[-0.02em] text-[#111111] no-underline"
           >
-            OpCEO<span className="text-[#5B4BFF]">.</span>AI
+            OpCEO<span className="text-[#C15F3C]">.</span>AI
           </Link>
           <p className="mt-1 font-body-serif text-[0.82rem] text-black/40">
-            AI-native builders network. Powered by Makox.
+            用 AI 做出来，然后公开 Ship。
           </p>
         </div>
 
         <nav className="flex flex-wrap items-center gap-x-6 gap-y-2">
           {[
-            { href: '/explore?tab=builders', label: '建造者' },
+            { href: '/ship', label: '提交 Ship Log' },
+            { href: '/explore?tab=live', label: 'Build Signals' },
             { href: '/calendar', label: '活动日历' },
             { href: '/accelerate', label: '加速计划' },
-            { href: '/auth/register', label: '加入 OpCEO' },
           ].map(({ href, label }) => (
             <Link
               key={label}

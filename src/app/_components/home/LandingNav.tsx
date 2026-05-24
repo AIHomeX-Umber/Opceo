@@ -3,19 +3,19 @@ import Link from 'next/link';
 export function LandingNav() {
   const centerLinks = [
     { href: '/', label: '首页', active: true },
-    { href: '/explore?tab=builders', label: '建造者', active: false },
-    { href: '/calendar', label: '活动日历', active: false },
-    { href: '/accelerate', label: '加速计划', active: false },
+    { href: '/explore?tab=live', label: 'Build Signals', active: false },
+    { href: '#mission', label: 'Mission', active: false },
+    { href: '/ship', label: 'Ship Log', active: false },
   ];
 
   return (
-    <nav className="sticky top-0 z-50 bg-[#FAFAF5]/82 px-4 py-4 backdrop-blur-xl">
-      <div className="mx-auto grid h-14 max-w-6xl grid-cols-[1fr_auto_1fr] items-center rounded-xl border border-black/5 bg-white/88 px-4 shadow-[0_18px_50px_rgba(20,20,20,0.045)] sm:px-5">
+    <nav className="sticky top-0 z-50 border-b border-black/8 bg-[#FAFAF5]/88 px-4 backdrop-blur-xl">
+      <div className="mx-auto grid h-14 max-w-6xl grid-cols-[1fr_auto_1fr] items-center px-1 sm:px-0">
         <Link
           href="/"
           className="font-display text-[1.08rem] font-medium tracking-[-0.025em] text-[#111111] no-underline"
         >
-          OpCEO<span className="text-[#5B4BFF]">.</span>AI
+          OpCEO<span className="text-[#C15F3C]">.</span>AI
         </Link>
 
         <div className="hidden items-center gap-7 md:flex">
@@ -43,10 +43,10 @@ export function LandingNav() {
             登录
           </Link>
           <Link
-            href="/auth/register"
-            className="rounded-lg bg-[#111111] px-4 py-2 font-body-serif text-[0.86rem] text-white no-underline transition-colors hover:bg-[#2a244e]"
+            href="/ship"
+            className="rounded-[6px] bg-[#111111] px-4 py-2 font-body-serif text-[0.86rem] text-white no-underline transition-colors hover:bg-[#302B24]"
           >
-            加入 OpCEO
+            提交 Ship Log
           </Link>
         </div>
       </div>

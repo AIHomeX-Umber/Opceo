@@ -17,6 +17,7 @@ async function getLiveFeed(): Promise<ShipLog[]> {
        tool_stack, upvote_count, created_at,
        builder:builders!ship_logs_builder_id_fkey(slug, display_name, avatar_url, entity_type)`
     )
+    .not('builder_id', 'is', null)
     .order('created_at', { ascending: false })
     .limit(20);
 
