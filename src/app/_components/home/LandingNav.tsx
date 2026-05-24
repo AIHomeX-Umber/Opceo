@@ -1,6 +1,6 @@
 // LandingNav — homepage-only nav bar.
 // Sticky at top-0 (global Nav is hidden on /).
-// Chinese navigation labels for mainland-friendly experience.
+// Bilingual hybrid: English key + Chinese descriptor.
 // Does NOT modify the global Nav component.
 
 import Link from 'next/link';
@@ -26,15 +26,19 @@ export function LandingNav() {
         {/* Center links — hidden below md */}
         <div className="hidden md:flex gap-7">
           {[
-            { href: '#intelligence', label: '增长情报' },
-            { href: '/explore?tab=rankings', label: '建造者排行' },
-            { href: '/agents', label: 'AI 员工' },
-            { href: '/auth/register', label: '提交案例' },
-          ].map(({ href, label }) => (
+            { href: '#intelligence', label: 'Intel 情报' },
+            { href: '#signals',      label: 'Signals 信号' },
+            { href: '/agents',       label: 'Agents' },
+            { href: '/ship',         label: 'Ship →', accent: true },
+          ].map(({ href, label, accent }) => (
             <Link
               key={label}
               href={href}
-              className="font-body-serif text-[0.88rem] text-[#5C564C] hover:text-[#191613] transition-colors no-underline"
+              className={`font-body-serif text-[0.88rem] transition-colors no-underline ${
+                accent
+                  ? 'text-[#C15F3C] hover:text-[#A04B2E]'
+                  : 'text-[#5C564C] hover:text-[#191613]'
+              }`}
             >
               {label}
             </Link>

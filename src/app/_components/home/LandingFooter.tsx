@@ -24,7 +24,7 @@ export function LandingFooter() {
           {[
             { href: 'https://x.com/opceoai', label: 'X / Twitter', external: true },
             { href: '/auth/register', label: 'Newsletter', external: false },
-            { href: '/auth/register', label: 'Submit a builder', external: false },
+            { href: '/ship', label: 'Submit a builder', external: false },
           ].map(({ href, label, external }) => (
             <Link
               key={label}
@@ -37,6 +37,11 @@ export function LandingFooter() {
           ))}
         </nav>
       </div>
+
+      {/* Micro tagline */}
+      <p className="font-mono-jb text-[0.6rem] text-[#AEA899] mt-4 text-center tracking-[0.06em]">
+        New intel published weekly · Open for builder submissions
+      </p>
     </footer>
   );
 }
