@@ -90,9 +90,12 @@ export async function POST(request: NextRequest) {
       week_number,
       year,
       shipped: shipped.trim(),
+      what_built: shipped.trim(),
       next_week: next_week.trim(),
       learned: learned?.trim() || null,
+      what_learned: learned?.trim() || null,
       tool_stack: Array.isArray(tool_stack) ? tool_stack : [],
+      ai_tools: Array.isArray(tool_stack) ? tool_stack : [],
     })
     .select('id, week_number, year')
     .single();

@@ -1,36 +1,32 @@
-// LandingFooter — minimal footer for the homepage.
-// Copyright left, 3 links right. Dark border-top on parchment.
-// Server component.
-
 import Link from 'next/link';
 
 export function LandingFooter() {
   return (
-    <footer
-      style={{
-        borderTop: '1px solid #DDD8CB',
-        padding: 'clamp(20px, 3vw, 32px) clamp(24px, 5vw, 72px)',
-        background: '#F3EFE6',
-      }}
-    >
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        {/* Left — copyright */}
-        <span className="font-mono-jb text-[0.68rem] text-[#847E72]">
-          © 2026 OpCEO<span style={{ color: '#C15F3C' }}>.</span>AI
-        </span>
+    <footer className="border-t border-black/5 bg-[#FAFAF5] px-6 py-10 sm:px-8">
+      <div className="mx-auto flex max-w-6xl flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <Link
+            href="/"
+            className="font-display text-[1rem] font-medium tracking-[-0.02em] text-[#111111] no-underline"
+          >
+            OpCEO<span className="text-[#C15F3C]">.</span>AI
+          </Link>
+          <p className="mt-1 font-body-serif text-[0.82rem] text-black/40">
+            用 AI 做出来，然后公开 Ship。
+          </p>
+        </div>
 
-        {/* Right — links */}
-        <nav className="flex items-center gap-6">
+        <nav className="flex flex-wrap items-center gap-x-6 gap-y-2">
           {[
-            { href: 'https://x.com/opceoai', label: 'X / Twitter', external: true },
-            { href: '/auth/register', label: 'Newsletter', external: false },
-            { href: '/auth/register', label: 'Submit a builder', external: false },
-          ].map(({ href, label, external }) => (
+            { href: '/ship', label: '提交 Ship Log' },
+            { href: '/explore?tab=live', label: 'Build Signals' },
+            { href: '/calendar', label: '活动日历' },
+            { href: '/accelerate', label: '加速计划' },
+          ].map(({ href, label }) => (
             <Link
               key={label}
               href={href}
-              {...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
-              className="font-mono-jb text-[0.68rem] text-[#847E72] hover:text-[#302B24] transition-colors no-underline"
+              className="font-body-serif text-[0.86rem] text-black/44 no-underline transition-colors hover:text-[#111111]"
             >
               {label}
             </Link>

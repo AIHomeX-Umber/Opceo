@@ -152,7 +152,7 @@ export default function Nav() {
                 href="/ship"
                 className="font-body-serif text-[0.84rem] px-[18px] py-[7px] bg-[#191613] hover:bg-[#302B24] text-[#FAFAF5] rounded-[6px] no-underline transition-colors"
               >
-                Ship →
+                Submit Ship Log
               </Link>
               {builderSlug && (
                 <Link
@@ -178,10 +178,10 @@ export default function Nav() {
                 Login
               </Link>
               <Link
-                href="/auth/register"
+                href="/ship"
                 className="font-body-serif text-[0.84rem] px-[18px] py-[7px] bg-[#191613] hover:bg-[#302B24] text-[#FAFAF5] rounded-[6px] no-underline transition-colors"
               >
-                Ship →
+                Submit Ship Log
               </Link>
             </>
           )}
@@ -275,7 +275,7 @@ export default function Nav() {
                   onClick={() => setMenuOpen(false)}
                   className="font-body-serif text-[0.88rem] py-2.5 bg-[#191613] text-[#FAFAF5] rounded-[6px] text-center no-underline"
                 >
-                  Ship →
+                  Submit Ship Log
                 </Link>
                 {builderSlug && (
                   <Link
@@ -303,11 +303,11 @@ export default function Nav() {
                   Login
                 </Link>
                 <Link
-                  href="/auth/register"
+                  href="/ship"
                   onClick={() => setMenuOpen(false)}
                   className="font-body-serif text-[0.88rem] py-2.5 bg-[#191613] text-[#FAFAF5] rounded-[6px] text-center no-underline"
                 >
-                  Ship →
+                  Submit Ship Log
                 </Link>
               </>
             )}
