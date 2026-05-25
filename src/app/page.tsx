@@ -105,7 +105,7 @@ export default function HomePage() {
               className="font-mono-jb"
               style={{ fontSize: '0.7rem', color: '#5C564C', letterSpacing: '0.06em' }}
             >
-              7 builders active · 3 ships this month · updated weekly
+              7 位 Builder 活跃中 · 本月 3 个新 Ship · 每周更新
             </span>
           </div>
 
@@ -152,9 +152,9 @@ export default function HomePage() {
           <p
             className="font-body-serif"
             style={{
-              fontSize: '0.84rem',
-              color: '#5C564C',
-              lineHeight: 1.6,
+              fontSize: '0.9rem',
+              color: '#AEA899',
+              lineHeight: 1.65,
               margin: '0 auto 36px',
               fontWeight: 300,
               opacity: 0,
@@ -191,7 +191,7 @@ export default function HomePage() {
                 transition: 'background 0.2s',
               }}
             >
-              Browse Intel ↓
+              浏览情报 ↓
             </Link>
             <Link
               href="/ship"
@@ -210,7 +210,7 @@ export default function HomePage() {
                 transition: 'border-color 0.2s, color 0.2s',
               }}
             >
-              Submit Your Build →
+              提交你的 Build →
             </Link>
           </div>
 

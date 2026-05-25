@@ -29,18 +29,20 @@ export function CTA() {
             className="font-display font-medium text-[#F3EFE6] leading-[1.15]"
             style={{ fontSize: 'clamp(1.6rem, 3.5vw, 2.4rem)' }}
           >
-            Start reading.
+            开始阅读。
+            <br />
+            <span style={{ fontStyle: 'italic', color: '#847E72', fontSize: '0.72em' }}>Start reading.</span>
           </h2>
           <p className="font-body-serif text-[0.9rem] text-[#AEA899] leading-[1.7] font-[300]">
-            New intel brief every week.
+            每周一份情报，免费，无需注册。
             <br />
-            Free. No account required.
+            <span style={{ color: '#5C564C', fontSize: '0.92em' }}>New intel brief every week. Free.</span>
           </p>
           <Link
             href="#intelligence"
             className="font-body-serif text-[0.9rem] text-[#191613] bg-[#F3EFE6] hover:bg-[#FAFAF5] px-6 py-[12px] rounded-[8px] no-underline transition-colors duration-[200ms] self-start"
           >
-            Browse Intel
+            浏览情报
           </Link>
         </div>
 
@@ -60,18 +62,20 @@ export function CTA() {
             className="font-display font-medium text-[#191613] leading-[1.15]"
             style={{ fontSize: 'clamp(1.6rem, 3.5vw, 2.4rem)' }}
           >
-            Got a build worth tracking?
+            有值得被记录的 Build 吗？
+            <br />
+            <span style={{ fontStyle: 'italic', color: '#847E72', fontSize: '0.72em' }}>Got a build worth tracking?</span>
           </h2>
           <p className="font-body-serif text-[0.9rem] text-[#5C564C] leading-[1.7] font-[300]">
-            Submit your ship log.
+            提交你的 Ship 记录，我们来整理成情报。
             <br />
-            We&apos;ll structure the story.
+            <span style={{ color: '#AEA899', fontSize: '0.92em' }}>Submit your ship log. We&apos;ll structure the story.</span>
           </p>
           <Link
             href="/ship"
             className="font-body-serif text-[0.9rem] text-[#FAFAF5] bg-[#191613] hover:bg-[#302B24] px-6 py-[12px] rounded-[8px] no-underline transition-colors duration-[200ms] self-start"
           >
-            Submit Your Build
+            提交你的 Build
           </Link>
         </div>
       </div>

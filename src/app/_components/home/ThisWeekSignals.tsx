@@ -5,17 +5,20 @@
 const SIGNALS = [
   {
     stat: '↗ $8.2K MRR in 43 days',
-    name: 'AI Thumbnail Tool',
+    name: 'AI 缩略图工具',
+    nameEn: 'AI Thumbnail Tool',
     stack: 'Claude + Next.js',
   },
   {
-    stat: '↗ 2,400 users · $0 ads',
-    name: 'Notion Template Marketplace',
+    stat: '↗ 2,400 users · $0 广告',
+    name: 'Notion 模板市场',
+    nameEn: 'Notion Template Marketplace',
     stack: 'Notion + Reddit SEO',
   },
   {
-    stat: '↗ $4K/mo in 12 weeks',
+    stat: '↗ $4K/月 · 12 周',
     name: 'AI Newsletter',
+    nameEn: 'AI Newsletter',
     stack: 'Twitter + Beehiiv',
   },
 ];
@@ -30,8 +33,8 @@ export function ThisWeekSignals() {
       }}
     >
       {/* Section label */}
-      <p className="font-mono-jb text-[0.62rem] tracking-[0.18em] text-[#C15F3C] uppercase mb-5">
-        This Week&apos;s Signals
+      <p className="font-mono-jb text-[0.62rem] tracking-[0.14em] text-[#C15F3C] uppercase mb-5">
+        本周信号 · This Week&apos;s Signals
       </p>
 
       {/* Cards row */}
@@ -70,10 +73,21 @@ export function ThisWeekSignals() {
                 fontSize: '0.95rem',
                 fontWeight: 400,
                 color: '#F3EFE6',
-                marginBottom: 6,
+                marginBottom: 2,
               }}
             >
               {s.name}
+            </p>
+            <p
+              className="font-mono-jb"
+              style={{
+                fontSize: '0.63rem',
+                color: '#847E72',
+                marginBottom: 8,
+                letterSpacing: '0.01em',
+              }}
+            >
+              {s.nameEn}
             </p>
             <p
               className="font-mono-jb"
