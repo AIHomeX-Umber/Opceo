@@ -5,6 +5,7 @@
 import Link from 'next/link';
 
 type Card = {
+  slug: string;
   title: string;
   desc: string;
   stat1Label: string;
@@ -18,6 +19,7 @@ type Card = {
 
 const CARDS: Card[] = [
   {
+    slug: 'ai-thumbnail-43days',
     title: '从副业项目到 $8.2K MRR：43 天复盘',
     desc: 'AI 缩略图工具。免费水印计划做冷启动，X 上 22 秒 Build 短片引流，注册流程从 5 步压缩到 2 步。',
     stat1Value: '$8.2K', stat1Label: 'MRR',
@@ -33,6 +35,7 @@ const CARDS: Card[] = [
     ),
   },
   {
+    slug: 'notion-templates-zero-ads',
     title: '0 广告预算拿到 2,400 用户：Notion 模板增长路径',
     desc: 'Reddit 长文作为增长主渠道，定价从 $9 涨到 $29，收入翻三倍而转化率几乎不变。',
     stat1Value: '2.4K', stat1Label: '用户',
@@ -47,6 +50,7 @@ const CARDS: Card[] = [
     ),
   },
   {
+    slug: 'ai-newsletter-12weeks',
     title: 'Newsletter 12 周做到 $4K/月',
     desc: 'AI 主题 Newsletter。Twitter 线程引流至 8K 订阅，用决策框架模板做 Freebie，3.2% 转付费。',
     stat1Value: '8K',  stat1Label: '订阅',
@@ -62,6 +66,7 @@ const CARDS: Card[] = [
     ),
   },
   {
+    slug: 'api-weekend-hack',
     title: '周末 Hack 卖 API：$12K MRR 的路径',
     desc: '图像处理 API，2 天做完发 HN，从按次计费迭代到月付套餐，ARPU 提升 4 倍。',
     stat1Value: '$12K', stat1Label: 'MRR',
@@ -76,6 +81,7 @@ const CARDS: Card[] = [
     ),
   },
   {
+    slug: 'factory-first-ai-product',
     title: '工厂老板的第一个 AI 产品：首月 $3K',
     desc: '跨境 AI 选品工具，解决自身痛点，上线 TikTok Shop，用 Claude 批量生成商品文案。',
     stat1Value: '$3K', stat1Label: '首月',
@@ -90,6 +96,7 @@ const CARDS: Card[] = [
     ),
   },
   {
+    slug: 'build-in-public-90days',
     title: 'Build in Public 如何真正转化：90 天证据',
     desc: '设计工具。公开所有数据指标，把透明度变成信任资产，仅靠 X 就带来 500 名付费用户。',
     stat1Value: '500', stat1Label: '付费',
@@ -114,7 +121,7 @@ export function IntelGrid() {
         {CARDS.map((card) => (
           <Link
             key={card.title}
-            href="#"
+            href={`/intel/${card.slug}`}
             className="flex flex-col border border-[#DDD8CB] rounded-[12px] overflow-hidden bg-[#FAFAF5] text-inherit no-underline transition-all duration-[250ms] hover:-translate-y-[3px] hover:shadow-[0_8px_32px_rgba(25,22,19,0.07)]"
           >
             {/* Coloured vis area */}
