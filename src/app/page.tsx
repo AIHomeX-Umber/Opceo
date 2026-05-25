@@ -12,14 +12,15 @@ import JsonLd from '@/components/JsonLd';
 import { websiteJsonLd, organizationJsonLd } from '@/lib/jsonld';
 import { generateMetadata as gm } from '@/lib/seo';
 
-import { LandingNav }    from './_components/home/LandingNav';
-import { FilterBar }     from './_components/home/FilterBar';
-import { IntelGrid }     from './_components/home/IntelGrid';
-import { HowItWorks }   from './_components/home/HowItWorks';
-import { IntelPreview }  from './_components/home/IntelPreview';
-import { RealWorldSignal } from './_components/home/RealWorldSignal';
-import { CTA }           from './_components/home/CTA';
-import { LandingFooter } from './_components/home/LandingFooter';
+import { LandingNav }       from './_components/home/LandingNav';
+import { ThisWeekSignals }  from './_components/home/ThisWeekSignals';
+import { FilterBar }        from './_components/home/FilterBar';
+import { IntelGrid }        from './_components/home/IntelGrid';
+import { HowItWorks }       from './_components/home/HowItWorks';
+import { IntelPreview }     from './_components/home/IntelPreview';
+import { RealWorldSignal }  from './_components/home/RealWorldSignal';
+import { CTA }              from './_components/home/CTA';
+import { LandingFooter }    from './_components/home/LandingFooter';
 
 // ── Homepage-scoped fonts ─────────────────────────────────────────────────────
 // CSS vars set on .hp-root only — global Geist body font unchanged.
@@ -80,83 +81,87 @@ export default function HomePage() {
           style={{
             background: '#191613',
             textAlign: 'center',
-            padding: '80px clamp(24px, 8vw, 120px) 88px',
+            padding: 'clamp(56px, 8vw, 88px) clamp(24px, 8vw, 120px) clamp(48px, 6vw, 72px)',
+            minHeight: '70vh',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
           }}
         >
-          {/* Icon */}
-          <div style={{ marginBottom: 28, opacity: 0, animation: 'hp-fadeIn 0.6s ease 0.1s forwards' }}>
-            <svg
-              viewBox="0 0 48 48"
-              fill="none"
-              stroke="#F3EFE6"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              width="48"
-              height="48"
-              style={{ margin: '0 auto' }}
+          {/* Live Pulse */}
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: 8,
+              marginBottom: 28,
+              opacity: 0,
+              animation: 'hp-fadeIn 0.6s ease 0.1s forwards',
+            }}
+          >
+            <span className="hp-pulse-dot" />
+            <span
+              className="font-mono-jb"
+              style={{ fontSize: '0.7rem', color: '#5C564C', letterSpacing: '0.06em' }}
             >
-              <path d="M8 36V18l16-10 16 10v18"/>
-              <path d="M8 22l16 9 16-9"/>
-              <path d="M24 31v11"/>
-              <circle cx="24" cy="13" r="2.5"/>
-            </svg>
+              7 builders active · 3 ships this month · updated weekly
+            </span>
           </div>
 
           {/* Headline */}
           <h1
             className="font-display"
             style={{
-              fontSize: 'clamp(2.4rem, 5.5vw, 3.8rem)',
+              fontSize: 'clamp(2.8rem, 6vw, 4.5rem)',
               fontWeight: 400,
-              lineHeight: 1.12,
-              letterSpacing: '-0.02em',
+              lineHeight: 1.1,
+              letterSpacing: '-0.025em',
               color: '#F3EFE6',
-              maxWidth: 680,
-              margin: '0 auto 16px',
+              maxWidth: 700,
+              margin: '0 auto 20px',
               opacity: 0,
               animation: 'hp-fadeIn 0.6s ease 0.2s forwards',
             }}
           >
-            AI 时代的建造情报站
+            The builders are shipping.
+            <br />
+            <span style={{ fontStyle: 'italic', color: '#AEA899' }}>Are you watching?</span>
           </h1>
 
-          {/* Second line */}
+          {/* Subheadline */}
           <p
-            className="font-display"
+            className="font-body-serif"
             style={{
-              fontSize: 'clamp(1.4rem, 3vw, 2.2rem)',
+              fontSize: 'clamp(0.92rem, 1.4vw, 1.05rem)',
+              color: '#AEA899',
+              lineHeight: 1.75,
+              maxWidth: 460,
+              margin: '0 auto 12px',
               fontWeight: 300,
-              fontStyle: 'italic',
-              color: '#847E72',
-              lineHeight: 1.3,
-              maxWidth: 560,
-              margin: '0 auto 24px',
               opacity: 0,
               animation: 'hp-fadeIn 0.6s ease 0.3s forwards',
             }}
           >
-            看清真正的 Builder<br />
-            如何增长、出海、变现。
+            Real build journeys. Real AI workflows. Real people shipping.
+            <br />
+            We track what&apos;s working — not what&apos;s trending.
           </p>
 
-          {/* Subheading */}
+          {/* Chinese helper */}
           <p
             className="font-body-serif"
             style={{
-              fontSize: 'clamp(0.9rem, 1.3vw, 1.02rem)',
-              color: '#AEA899',
-              lineHeight: 1.7,
-              maxWidth: 440,
-              margin: '0 auto 40px',
+              fontSize: '0.84rem',
+              color: '#5C564C',
+              lineHeight: 1.6,
+              margin: '0 auto 36px',
               fontWeight: 300,
               opacity: 0,
-              animation: 'hp-fadeIn 0.6s ease 0.4s forwards',
+              animation: 'hp-fadeIn 0.6s ease 0.35s forwards',
             }}
           >
-            我们追踪真实 Ship 记录、增长路径和长期复利信号。
-            <br />
-            不是故事包装，而是可复盘的行动情报。
+            不需要你是工程师。你只需要真的用 AI 做出了一个东西。
           </p>
 
           {/* CTAs */}
@@ -167,7 +172,7 @@ export default function HomePage() {
               justifyContent: 'center',
               flexWrap: 'wrap',
               opacity: 0,
-              animation: 'hp-fadeIn 0.6s ease 0.5s forwards',
+              animation: 'hp-fadeIn 0.6s ease 0.45s forwards',
             }}
           >
             <Link
@@ -186,10 +191,10 @@ export default function HomePage() {
                 transition: 'background 0.2s',
               }}
             >
-              浏览情报 ↓
+              Browse Intel ↓
             </Link>
             <Link
-              href="/explore?tab=rankings"
+              href="/ship"
               className="font-body-serif"
               style={{
                 display: 'inline-flex',
@@ -205,27 +210,46 @@ export default function HomePage() {
                 transition: 'border-color 0.2s, color 0.2s',
               }}
             >
-              查看排行榜 →
+              Submit Your Build →
             </Link>
           </div>
+
+          {/* Pulse dot + keyframe styles */}
+          <style>{`
+            .hp-pulse-dot {
+              width: 7px;
+              height: 7px;
+              border-radius: 50%;
+              background: #C15F3C;
+              flex-shrink: 0;
+              animation: hp-pulse 2s ease-in-out infinite;
+            }
+            @keyframes hp-pulse {
+              0%, 100% { opacity: 1; }
+              50% { opacity: 0.3; }
+            }
+          `}</style>
         </section>
 
-        {/* 3. Filter Bar — sticky at 64px (just below LandingNav; no global nav) */}
+        {/* 3. This Week's Signals — live dispatch feel */}
+        <ThisWeekSignals />
+
+        {/* 4. Filter Bar — sticky at 64px (just below LandingNav; no global nav) */}
         <FilterBar />
 
-        {/* 4. Intel Grid — 6 hardcoded builder intel cards */}
+        {/* 5. Intel Grid — 6 hardcoded builder intel cards */}
         <IntelGrid />
 
-        {/* 5. How It Works — 3-step section */}
+        {/* 6. Transition line — replaces old 3-col explainer */}
         <HowItWorks />
 
-        {/* 6. Intel Preview — split layout with sample brief */}
+        {/* 7. Intel Preview — split layout with sample brief */}
         <IntelPreview />
 
-        {/* 7. Real-world signal — pull quote linking to /accelerate */}
+        {/* 8. Real-world signal — pull quote linking to /accelerate */}
         <RealWorldSignal />
 
-        {/* 8. CTA — closing call to action */}
+        {/* 9. CTA — dual-path reader + builder */}
         <CTA />
 
         {/* 9. Landing Footer */}
