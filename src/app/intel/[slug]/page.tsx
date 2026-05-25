@@ -91,7 +91,7 @@ function IntelDetail({ brief }: { brief: IntelBrief }) {
         </nav>
 
         {/* Category + read time */}
-        <div style={{ display: 'flex', gap: 10, alignItems: 'center', marginBottom: 20, flexWrap: 'wrap' }}>
+        <div style={{ display: 'flex', gap: 10, alignItems: 'center', marginBottom: 10, flexWrap: 'wrap' }}>
           <span className="font-mono-jb" style={{ fontSize: '0.65rem', padding: '3px 10px', borderRadius: 4, background: 'rgba(193,95,60,0.15)', color: '#C15F3C', letterSpacing: '0.08em' }}>
             {brief.category}
           </span>
@@ -99,6 +99,11 @@ function IntelDetail({ brief }: { brief: IntelBrief }) {
             {brief.readTime} · {brief.publishedAt}
           </span>
         </div>
+
+        {/* Editorial note */}
+        <p className="font-mono-jb" style={{ fontSize: '0.6rem', color: '#3A342D', marginBottom: 20, letterSpacing: '0.02em' }}>
+          Editorial intelligence · structured from public builder patterns and submitted build logs.
+        </p>
 
         {/* Title */}
         <h1 className="font-display" style={{ fontSize: 'clamp(1.9rem, 4.5vw, 3rem)', fontWeight: 400, lineHeight: 1.15, letterSpacing: '-0.02em', color: '#F3EFE6', maxWidth: 720, marginBottom: 16 }}>
